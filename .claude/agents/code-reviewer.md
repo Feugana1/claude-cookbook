@@ -72,7 +72,7 @@ Comprendre l'**intention** en 1 phrase. Si pas clair → flag P1 "intention flou
 bash scan-secu.sh 2>&1 | tail -100
 ```
 
-**Tu ne re-greps PAS** ce que scan-secu greppe (les 24 étapes couvrent : Math.random, XSS `{{{ }}}`, SQL ${}, secrets hardcodés, SSRF, ReDoS, prototype pollution, Edge anti-patterns ||/@click in partial/{{{ JSON.stringify, OG meta absent, drive.use direct, auth scope, Document soft-delete, BrandingService loadPublicBranding, swallow helper, i18n FR/EN parity, file-size ratchet, CDN versions, deps unpinned, license compliance, etc.). **Tu LIS sa sortie** et tu SYNTHÉTISES.
+**Tu ne re-greps PAS** ce que scan-secu greppe (les 33 étapes couvrent : Math.random, XSS `{{{ }}}`, SQL ${}, secrets hardcodés, SSRF, ReDoS, prototype pollution, Edge anti-patterns ||/@click in partial/{{{ JSON.stringify, OG meta canonical helper absent, drive direct hors storage seam, auth scope, `<PRIMARY_MODELS>` soft-delete (cf CLAUDE.md §5), branding loader public sur surfaces publiques, swallow helper, raw SQL hors tenant seam, Lucid table.camelCase prefix, i18n FR/EN parity, file-size ratchet, CDN versions, deps unpinned, license compliance, etc.). **Tu LIS sa sortie** et tu SYNTHÉTISES.
 
 Si scan-secu skip car outils externes absents (trivy, gitleaks, jscpd) → flag P2 "envisager install pour CI complet".
 

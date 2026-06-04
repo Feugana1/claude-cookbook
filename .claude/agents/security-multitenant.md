@@ -22,11 +22,11 @@ L'expert prend le dessus sur son scope (sécurité applicative + isolation multi
 1. `docs/security-multitenant.md` — OWASP + ANSSI + middleware (auth/team/editor/admin/subscription/quota/antivirus), `effectiveUserId`, IDOR via `.firstOrFail()`, CSP, webhooks, CSRF
 2. `docs/anti-patterns.md` §Sécurité — P0 effectiveUserId, drive.use, soft-delete, swallow
 3. `scan-secu.sh` étapes 22A-F (sweep statique du projet) :
-   - **22A** OG meta `buildPublicShareMeta` / `ogImage` sur controllers publics
-   - **22B** `drive.use(` interdit hors `storage_service.ts`
-   - **22C** `auth.user.id` interdit en query metier
-   - **22D** `Document.query()` sans `.whereNull('deletedAt')`
-   - **22E** `user.company.logo` direct sans `BrandingService.loadPublicBranding`
+   - **22A** OG meta canonical helper sur controllers publics (projet définit son canonical)
+   - **22B** drive direct interdit hors le module storage seam du projet
+   - **22C** `auth.user.id` interdit en query metier (utiliser `effectiveUserId` du middleware team)
+   - **22D** `<PRIMARY_MODELS>.query()` sans `.whereNull('deletedAt')` — voir CLAUDE.md §5 pour la liste
+   - **22E** branding loader publique requis (cf CLAUDE.md §5 — le module varie par projet)
    - **22F** `.catch(() => {})` raw — utiliser `swallow('op_name')`
 4. `CLAUDE.md` §11 (rules par domaine) + §12 (middleware) + §13 (anti-patterns P0)
 
@@ -39,7 +39,7 @@ L'expert prend le dessus sur son scope (sécurité applicative + isolation multi
    - `grep -nE 'drive\.use\('` (hors storage_service)
    - `grep -nE '\.catch\(\(\)[[:space:]]*=>[[:space:]]*\{\}\)'`
    - `grep -nE 'rawQuery.*\$\{|\.raw\(.*\$\{'`
-   - `grep -nE 'Document\.query\(\)'` puis vérifier `.whereNull('deletedAt')` à proximité
+   - Pour chaque entrée de `CLAUDE.md §5 PRIMARY_MODELS` : `grep -nE '<Model>\.query\(\)'` puis vérifier `.whereNull('deletedAt')` à proximité. Le wrapper canonical est `<Model>.forTenant(uid)`.
 4. **Vérifier middleware** : chaque nouvelle route doit avoir le bon stack (auth → team → editor/admin/subscription/quota selon contexte).
 5. **Vérifier CSRF** : tout `<form>` dans `.edge` modifié doit contenir `{{ csrfField() }}`.
 6. **Vérifier signed URLs** : photos/médias affichés doivent passer par `signUrl(...)`.

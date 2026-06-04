@@ -111,50 +111,14 @@ echo "    + docs/ux-audit-prompt.md (6 axes UX)"
 echo "    + docs/claude-config/{README,experts,setup,skills,superpowers-integration}.md"
 
 # ── CLAUDE.md root : init seulement si absent et mode INIT ──────────────────
+# Copie le template canonical (docs/templates/CLAUDE.md) qui inclut §5
+# Domain Model Glossary — le seam que tous les sub-agents et scan-secu
+# référencent pour les rules tenant-scoped / soft-delete.
 if [ "$UPDATE_MODE" = false ] && [ ! -f "$TARGET/CLAUDE.md" ]; then
   echo ""
-  echo -e "${YELLOW}Generating minimal CLAUDE.md (à enrichir avec stack/conventions/business projet)...${NC}"
-  cat > "$TARGET/CLAUDE.md" <<'MINIMAL_CLAUDE'
-# CLAUDE.md
-
-> Instruction-set pour Claude Code sur ce projet. À enrichir progressivement.
-
-## Stack technique
-
-| Couche | Technologie |
-|--------|------------|
-| Backend | <!-- ex: AdonisJS 6 (TypeScript) --> |
-| ORM | <!-- ex: Lucid --> |
-| Templating | <!-- ex: Edge.js --> |
-| Frontend | <!-- ex: Alpine.js + Tailwind --> |
-| DB | <!-- ex: PostgreSQL --> |
-| Storage | <!-- ex: S3 Wasabi --> |
-
-## Workflow agentic (canonical)
-
-Cf [`docs/lessons.md`](docs/lessons.md) §1 (Karpathy 4) et `docs/claude-config/experts.md` (6 couches agents).
-
-**Règles non-négociables** :
-- Toute nouvelle feature passe par le subagent `product-strategist` (couche 0) AVANT code
-- Plan obligatoire (`docs/features/<nom>.md`) basé sur `docs/feature-plan-template.md`
-- Avant `git commit` (diff non-trivial) : invoque `code-reviewer` (couche 5) — SHIP / NEEDS CHANGES / REJECT
-- Avant `git push` : `bash scan-secu.sh` doit retourner 🟢 READY TO PUSH
-
-## Conventions code
-
-À documenter ici quand des patterns spécifiques émergent.
-
-## Anti-patterns
-
-Catalogue exhaustif : [`docs/anti-patterns.md`](docs/anti-patterns.md).
-
-Ajouter tout nouveau pattern découvert en review.
-
----
-
-**Source** : cookbook bootstrappé via `claude-cookbook` v0.1. À personnaliser pour ce projet.
-MINIMAL_CLAUDE
-  echo "    + CLAUDE.md (minimal — à enrichir)"
+  echo -e "${YELLOW}Generating CLAUDE.md from template (edit §5 Domain Model Glossary for your project)...${NC}"
+  cp "$COOKBOOK_ROOT/docs/templates/CLAUDE.md" "$TARGET/CLAUDE.md"
+  echo "    + CLAUDE.md (template — edit §5 PRIMARY_MODELS first)"
 elif [ "$UPDATE_MODE" = true ] && [ -f "$TARGET/CLAUDE.md" ]; then
   echo ""
   echo -e "${YELLOW}CLAUDE.md preserved (project-specific, not overwritten).${NC}"
@@ -170,18 +134,20 @@ echo -e "${BOLD}Installé dans ${TARGET}${NC} :"
 echo -e "  • 8 sub-agents génériques (.claude/agents/)"
 echo -e "  • 4 skills (.claude/skills/feature, pre-pr, secu, ux-review)"
 echo -e "  • 2 hooks (.claude/hooks/dispatch-expert + precommit-check)"
-echo -e "  • 3 scripts (scan-secu.sh root + scripts/check-file-sizes.js + scripts/generate-sbom.sh)"
+echo -e "  • 3 scripts (scan-secu.sh orchestrator + scan-secu.d/ 33 step modules + check-file-sizes.js + generate-sbom.sh)"
 echo -e "  • 9 docs (lessons, anti-patterns, feature-plan-template, ux-audit-prompt + claude-config/)"
 if [ "$UPDATE_MODE" = false ]; then
-  echo -e "  • CLAUDE.md minimal (à enrichir)"
+  echo -e "  • CLAUDE.md (template — §5 Domain Model Glossary à remplir)"
 fi
 echo ""
 echo -e "${BOLD}Next steps${NC} :"
-echo -e "  1. ${BLUE}Enrichir${NC} CLAUDE.md avec stack/conventions/business spécifiques projet"
-echo -e "  2. ${BLUE}Ajouter${NC} agents domain-specific dans .claude/agents/ (les 8 du cookbook sont génériques)"
-echo -e "  3. ${BLUE}Première feature${NC} : invoquer subagent product-strategist via Agent tool"
-echo -e "  4. ${BLUE}Avant commit${NC} : code-reviewer"
-echo -e "  5. ${BLUE}Avant push${NC} : bash scan-secu.sh"
+echo -e "  1. ${BLUE}Éditer${NC} CLAUDE.md §5 Domain Model Glossary — lister PRIMARY_MODELS du projet"
+echo -e "  2. ${BLUE}Éditer${NC} CLAUDE.md §1 Stack + §2 Conventions + §3 i18n"
+echo -e "  3. ${BLUE}Export${NC} PRIMARY_MODELS_RE dans scripts/scan-secu.env (cf §5)"
+echo -e "  4. ${BLUE}Ajouter${NC} agents domain-specific dans .claude/agents/ (les 8 du cookbook sont génériques)"
+echo -e "  5. ${BLUE}Première feature${NC} : invoquer subagent product-strategist via Agent tool"
+echo -e "  6. ${BLUE}Avant commit${NC} : code-reviewer"
+echo -e "  7. ${BLUE}Avant push${NC} : bash scan-secu.sh"
 echo ""
 echo -e "${YELLOW}Doc canonical${NC} : docs/claude-config/experts.md (catalogue 6 couches)"
 echo -e "${YELLOW}Discipline${NC}   : docs/lessons.md §1 (Karpathy 4)"

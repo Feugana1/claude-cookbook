@@ -33,7 +33,7 @@ L'expert prend le dessus sur son scope (patterns grepables Edge/Alpine), **sans 
 | 5 | Apostrophe `'` dans string JS inline `x-text="... '..."` | P1 | Guillemets doubles OU splitter en `<template x-if>` |
 | 6 | `\{\{\{[[:space:]]*JSON\.stringify` dans `x-data` | P0 | `<script type="application/json">` |
 | 7 | `drive\.use\(` direct (mais ce n'est pas Edge — skip) | — | Hors scope Edge |
-| 8 | `Document\.query\(\)` sans `.whereNull('deletedAt')` (mais ce n'est pas Edge — skip) | — | Hors scope Edge |
+| 8 | `<PRIMARY_MODELS>\.query\(\)` sans `.whereNull('deletedAt')` (cf CLAUDE.md §5 — mais ce n'est pas Edge — skip) | — | Hors scope Edge |
 | 9 | `Alpine\.data\(` inline `<script>` | P0 | Module Vite (`resources/js/`) + `app.js` |
 | 10 | `data-controller="confirm"` (Stimulus) | P0 | Alpine 2-step `x-data="{ confirming: false }"` |
 | 11 | `Token\.create.*type:` — hors scope Edge | — | Skip |

@@ -1,8 +1,17 @@
-# Anti-Patterns Critiques — PicStudio
+# Anti-Patterns Critiques
 
-> Liste exhaustive des patterns interdits et leur correction.  
-> Les **7 critiques** (P0/P1) sont aussi rappelés dans `CLAUDE.md`.  
+> Liste exhaustive des patterns interdits et leur correction.
+> Les **7 critiques** (P0/P1) sont aussi rappelés dans `CLAUDE.md`.
 > Tout nouveau anti-pattern découvert en review doit être ajouté ici.
+
+## Convention de tagging
+
+Les lignes du tableau référencent parfois des entités ou services du projet d'origine (PicStudio). Pour un projet bootstrapped depuis le cookbook, **traduire** ces références via :
+
+- `<PRIMARY_MODELS>` (ex : `Document`, `Gallery`, etc.) → l'entrée correspondante dans `CLAUDE.md §5 PRIMARY_MODELS` du projet hôte
+- `StorageService` / `BrandingService` / `BookingOtpService` → le module équivalent du projet (storage seam, branding loader, otp service — cf `CLAUDE.md §1 Stack` + `§5 Glossary`)
+
+Les patterns **génériques** (sans nom propre projet) s'appliquent tels quels à n'importe quel projet AdonisJS / Node / TS.
 
 ---
 
@@ -11,10 +20,10 @@
 | Anti-Pattern | Solution | Sévérité |
 |-------------|----------|----------|
 | `auth.user.id` dans les queries | `effectiveUserId` (middleware team) | P0 |
-| `drive.use()` direct dans controller | `StorageService.upload()` / `.delete()` / `.getStream()` | P0 |
-| URL S3 brute dans `JSON.stringify()` / `response.json()` | Pré-signer dans le controller avec `StorageService.getSignedUrl()` | P0 |
-| `invoice.attachmentUrl` brut dans response/view | `StorageService.getSignedUrl(url, '1h')` dans le controller | P0 |
-| `Document.query()` sans `.whereNull('deletedAt')` ET sans `.where('userId')` | Toujours les deux filtres (soft delete + tenant) | P0 |
+| `drive.use()` direct dans controller | Le module storage seam du projet (`.upload()` / `.delete()` / `.getStream()` — cf CLAUDE.md §5) | P0 |
+| URL S3 brute dans `JSON.stringify()` / `response.json()` | Pré-signer dans le controller via le storage seam (`.getSignedUrl()`) | P0 |
+| `invoice.attachmentUrl` brut dans response/view | `<StorageService>.getSignedUrl(url, '1h')` dans le controller | P0 |
+| `<PRIMARY_MODELS>.query()` sans `.whereNull('deletedAt')` ET sans `.where('userId')` (cf CLAUDE.md §5) | Toujours les deux filtres (soft delete + tenant). Canonical : `<Model>.forTenant(uid)` static method | P0 |
 | Portal query sans `userId` | `.where('userId', ownerId)` même avec `contactId` (defense-in-depth) | P0 |
 | Upload route avec quota check SUR SEULEMENT UN path (legacy/chunked/presigned mais pas tous) | Sweep complet : **chaque path d'upload** doit avoir `middleware.quota({ resource: 'storage' })` (galleries) ou `'transfer_storage'` (transfers). Audit 2026-05-28 (commit b017d328) : `uploadPhotos` legacy + `chunkedUpload init/complete` n'avaient pas le check → user avec storage 4.7/2 Go pouvait continuer à uploader si client tombait sur le legacy path. Règle : `grep middleware.quota` doit retourner une ligne par chemin d'upload distinct dans le même service. | P0 |
 | Contract/Document store avec uniquement `quota({ feature: 'X' })` sans `quota({ resource: 'documents' })` | Les contracts sont stockés dans `documents` (count vers documents quota). Feature gate ≠ count quota. Toujours combiner les deux sur les routes `contracts.store` + `contracts.import` (commit b017d328) | P0 |
@@ -89,7 +98,7 @@
 |-------------|----------|----------|
 | TTL Redis fixe indépendant de `expiresIn` (ex: `23 * 60 * 60`) | `cacheTtlFromExpiry(expiresIn)` — TTL = `expiresIn - 5min` | P1 |
 | `getSignedUrl(key, '1h')` avec TTL Redis > 1h | TTL Redis < `expiresIn` — sinon URL périmée servie depuis cache | P1 |
-| Constante TTL Redis indépendante de `expiresIn` | Toujours dériver le TTL dans `StorageService` | P1 |
+| Constante TTL Redis indépendante de `expiresIn` | Toujours dériver le TTL dans le storage seam du projet | P1 |
 
 ---
 

@@ -21,7 +21,7 @@ L'expert prend le dessus sur son scope (ORM + DB + storage + cache), **sans comp
 
 1. `docs/database-neon.md` — Neon serverless, pool `min:0 max:10`, autosuspend 5min, anti-patterns ORM
 2. `CLAUDE.md` §10 (perf DB) + §10b (cache Redis cohérence TTL)
-3. `docs/storage-s3.md` — Wasabi private, `StorageService` unique point, signed URLs, structure clés `{userId}/{category}/{cuid}.{ext}`
+3. The project's storage rules doc (typical : `docs/storage-s3.md`) — private bucket, single storage seam module (cf CLAUDE.md §5), signed URLs, key structure `{userId}/{category}/{cuid}.{ext}`
 
 # Patterns à grep (FAST PASS)
 
@@ -32,8 +32,8 @@ L'expert prend le dessus sur son scope (ORM + DB + storage + cache), **sans comp
 | `rawQuery.*\$\{` ou `\.raw\(.*\$\{` | P0 | Paramètres `?` jamais `${variable}` |
 | `pool.*min:[^0]` ou `pool.*min:.*[1-9]` | P0 | `pool.min: 0` obligatoire (Neon scale-to-zero) |
 | `pool.*max:.*1[1-9]\|pool.*max:.*[2-9][0-9]` | P1 | `max: 10` max (pgBouncer Neon gère le pool serveur) |
-| `Document\.query\(\)` sans `.whereNull('deletedAt')` | P0 | Soft delete obligatoire — sinon data leak |
-| `drive\.use\(` hors `storage_service.ts` | P0 | `StorageService.upload/.delete/.getStream/.getSignedUrl` |
+| `<PRIMARY_MODELS>\.query\(\)` sans `.whereNull('deletedAt')` (cf CLAUDE.md §5) | P0 | Soft delete obligatoire — sinon data leak. Canonical : `<Model>.forTenant(uid)` |
+| `drive\.use\(` hors le module storage seam du projet | P0 | Le module storage expose `.upload/.delete/.getStream/.getSignedUrl` |
 | `redis\..*\.expire\(.*[0-9]+\)` constante hardcodée | P1 | TTL Redis dérivé de `expiresIn - 300s` (cf §10b) |
 | `.signUrl\(` sans `expiresIn` cohérent (1h pour gallery photos, 7d pour cover email, etc.) | P1 | Voir §10b table correspondance |
 
@@ -61,7 +61,7 @@ L'expert prend le dessus sur son scope (ORM + DB + storage + cache), **sans comp
 - `path:line` — optimisation mineure
 
 **Déjà correct** (si applicable) :
-- preload utilisé, soft-delete présent, StorageService utilisé, etc.
+- preload utilisé, soft-delete présent, storage seam utilisé, etc.
 ```
 
 # Anti-complaisance

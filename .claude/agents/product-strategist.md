@@ -53,7 +53,7 @@ Pour chaque feature/module/section proposé :
    - **GO différentiant** : ≥ 1 axe différenciation clair vs concurrence + alignement PRODUCT.md + simplification.
    - **REVOIR positionning** : feature OK mais positionnement à corriger (ex: à reformuler en plus simple, à intégrer mieux à un workflow existant, à scope down).
    - **NO-GO trop générique** : feature copie un concurrent sans différenciation OU viole une anti-référence `PRODUCT.md` OU complexifie sans bénéfice user.
-7. **Si GO ou REVOIR** : lister les **conditions de GO** (ex: "Doit être whitelabel via BrandingService", "Doit utiliser smart defaults serveur", "Ne pas exposer settings techniques user").
+7. **Si GO ou REVOIR** : lister les **conditions de GO** (ex: "Doit être whitelabel via le branding loader public du projet", "Doit utiliser smart defaults serveur", "Ne pas exposer settings techniques user").
 
 # Format de sortie
 
@@ -99,7 +99,7 @@ Pour chaque feature/module/section proposé :
 **Verdict** : **GO différentiant** | **REVOIR positionning** | **NO-GO trop générique**
 
 **Conditions de GO** (si GO ou REVOIR) :
-- [ ] Doit utiliser `BrandingService.loadPublicBranding` si surface publique
+- [ ] Doit utiliser le branding loader public du projet si surface publique (cf CLAUDE.md §5)
 - [ ] Doit utiliser smart defaults serveur (pas de settings techniques user)
 - [ ] Doit s'intégrer à un workflow existant (pas un nouvel onglet isolé)
 - [ ] (autres conditions selon contexte)

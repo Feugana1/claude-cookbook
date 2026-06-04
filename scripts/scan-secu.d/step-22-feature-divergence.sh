@@ -66,8 +66,10 @@ fi
 # v2 strict : match UNIQUEMENT .firstOrFail/.findOrFail (chemin critique throw)
 # pas .first() qui retourne null safely. Exclus public/portal/admin/og/transfer-download
 # qui auth par token, pas par userId.
+PRIMARY_MODELS_RE="${PRIMARY_MODELS_RE:-Document|Gallery|Service|Contact|Booking|Transfer|Invoice|Quote}"
 IDOR_RAW=$(perl -0777 -ne '
-  while (/(?<![A-Za-z])(Document|Gallery|Service|Contact|Booking|Transfer|Invoice|Quote)\.(?:query|findOrFail|findByOrFail)\(\)([^;]{0,800}?)(?:\.firstOrFail\(|\.findOrFail\()/sg) {
+  my $models = $ENV{PRIMARY_MODELS_RE} || "Document|Gallery|Service|Contact|Booking|Transfer|Invoice|Quote";
+  while (/(?<![A-Za-z])($models)\.(?:query|findOrFail|findByOrFail)\(\)([^;]{0,800}?)(?:\.firstOrFail\(|\.findOrFail\()/sg) {
     my ($model, $block) = ($1, $2);
     next if $block =~ /(?:where|whereHas|whereExists)\s*\(\s*["\x27]userId["\x27]\s*,/;
     next if $block =~ /(?:where|whereHas|whereExists)\s*\(\s*["\x27]user_id["\x27]\s*,/;
@@ -84,13 +86,15 @@ if [ -n "$IDOR_RAW" ]; then
   CONV_DETAILS="${CONV_DETAILS}  [IDOR] $C Model.query().firstOrFail() sans .where('userId') (annotate '// canonical-skip:idor:<reason>' si public/admin/token-auth)"$'\n'
 fi
 
-# ── D. Document soft-delete : canonical = .whereNull('deletedAt') ──────────
-# Detection multi-ligne : un Document.query() suivi d'une chaine .where...().first()/etc
-# doit contenir whereNull('deletedAt') dans la chaine. Perl slurp mode car bash grep
-# est mono-ligne et donne des faux positifs.
+# ── D. Soft-delete : canonical = .whereNull('deletedAt') ──────────────────
+# Detection multi-ligne : un <PRIMARY_MODELS>.query() suivi d'une chaine .where...().first()/etc
+# doit contenir whereNull('deletedAt') dans la chaine. Le set de models cible
+# est gouverne par CLAUDE.md §5 (PRIMARY_MODELS_RE). Perl slurp mode car bash
+# grep est mono-ligne et donne des faux positifs.
 DOC_NO_SOFT=$(perl -0777 -ne '
-  while (/(?<![A-Za-z])Document\.query\(\)([^;]*?)(?:\.first\(|\.firstOrFail\(|\.exec\(|\.paginate\(|\.count\(|\.update\(|\.delete\(|\.forUpdate\()/sg) {
-    my $block = $1;
+  my $models = $ENV{PRIMARY_MODELS_RE} || "Document|Gallery|Service|Contact|Booking|Transfer|Invoice|Quote";
+  while (/(?<![A-Za-z])($models)\.query\(\)([^;]*?)(?:\.first\(|\.firstOrFail\(|\.exec\(|\.paginate\(|\.count\(|\.update\(|\.delete\(|\.forUpdate\()/sg) {
+    my ($model, $block) = ($1, $2);
     next if $block =~ /whereNull\(["\x27]deletedAt["\x27]\)/;
     next if $block =~ /canonical-skip:soft-delete/;
     my $pos = $-[0];
@@ -102,12 +106,14 @@ DOC_NO_SOFT=$(perl -0777 -ne '
 if [ -n "$DOC_NO_SOFT" ]; then
   C=$(echo "$DOC_NO_SOFT" | wc -l | tr -d ' \r')
   CONV_HITS=$((CONV_HITS + C))
-  CONV_DETAILS="${CONV_DETAILS}  [SoftDelete] $C Document.query() sans .whereNull('deletedAt') (canonical-skip:soft-delete pour opt-out)"$'\n'
+  CONV_DETAILS="${CONV_DETAILS}  [SoftDelete] $C <PRIMARY_MODELS>.query() sans .whereNull('deletedAt') (cf CLAUDE.md §5 ; canonical-skip:soft-delete pour opt-out)"$'\n'
 fi
 
-# ── E. Public branding : canonical = BrandingService.loadPublicBranding ─────
+# ── E. Public branding : canonical = the project's branding loader ─────────
 # Detect controllers publics qui calculent un brandLogo/brandName a la main
-# (lecture directe user.company?.logo) sans passer par BrandingService.
+# (lecture directe user.company?.logo) sans passer par le branding loader
+# du projet (typique : `BrandingService.loadPublicBranding` — varie par projet,
+# cf CLAUDE.md §5).
 # Multi-ligne car les annotations canonical-skip:branding sont sur la ligne
 # au-dessus du code (mono-ligne grep raterait).
 BRAND_RAW=$(perl -0777 -ne '
@@ -127,7 +133,7 @@ BRAND_RAW=$(perl -0777 -ne '
 if [ -n "$BRAND_RAW" ]; then
   C=$(echo "$BRAND_RAW" | wc -l | tr -d ' \r')
   CONV_HITS=$((CONV_HITS + C))
-  CONV_DETAILS="${CONV_DETAILS}  [Branding] $C reads user.company.logo directly (canonical: BrandingService.loadPublicBranding — respecte PLG)"$'\n'
+  CONV_DETAILS="${CONV_DETAILS}  [Branding] $C reads user.company.logo directly (canonical: branding loader public — cf CLAUDE.md §5)"$'\n'
 fi
 
 # ── F. fire-and-forget promises : canonical = swallow() helper ──────────────
