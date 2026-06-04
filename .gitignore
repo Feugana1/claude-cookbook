@@ -1,0 +1,14 @@
+# Generated artifacts from scan-secu.sh (SBOM, dependency reports, etc.)
+reports/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log

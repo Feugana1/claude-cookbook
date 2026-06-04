@@ -14,7 +14,9 @@ Stack Claude Code réutilisable extraite du projet PicStudio (2025-2026). Sub-ag
 ├── skills/          4 slash commands (/feature, /pre-pr, /secu, /ux-review)
 └── hooks/           2 hooks shell (dispatch-expert auto-routing + precommit-check rappel reviewer)
 scripts/
-├── scan-secu.sh     31 steps, 3 tiers OWASP (BLOCKER/IMPORTANT/ADVISORY), top risks
+├── scan-secu.sh     orchestrator ~150L (helpers + counters + verdict)
+├── scan-secu.d/     33+ stateless step modules sourced in order
+│                    Drop a `step-NN-<slug>.sh` → TOTAL auto-bumps
 ├── check-file-sizes.js  ratchet CI tailles fichiers (controllers/services/templates)
 └── generate-sbom.sh CycloneDX 1.6 SBOM front + back
 docs/

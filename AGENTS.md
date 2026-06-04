@@ -19,9 +19,14 @@ Ce fichier indique aux agents Claude Code comment opérer ce cookbook quand il e
 
 ## Quand un user te dit "audite mon repo avec scan-secu"
 
-1. Vérifie présence : `ls scan-secu.sh` à la racine
-2. Si absent : `cp /Users/feugana1/Documents/dev/claude-cookbook/scripts/scan-secu.sh .` puis `chmod +x scan-secu.sh`
-3. Lance : `bash scan-secu.sh`
+1. Vérifie présence : `ls scan-secu.sh scan-secu.d/` à la racine
+2. Si absent : copier les **deux** (orchestrator + modules step) depuis le cookbook :
+   ```
+   cp /Users/feugana1/Documents/dev/claude-cookbook/scripts/scan-secu.sh .
+   cp -r /Users/feugana1/Documents/dev/claude-cookbook/scripts/scan-secu.d .
+   chmod +x scan-secu.sh
+   ```
+3. Lance : `bash scan-secu.sh` — TOTAL est auto-compté depuis le nombre de step files
 4. Parse l'output tier (T1 BLOCKER / T2 IMPORTANT / T3 ADVISORY) — résume les "Top risks open"
 5. Propose fix pour chaque P0 (T1 FAIL) en premier
 
