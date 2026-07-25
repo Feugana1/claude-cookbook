@@ -36,9 +36,15 @@ rel="${file#$(pwd)/}"
 # ---------- Front / Edge / CSS / JS ----------
 case "$rel" in
   *.edge|resources/css/*|resources/js/*)
-    # P0 grep — bloque si match
-    if grep -nE '\{\{\{[[:space:]]*JSON\.stringify' "$file" >/dev/null 2>&1; then
-      echo "[hook:edge-P0] BLOCKED — '{{{ JSON.stringify }}}' dans $rel — utilisez <script type=\"application/json\">. Cf CLAUDE.md §13 + anti-patterns.md. Invoke 'edge-anti-patterns' subagent." >&2
+    # P0 grep — bloque si match. Exclut la forme canonique :
+    # `<script type="application/json">{{{ JSON.stringify(...) }}}</script>` est le pattern
+    # officiel pour injecter du JSON sans HTML-escape (utilisé welcome.edge, layout/auth.edge,
+    # _share_modal.edge, etc.). On ne bloque QUE les `{{{ JSON.stringify` hors d'un tel script.
+    if grep -nE '\{\{\{[[:space:]]*JSON\.stringify' "$file" 2>/dev/null \
+      | grep -v 'type="application/json"' \
+      | grep -v "type='application/json'" \
+      | grep -q .; then
+      echo "[hook:edge-P0] BLOCKED — '{{{ JSON.stringify }}}' hors <script type=\"application/json\"> dans $rel. Cf CLAUDE.md §13 + anti-patterns.md. Invoke 'edge-anti-patterns' subagent." >&2
       exit 2
     fi
     if grep -nE '@(click|input|blur|change|dragover|drop)[^"]*=' "$file" >/dev/null 2>&1; then
@@ -92,6 +98,18 @@ case "$rel" in
     fi
     if grep -nE '\.raw\(.*\$\{' "$file" >/dev/null 2>&1 || grep -nE 'rawQuery\(.*\$\{' "$file" >/dev/null 2>&1; then
       echo "[hook:sec-P0] BLOCKED — raw SQL avec template literal \${} dans $rel — utiliser paramètres '?'. CLAUDE.md §10, scan-secu.sh step 06." >&2
+      exit 2
+    fi
+    # Auth User.email case-sensitivity — feedback memory feedback_email_query_case_insensitive
+    # Postgres = est case-sensitive, iOS auto-cap les premiers char → silent miss + flash success trompeur
+    if [[ "$rel" == app/controllers/auth/* ]] && grep -nE "\.where\(['\"]email['\"]," "$file" >/dev/null 2>&1; then
+      echo "[hook:sec-P0] BLOCKED — '.where(\"email\", ...)' dans $rel — Postgres = case-sensitive + iOS auto-cap. Utiliser '.whereILike(\"email\", email.trim())'. Régression magic-link 2026-06-05, cf MEMORY.md feedback_email_query_case_insensitive." >&2
+      exit 2
+    fi
+    # Lucid table-prefix camelCase — feedback memory feedback_lucid_table_prefix_camelcase
+    # `.where('table.userId', x)` ne convertit PAS le préfixe → crash "column does not exist"
+    if grep -nE "\.(where|orWhere|andWhere|whereIn|whereNotIn)\(['\"][a-z_]+\.[a-z][a-zA-Z0-9_]*[A-Z][a-zA-Z0-9_]*['\"]" "$file" >/dev/null 2>&1; then
+      echo "[hook:sec-P0] BLOCKED — '.where(\"table.camelCase\", …)' dans $rel — la SnakeCaseNamingStrategy ne convertit PAS quand préfixe table. présent. Écrire snake_case explicite: '.where(\"table.snake_case\", …)'. 3 crashes prod 2026-06-03, cf MEMORY.md feedback_lucid_table_prefix_camelcase + scan-secu.sh step 32." >&2
       exit 2
     fi
     # Layered hints — Architects → cross-cutting → domain

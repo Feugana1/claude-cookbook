@@ -14,11 +14,20 @@ Stack Claude Code réutilisable extraite du projet PicStudio (2025-2026). Sub-ag
 ├── skills/          4 slash commands (/feature, /pre-pr, /secu, /ux-review)
 └── hooks/           2 hooks shell (dispatch-expert auto-routing + precommit-check rappel reviewer)
 scripts/
-├── scan-secu.sh     orchestrator ~150L (helpers + counters + verdict)
-├── scan-secu.d/     33+ stateless step modules sourced in order
+├── scan-secu.sh     orchestrator ~230L (helpers + counters + verdict + --diff mode)
+│                    Modes : --full (pre-push, 2-3min) | --diff [<base>] (pre-commit, ~3s)
+│                    SECU_DIFF_STAGED=1 pour scan git diff --cached (pre-commit hook)
+├── scan-secu.d/     36+ stateless step modules sourced in order
 │                    Drop a `step-NN-<slug>.sh` → TOTAL auto-bumps
+│                    Include gitleaks (10) + env-history-guard (10b) +
+│                    gitignore-env-patterns (10c) + precommit-hook (10d)
 ├── check-file-sizes.js  ratchet CI tailles fichiers (controllers/services/templates)
 └── generate-sbom.sh CycloneDX 1.6 SBOM front + back
+
+docs/templates/
+├── .gitleaks.toml         allowlist test fixtures + local dev + historical commits
+├── husky-pre-commit.sh    wire scan-secu --diff en pre-commit (~3s)
+└── scan-secu-weekly.yml   cron GH Actions lundi 06:00 UTC + issue auto Tier-1
 docs/
 ├── lessons.md            Karpathy 4 disciplines + leçons accumulées
 ├── anti-patterns.md      Catalogue exhaustif anti-patterns Edge/Alpine/AdonisJS
@@ -48,6 +57,40 @@ bash /Users/feugana1/Documents/dev/claude-cookbook/bootstrap-claude.sh . --updat
 ```
 
 Mode update : écrase uniquement les fichiers du cookbook, ne touche pas aux fichiers spécifiques projet (`CLAUDE.md`, agents custom, hooks override, etc.).
+
+---
+
+## Wiring scan-secu — 3 surfaces (delta / full / cron)
+
+Le scan couvre 3 moments distincts, chacun avec un scope adapté :
+
+**1. Pre-commit hook — delta (~3s)**
+
+```bash
+# .husky/pre-commit (copie depuis docs/templates/husky-pre-commit.sh)
+SECU_DIFF_STAGED=1 bash scan-secu.sh --diff || exit 1
+node scripts/check-file-sizes.js || exit 1
+```
+
+Scope : fichiers `git diff --cached` uniquement. Skip Trivy/typecheck/npm audit/build/SBOM (whole-repo). Lint delta-scoped. Gitleaks `protect --staged`.
+
+**2. Pre-push manuel — full (2-3min)**
+
+```bash
+bash scan-secu.sh --full   # tout, incluant Trivy + history gitleaks + SBOM
+```
+
+**3. CI cron hebdo — catch la dette qui se cache loin**
+
+```bash
+# .github/workflows/scan-secu-weekly.yml (copie depuis docs/templates/scan-secu-weekly.yml)
+# Cron lundi 06:00 UTC + workflow_dispatch. Upload rapport 90j.
+# Création issue auto (label scan-secu-weekly + security) si régression Tier-1.
+```
+
+Motivation : delta pre-commit rate les régressions dans les fichiers jamais touchés depuis 6 mois (deps outdated, license drift, historical secret leak). Cron hebdo comble.
+
+**Bonus — `.gitleaks.toml`** (copie depuis `docs/templates/.gitleaks.toml`) : allowlist paths (`.env*` local dev, `.env.test`, `docs/api.md`, fixtures) + commits historiques rotated + regex placeholders.
 
 ---
 

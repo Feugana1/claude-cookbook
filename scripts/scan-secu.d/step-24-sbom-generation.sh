@@ -5,7 +5,7 @@
 # Le SBOM est un artefact reproductible (gitignore reports/), genere a chaque scan.
 # Failure = WARN, pas FAIL (la generation peut planter sur reseau lent sans bloquer un push).
 step 24 "SBOM generation (CycloneDX 1.6)" 3 "Supply chain"
-if [ -x scripts/generate-sbom.sh ]; then
+if skip_if_diff; then :; elif [ -x scripts/generate-sbom.sh ]; then
   if SBOM_OUT=$(bash scripts/generate-sbom.sh 2>&1); then
     SBOM_COMP=$(jq -r '.components | length' reports/sbom.cdx.json 2>/dev/null || echo "?")
     pass "reports/sbom.cdx.json — $SBOM_COMP components (npm + CDN-loaded Alpine/Turbo)"

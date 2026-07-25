@@ -2,7 +2,7 @@
 # Sourced by scripts/scan-secu.sh — uses helpers: step/pass/fail/warn/skip
 # ── 15. License compliance ──────────────────────────────────────────────────
 step 15 "License compliance" 3 "Supply chain"
-if npx --no-install license-checker --help > /dev/null 2>&1; then
+if skip_if_diff; then :; elif npx --no-install license-checker --help > /dev/null 2>&1; then
   FORBIDDEN=$(npx --no-install license-checker --failOn "GPL-2.0;GPL-3.0;AGPL-1.0;AGPL-3.0;SSPL-1.0;EUPL-1.1;EUPL-1.2" --production 2>&1 || true)
   if echo "$FORBIDDEN" | grep -q "Found forbidden"; then
     fail "Copyleft/viral licenses detected — run 'npx license-checker --failOn GPL-3.0 --production'"

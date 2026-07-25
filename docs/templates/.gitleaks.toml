@@ -1,0 +1,52 @@
+# Gitleaks config template — extends default ruleset with project allowlists.
+# Copy to repo root as `.gitleaks.toml` puis adapter les paths / commits.
+#
+# Doc : https://github.com/gitleaks/gitleaks#configuration
+#
+# Politique :
+# - Paths test fixtures + docs example : allowlist par path (false positives
+#   généraux — clés bidon volontaires).
+# - Historical commits : rotation credentials déjà effectuée hors bande —
+#   ajouter hash ici plutôt que rewrite d'history pour éviter force-push répété.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test fixtures, docs examples, local dev secrets (gitignored)"
+paths = [
+  # Local dev env files (gitignored mais gitleaks dir mode les scanne quand même)
+  '''\.env$''',
+  '''\.env\.test$''',
+  '''\.env\.local$''',
+  '''\.env\..*\.local$''',
+  '''\.env\.staging$''',
+  '''\.env\.production$''',
+  '''\.env\.keys$''',
+  '''\.env\.bak$''',
+  # Docs examples (bearer YOUR_TOKEN, x-api-key: xxx)
+  '''docs/api\.md$''',
+  # Local Claude config (should be gitignored)
+  '''\.claude/settings\.local\.json$''',
+  # Test fixtures + seeders
+  '''database/seeders/.*''',
+  '''tests/fixtures/.*''',
+]
+
+[[allowlists]]
+description = "Historical commits — rotated secrets (post-purge OR post-rotation)"
+# Add commit hashes ici when a leak has been rotated + accepted in history.
+# Alternative : git-filter-repo pour purger (destructif, force-push required).
+commits = [
+  # "COMMIT_HASH_HERE",
+]
+
+[[allowlists]]
+description = "Placeholder patterns in docs + false positives"
+regexes = [
+  '''YOUR_[A-Z_]+_HERE''',
+  '''example[_-]?key''',
+  # i18n cookie/trigger keys (short snake_case identifiers)
+  '''trigger_[a-z0-9_]+''',
+  '''cookieKey''',
+]

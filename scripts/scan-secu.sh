@@ -102,6 +102,70 @@ fi
 # scan-secu.d/ auto-bumps it without touching this orchestrator.
 TOTAL=$(find "$STEPS_DIR" -maxdepth 1 -name 'step-*.sh' -type f 2>/dev/null | wc -l | tr -d ' \r')
 
+# ─── CLI mode: --full (default) | --diff [<base>] ─────────────────────────
+# --diff : skip global-scope steps (build/typecheck/npm audit/Trivy/SBOM…) and
+# filter per-file scans to only files changed since <base> (default HEAD~1 en
+# post-commit, --cached en pre-commit via SECU_DIFF_STAGED=1).
+# Objectif : pre-commit hook rapide (<10s) qui bloque la dette au moment où
+# elle est écrite, complète le --full pre-push (2-3min) + cron hebdo CI.
+MODE="full"
+DIFF_BASE=""
+for arg in "$@"; do
+  case "$arg" in
+    --diff) MODE="diff" ;;
+    --diff=*) MODE="diff"; DIFF_BASE="${arg#--diff=}" ;;
+    --full) MODE="full" ;;
+    --help|-h)
+      echo "Usage: scan-secu.sh [--full|--diff[=<base-sha>]]"
+      echo "  --full          Scan complet (défaut, pre-push + CI hebdo)"
+      echo "  --diff          Scan seulement fichiers changés (pre-commit, ~10s)"
+      echo "  --diff=<sha>    Base explicite (défaut HEAD~1, --cached si SECU_DIFF_STAGED=1)"
+      exit 0
+      ;;
+  esac
+done
+
+CHANGED_FILES=""
+if [ "$MODE" = "diff" ]; then
+  if [ "${SECU_DIFF_STAGED:-0}" = "1" ]; then
+    CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACMRT 2>/dev/null || true)
+    DIFF_LABEL="git diff --cached (staged)"
+  else
+    BASE="${DIFF_BASE:-HEAD~1}"
+    CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT "$BASE" 2>/dev/null || true)
+    DIFF_LABEL="${BASE}..HEAD"
+  fi
+  CHANGED_COUNT=$(echo "$CHANGED_FILES" | grep -c . || true)
+  echo -e "${BOLD}[scan-secu:diff] ${CHANGED_COUNT} file(s) changed vs ${DIFF_LABEL}${NC}"
+  if [ "$CHANGED_COUNT" = "0" ]; then
+    echo -e "  ${GREEN}No changes to scan — exit clean.${NC}"
+    exit 0
+  fi
+fi
+
+# Helper : skip step in diff mode (global-scope scans that can't be delta-ised).
+# Usage inside a step file :
+#   if ! skip_if_diff; then
+#     ... expensive scan (build, typecheck, Trivy, SBOM, license, deps outdated) ...
+#   fi
+skip_if_diff() {
+  if [ "$MODE" = "diff" ]; then
+    skip "delta mode — full-scope check, run 'scan-secu.sh --full' pre-push"
+    return 0
+  fi
+  return 1
+}
+
+# Helper : return 0 (true) if diff mode + at least one changed file matches pattern.
+# Steps whose scope is a specific directory (app/controllers, resources/lang) can
+# short-circuit when nothing relevant was touched.
+#   Usage : if [ "$MODE" = "diff" ] && ! has_changed_matching "^app/(controllers|services)/"; then
+#             skip "no controllers/services touched — full sweep pre-push"; return; fi
+has_changed_matching() {
+  if [ "$MODE" != "diff" ]; then return 0; fi
+  echo "$CHANGED_FILES" | grep -qE "$1"
+}
+
 echo -e "${BOLD}============================================${NC}"
 echo -e "${BOLD}  Pre-push Security Scan${NC}"
 echo -e "${BOLD}============================================${NC}"

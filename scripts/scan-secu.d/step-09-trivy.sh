@@ -2,7 +2,7 @@
 # Sourced by scripts/scan-secu.sh — uses helpers: step/pass/fail/warn/skip
 # ── 9. Trivy filesystem scan ───────────────────────────────────────────────
 step 9 "Trivy vulnerability scan" 2 "Supply chain"
-if command -v trivy &>/dev/null; then
+if skip_if_diff; then :; elif command -v trivy &>/dev/null; then
   TRIVY_DOCKER_CONFIG="${DOCKER_CONFIG:-/private/tmp/trivy-docker-config}"
   mkdir -p "$TRIVY_DOCKER_CONFIG" 2>/dev/null || true
   TRIVY_OUT=$(DOCKER_CONFIG="$TRIVY_DOCKER_CONFIG" TRIVY_DB_REPOSITORY="${TRIVY_DB_REPOSITORY:-ghcr.io/aquasecurity/trivy-db:2}" trivy fs --severity HIGH,CRITICAL --exit-code 0 --quiet . 2>&1 || true)

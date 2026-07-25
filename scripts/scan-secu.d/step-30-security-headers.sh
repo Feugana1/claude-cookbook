@@ -63,5 +63,25 @@ elif [ -n "$HELMET_FILES" ]; then
     printf '%s' "$GAPS"
   fi
 else
-  fail "No security headers config found — expected config/shield.ts (Adonis) OR app.use(helmet()) (NestJS/Express)"
+  # ── Caddy gateway path : check helmet-equivalent dans Caddyfile
+  CADDY_FILE="infra/caddy/Caddyfile"
+  if [ -f "$CADDY_FILE" ]; then
+    GAPS=""
+    grep -qiE "Strict-Transport-Security" "$CADDY_FILE" \
+      || GAPS="${GAPS}    - HSTS Strict-Transport-Security manquant"$'\n'
+    grep -qiE "X-Frame-Options" "$CADDY_FILE" \
+      || GAPS="${GAPS}    - X-Frame-Options manquant"$'\n'
+    grep -qiE "X-Content-Type-Options" "$CADDY_FILE" \
+      || GAPS="${GAPS}    - X-Content-Type-Options nosniff manquant"$'\n'
+    grep -qiE "Referrer-Policy" "$CADDY_FILE" \
+      || GAPS="${GAPS}    - Referrer-Policy manquant"$'\n'
+    if [ -z "$GAPS" ]; then
+      pass "Caddy gateway security headers OK (HSTS + X-Frame + nosniff + Referrer-Policy)"
+    else
+      warn "Caddy security headers gaps:"
+      printf '%s' "$GAPS"
+    fi
+  else
+    fail "No security headers config found — expected config/shield.ts (Adonis) OR app.use(helmet()) (NestJS) OR infra/caddy/Caddyfile (Caddy gateway)"
+  fi
 fi
