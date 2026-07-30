@@ -73,6 +73,38 @@ export interface XBody { … }
 | 2 | `app/controllers/x_controller.ts` | MODIFIER |
 | … | … | … |
 
+## 3b. Threat model — analyse pentest design-time (EN AMONT de scan-secu)
+
+> **Principe** : `scan-secu.sh` est un grep statique — nécessaire mais NON suffisant. Il rate STRUCTURELLEMENT les classes ci-dessous : dataflow (`const u = auth.user` puis `u.id`), FK cross-tenant, autorisation métier, TOCTOU, session lifecycle, OAuth state, sensitive serialization, presigned lifecycle. Ce threat model se remplit AVANT le code et se re-vérifie AVANT merge. **Un scan vert ne vaut PAS ce threat model.**
+
+**Surface d'attaque de CETTE feature** (remplir) :
+- Routes ajoutées/modifiées + niveau d'auth (public / token / auth / editor / owner / admin) :
+- FK client-fournies (contactId, serviceId, supplierId, galleryId, planId…) :
+- Uploads / fichiers :
+- Mutations argent / quota / compteur / statut / numérotation :
+- Tokens / liens de partage :
+
+**Checklist adversariale** — répondre SÉCURISÉ avec preuve, ou `N/A — raison`. Attaquer mentalement chaque case (« comment un editor / viewer / visiteur externe casse ça ? »).
+
+- [ ] **T1 — Isolation tenant (dataflow, pas juste littéral)** : chaque query métier scopée `effectiveUserId`/`tenantId`, y compris via alias local (`const u = auth.user!` → `u.id` = ❌). Le grep statique ne suit pas l'alias.
+- [ ] **T2 — FK cross-tenant** : chaque `contactId`/`serviceId`/`*Id` du payload vérifié en appartenance tenant AVANT `create()`/`merge()`. Le validator ne valide que l'existence, pas l'ownership.
+- [ ] **T3 — Autorisation de rôle** : chaque route d'écriture tenant gatée par le middleware du rôle minimum requis. Vérifier qu'aucune route sœur n'est oubliée.
+- [ ] **T4 — Autorisation métier sur TOUS les endpoints** : si le contenu est gaté (paywall/accès/statut), tous les endpoints qui le servent (pagination, download, ZIP, API, preview) appliquent le gate COMPLET.
+- [ ] **T5 — Mass assignment** : body → ORM uniquement via validator allowlist. `userId`/`role`/`plan`/`price`/`status`/`isAdmin` jamais assignables via body.
+- [ ] **T6 — Concurrence / TOCTOU** : tout compteur/quota/coupon/crédit/numérotation soumis à concurrence utilise `db.transaction()` + `pg_advisory_xact_lock()`/`forUpdate()` OU contrainte DB (unique/CHECK). Pas de check-then-act non atomique.
+- [ ] **T7 — Uploads** : chemin presigned/direct-S3 → scan antivirus post-upload + `ContentType` forcé serveur ; EXIF/GPS strippé sur original public ; nom de fichier généré serveur (pas de traversal).
+- [ ] **T8 — Tokens / liens** : CSPRNG (`randomBytes(32)`, jamais `cuid`/séquentiel/`Math.random`) ; révocation invalide le token ; ressource soft-deleted/expirée ne résout plus ; TTL ; jamais loggé en clair.
+- [ ] **T9 — Surface publique / non-auth** : URLs objet stockage toujours signées (jamais clé brute) ; branding public chargé ; pas de fuite via message d'erreur / OG.
+- [ ] **T10 — Webhooks / paiement** (si applicable) : signature vérifiée avant tout side-effect + idempotence (anti-replay) + montant re-validé serveur.
+- [ ] **T11 — Auth lifecycle** (pentest 2026-07-29) : (a) toute session ouverte AVANT `password reset`/`password change`/`2FA disable` doit être invalidée (`session.regenerate()` OU bumper `sessionVersion` sur User). (b) `Token.query()...update({isRevoked:true})` sur tokens antérieurs AVANT `Token.create()` du nouveau (reset tokens, magic links, invitations). (c) Actions sensibles (publier, souscrire, inviter) exigent `emailVerified=true`.
+- [ ] **T12 — OAuth flow integrity** : le paramètre `state` OAuth doit être (a) aléatoire fort (CSPRNG ≥ 128 bits), (b) stocké en session serveur AVEC expiration courte, (c) comparé au retour avec égalité stricte. **JAMAIS** encoder `{userId: …}` en base64 nu dans `state`.
+- [ ] **T13 — Info disclosure endpoints** : (a) `/health`/`/status`/`/ping` retournent `{status:"ok"}` en public, détails réservés à endpoint interne auth. (b) Aucune sourcemap `.js.map` servie en prod. (c) Aucune stack trace/backtrace/nom d'hôte interne dans réponses d'erreur prod.
+- [ ] **T14 — Sensitive data serialization** : sur **tout** model ORM, les champs `password`/`passwordHash`/`secret`/`apiKey`/`accessToken`/`refreshToken`/`otpSecret`/`recoveryCode` DOIVENT être exclus par défaut (`@column({ serializeAs: null })` Lucid, `@Exclude` class-transformer, `select: false` Mongoose). Cas légitime « affichable au owner » → chiffrer avec clé vault + endpoint dédié owner-only.
+- [ ] **T15 — Presigned URL lifecycle** : (a) `expiresIn` ≤ **1h** sur endpoints d'affichage (whitelist : ZIP export async ≤ 24h, multipart upload ≤ 4h). (b) Sur changement de statut de la ressource protégée (`status = DRAFT` / `password change` / `access revoked`), **invalider les tokens de partage émis** — sinon un lien retrouvé continue de servir l'archive complète 7 jours sans mot de passe.
+- [ ] **T16 — CSP hardening** : `Content-Security-Policy` sans `'unsafe-inline'` ni `'unsafe-eval'` sur `script-src` (utiliser nonces/hashes). CDN externes épinglés par SRI OU auto-hébergés. `frame-ancestors 'self'` présent (X-Frame-Options obsolète). `object-src 'none'`, `base-uri 'self'`, `form-action` restreint.
+- [ ] **T17 — SSRF completeness** : tout URL validator utilisateur (webhooks, imports, redirects) fait résolution DNS AVANT vérification ranges, ET vérifie contre la liste complète : `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `127.0.0.0/8`, `169.254.0.0/16`, `::1`, `fc00::/7`, `fe80::/10`. Suivre les redirects avec re-check à chaque hop. Schéma contraint HTTPS. Attention : `127.0.0.1.nip.io` résout vers loopback.
+- [ ] **T18 — GDPR data minimization** : (a) toute donnée personnelle collectée (IP visiteur, name/email visiteur, EXIF UserComment/Artist/Make/Model) a durée de conservation documentée + base légale. (b) EXIF strip sur photos livrées inclut GPS ET UserComment/Artist/IPTC/XMP. (c) Feature d'identification visiteur doit soit persister la donnée, soit ne pas collecter.
+
 ## 4. Non-goals (5 lignes)
 
 - ❌ Ce qu'on NE fait PAS dans cette phase (à scope creep-block)
@@ -96,10 +128,11 @@ export interface XBody { … }
 - **Files** : …
 - **Status** : 🔲 not started
 
-## 6. Quality completeness (12 dimensions — checklist gate avant merge)
+## 6. Quality completeness (13 dimensions — checklist gate avant merge)
 
 Cocher chaque dimension. Si une dimension est non-applicable, écrire `N/A — <raison>`.
 
+- [ ] **Threat model §3b re-vérifié** : les 18 classes T1-T18 = SÉCURISÉ ou N/A, findings résolus (**EN AMONT de scan-secu** — le grep statique ne couvre pas ces classes)
 - [ ] **Tests unit** zone critique (NF525 / paiement / sécu multi-tenant) — `node ace test`
 - [ ] **IDOR multi-tenant** : toutes queries ont `.where('userId', effectiveUserId)`
 - [ ] **Soft-delete** : `.whereNull('deletedAt')` sur tables qui en ont (Documents notamment)

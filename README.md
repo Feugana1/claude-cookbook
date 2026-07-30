@@ -17,10 +17,14 @@ scripts/
 ├── scan-secu.sh     orchestrator ~230L (helpers + counters + verdict + --diff mode)
 │                    Modes : --full (pre-push, 2-3min) | --diff [<base>] (pre-commit, ~3s)
 │                    SECU_DIFF_STAGED=1 pour scan git diff --cached (pre-commit hook)
-├── scan-secu.d/     36+ stateless step modules sourced in order
+├── scan-secu.d/     45+ stateless step modules sourced in order
 │                    Drop a `step-NN-<slug>.sh` → TOTAL auto-bumps
 │                    Include gitleaks (10) + env-history-guard (10b) +
-│                    gitignore-env-patterns (10c) + precommit-hook (10d)
+│                    gitignore-env-patterns (10c) + precommit-hook (10d) +
+│                    pentest black-box remediation (38-46 : sourcemaps,
+│                    sensitive serialize, presigned TTL, reset tokens
+│                    invalidation, session regen, OAuth state, SSRF DNS,
+│                    quota atomic lock, /health minimal)
 ├── check-file-sizes.js  ratchet CI tailles fichiers (controllers/services/templates)
 └── generate-sbom.sh CycloneDX 1.6 SBOM front + back
 
@@ -32,6 +36,10 @@ docs/
 ├── lessons.md            Karpathy 4 disciplines + leçons accumulées
 ├── anti-patterns.md      Catalogue exhaustif anti-patterns Edge/Alpine/AdonisJS
 ├── feature-plan-template.md  Template unifié spec + plan + completeness (~200L max)
+│                             Inclut §3b threat model T1-T18 (10 classes originales
+│                             + 8 classes post-pentest 2026-07 : Auth lifecycle, OAuth,
+│                             Info disclosure, Sensitive serialize, Presigned lifecycle,
+│                             CSP hardening, SSRF completeness, GDPR minimization)
 ├── ux-audit-prompt.md    6 axes audit UX (User-first, PLG, DS, restraint cognitif…)
 └── claude-config/        Catalogue agents, setup cross-poste, intégration superpowers
 ```
