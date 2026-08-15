@@ -1,6 +1,6 @@
-# Lionel — Claude Code Cookbook
+# <Your Name> — Claude Code Cookbook
 
-Stack Claude Code réutilisable extraite du projet PicStudio (2025-2026). Sub-agents, hooks, scripts qualité, anti-patterns, templates — pensés pour être adoptés sur n'importe quel projet AdonisJS / Node / TypeScript.
+Stack Claude Code réutilisable extraite du projet MyProject (2025-2026). Sub-agents, hooks, scripts qualité, anti-patterns, templates — pensés pour être adoptés sur n'importe quel projet AdonisJS / Node / TypeScript.
 
 **Statut** : v0.1 extraction brute (Phase 1 du plan d'externalisation). Dépollution Mix (Phase 2) différée au prochain bootstrap d'un nouveau projet.
 
@@ -44,7 +44,7 @@ docs/
 └── claude-config/        Catalogue agents, setup cross-poste, intégration superpowers
 ```
 
-Total : **29 fichiers, ~5000 lignes** de méthodologie distillée sur 6 mois de prod PicStudio.
+Total : **29 fichiers, ~5000 lignes** de méthodologie distillée sur 6 mois de prod MyProject.
 
 ---
 
@@ -53,7 +53,7 @@ Total : **29 fichiers, ~5000 lignes** de méthodologie distillée sur 6 mois de 
 Depuis le dossier de ton nouveau projet :
 
 ```bash
-bash /Users/feugana1/Documents/dev/claude-cookbook/bootstrap-claude.sh .
+bash ~/dev/claude-cookbook/bootstrap-claude.sh .
 ```
 
 Le script copie `.claude/`, `scripts/`, `docs/` dans le projet courant + crée `.claude/CLAUDE.md` minimal à enrichir.
@@ -61,7 +61,7 @@ Le script copie `.claude/`, `scripts/`, `docs/` dans le projet courant + crée `
 ## Pour mettre à jour les fichiers du cookbook dans un projet existant
 
 ```bash
-bash /Users/feugana1/Documents/dev/claude-cookbook/bootstrap-claude.sh . --update
+bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update
 ```
 
 Mode update : écrase uniquement les fichiers du cookbook, ne touche pas aux fichiers spécifiques projet (`CLAUDE.md`, agents custom, hooks override, etc.).
@@ -104,18 +104,18 @@ Motivation : delta pre-commit rate les régressions dans les fichiers jamais tou
 
 ## Source de vérité : où enrichir
 
-**Modèle a — recommandé court terme** : enrichir dans le projet actif (ex: PicStudio), exporter périodiquement vers le cookbook via copie sélective. Les patterns émergent en prod, le cookbook fige les bonnes pratiques.
+**Modèle a — recommandé court terme** : enrichir dans le projet actif (ex: MyProject), exporter périodiquement vers le cookbook via copie sélective. Les patterns émergent en prod, le cookbook fige les bonnes pratiques.
 
 **Modèle b — long terme** : enrichir directement le cookbook, importer dans projets via bootstrap `--update`. Plus rigoureux mais demande discipline de sync.
 
 ---
 
-## Assets PicStudio-only NON inclus (restent dans PicStudio)
+## Assets MyProject-only NON inclus (restent dans MyProject)
 
 - `nf525-accounting` (légal FR)
 - `shop-marketplace`, `subscription-quota` (business logic)
 - `front-curator` (design system Digital Curator)
-- `public-experience` (routes PicStudio)
+- `public-experience` (routes MyProject)
 - CLAUDE.md root (stack-specific 17 sections)
 - `docs/business-rules.md`, `docs/design-system.md`, `docs/competitive-benchmark/*`
 

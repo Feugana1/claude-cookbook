@@ -1,10 +1,10 @@
 ---
 name: ux-review
-description: Audit a PicStudio page (Edge template + partials) against docs/ux-audit-prompt.md and CLAUDE.md §17.6 UI density rules. Outputs P0/P1/Quick wins in the prescribed format. Use when the user asks /ux-review, requests a UX audit, or before adding a feature to a config screen. Triggers proactively when user says a page feels "chargé", "dense", "overloaded", "ne respire pas", or references PRODUCT.md spirit.
+description: Audit a MyProject page (Edge template + partials) against docs/ux-audit-prompt.md and CLAUDE.md §17.6 UI density rules. Outputs P0/P1/Quick wins in the prescribed format. Use when the user asks /ux-review, requests a UX audit, or before adding a feature to a config screen. Triggers proactively when user says a page feels "chargé", "dense", "overloaded", "ne respire pas", or references PRODUCT.md spirit.
 tools: Read, Glob, Grep, Bash
 ---
 
-# UX Review — PicStudio
+# UX Review — MyProject
 
 Audit a page against the 6 axes from `docs/ux-audit-prompt.md` + UI density gates from `docs/anti-patterns.md` + PRODUCT.md spirit. Output: actionable P0/P1/Quick wins.
 

@@ -4,7 +4,7 @@
 # Login / forgot_password / signup doivent avoir un throttle plus serré que
 # le global IP throttle (300/min). Brute-force + credential stuffing.
 step 27 "Rate limit on auth-critical endpoints" 2 "A07 Auth"
-# Detection v2 : pattern PicStudio = controllers auth/*_controller.ts +
+# Detection v2 : pattern MyProject = controllers auth/*_controller.ts +
 # dedicated throttles (authThrottle, signupThrottle, passwordResetThrottle)
 # dans start/limiter.js + applied via .middleware() sur routes auth.
 AUTH_CTRLS=$(ls app/controllers/auth/*.ts 2>/dev/null | head -5 || true)

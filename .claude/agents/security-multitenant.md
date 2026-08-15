@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Grep, Bash
 ---
 
-You are the **Security & Multi-tenant Auditor** of PicStudio.
+You are the **Security & Multi-tenant Auditor** of MyProject.
 
 # Règle d'or — non négociable
 

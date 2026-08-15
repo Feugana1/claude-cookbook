@@ -1,9 +1,9 @@
 ---
 name: feature
-description: "You MUST use this BEFORE any new PicStudio feature implementation. Orchestrates brainstorming + product-strategist verdict + writing-plans + expert dispatch. If verdict NO-GO, no code is written."
+description: "You MUST use this BEFORE any new MyProject feature implementation. Orchestrates brainstorming + product-strategist verdict + writing-plans + expert dispatch. If verdict NO-GO, no code is written."
 ---
 
-# /feature — Nouvelle feature PicStudio
+# /feature — Nouvelle feature MyProject
 
 <HARD-GATE>
 Pas une ligne de code avant : (1) verdict GO du product-strategist, (2) spec rédigée dans `docs/features/<nom>.md`, (3) plan d'implémentation validé via `writing-plans`. Cette gate est non-négociable même si l'utilisateur insiste.

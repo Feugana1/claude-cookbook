@@ -8,7 +8,7 @@
 #
 # Cette etape pousse a router chaque `db.rawQuery` via un seam dedie
 # (par convention : `app/services/tenant_raw.ts` exportant `tenantRaw` +
-# `systemRaw`). Voir picstudio commit history + le pattern documente dans
+# `systemRaw`). Voir myproject commit history + le pattern documente dans
 # `docs/anti-patterns.md` §"Raw SQL seam".
 #
 # Configuration:

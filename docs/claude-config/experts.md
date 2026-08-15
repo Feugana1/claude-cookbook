@@ -346,7 +346,7 @@ Chaque expert charge **uniquement** ces fichiers comme source canonique. Aucun r
 - `CLAUDE.md` §11 row Workflows + §13 anti-pattern Mustache lang JSON
 
 ### `public-experience`
-- [`docs/transfers.md`](../transfers.md) — sous-domaine `t.picstudio.fr`, jobs expiration/reminder
+- [`docs/transfers.md`](../transfers.md) — sous-domaine `t.example.com`, jobs expiration/reminder
 - [`docs/custom-domains.md`](../custom-domains.md) — DNS, SSL
 - Memory `feedback_subdomain_passthrough` — toute route publique top-level → `SubdomainMiddleware.globalPassthrough`
 - `scan-secu.sh` 22A (OG via `buildPublicShareMeta`) + 22E (branding via `BrandingService.loadPublicBranding`)

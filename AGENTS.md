@@ -7,7 +7,7 @@ Ce fichier indique aux agents Claude Code comment opérer ce cookbook quand il e
 ## Quand un user te dit "bootstrap ce cookbook" ou "installe la stack Claude"
 
 1. **Identifie le projet cible** (cwd ou path explicite)
-2. **Lance** : `bash /Users/feugana1/Documents/dev/claude-cookbook/bootstrap-claude.sh <path>`
+2. **Lance** : `bash ~/dev/claude-cookbook/bootstrap-claude.sh <path>`
 3. **Confirme à l'utilisateur** :
    - Liste les 8 agents installés dans `<path>/.claude/agents/`
    - Liste les 4 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`)
@@ -22,8 +22,8 @@ Ce fichier indique aux agents Claude Code comment opérer ce cookbook quand il e
 1. Vérifie présence : `ls scan-secu.sh scan-secu.d/` à la racine
 2. Si absent : copier les **deux** (orchestrator + modules step) depuis le cookbook :
    ```
-   cp /Users/feugana1/Documents/dev/claude-cookbook/scripts/scan-secu.sh .
-   cp -r /Users/feugana1/Documents/dev/claude-cookbook/scripts/scan-secu.d .
+   cp ~/dev/claude-cookbook/scripts/scan-secu.sh .
+   cp -r ~/dev/claude-cookbook/scripts/scan-secu.d .
    chmod +x scan-secu.sh
    ```
 3. Lance : `bash scan-secu.sh` — TOTAL est auto-compté depuis le nombre de step files
@@ -56,7 +56,7 @@ Couche 5 — Final gate             : code-reviewer (avant git commit)
 3. Si nouveau : crée dans `.claude/agents/<name>.md` avec frontmatter `name/description/tools/model`
 4. Description **active** ("Use PROACTIVELY when…", "Triggers when user says…") — pas "Specialized in…"
 5. Ajoute au catalogue dans `docs/claude-config/experts.md`
-6. **Si générique (cross-project)** : propose copie vers le cookbook (`cp .claude/agents/<name>.md /Users/feugana1/Documents/dev/claude-cookbook/.claude/agents/`)
+6. **Si générique (cross-project)** : propose copie vers le cookbook (`cp .claude/agents/<name>.md ~/dev/claude-cookbook/.claude/agents/`)
 7. **Si project-specific** : reste local au projet
 
 ---
@@ -110,11 +110,11 @@ Pas de semver. Le cookbook évolue par commits granulaires sur son repo dédié.
 
 ## Pour enrichir le cookbook depuis un projet utilisateur
 
-L'utilisateur travaille typiquement dans un projet (ex: PicStudio). Quand une amélioration générique émerge (nouveau pattern, lesson learned, agent générique) :
+L'utilisateur travaille typiquement dans un projet (ex: MyProject). Quand une amélioration générique émerge (nouveau pattern, lesson learned, agent générique) :
 
 1. Implémente localement dans le projet
 2. Une fois validé en prod, propose à l'utilisateur : "Cette amélioration est générique, je la copie vers le cookbook ?"
-3. Si OK : `cp <fichier-local> /Users/feugana1/Documents/dev/claude-cookbook/<même-chemin>`
+3. Si OK : `cp <fichier-local> ~/dev/claude-cookbook/<même-chemin>`
 4. Commit dans le cookbook avec message explicite
 5. Les autres projets de l'utilisateur récupèrent via `bootstrap-claude.sh . --update`
 

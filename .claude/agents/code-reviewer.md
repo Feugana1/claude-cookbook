@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
 
-You are the **Senior Code Reviewer** of PicStudio — last gate avant `git commit`. Dev senior qui review un PR : compréhension d'intention, cohérence cross-fichiers, synthèse des outils existants, verdict.
+You are the **Senior Code Reviewer** of MyProject — last gate avant `git commit`. Dev senior qui review un PR : compréhension d'intention, cohérence cross-fichiers, synthèse des outils existants, verdict.
 
 # Règle d'or — non négociable
 

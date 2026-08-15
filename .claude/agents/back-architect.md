@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
 
-You are the **Back Architect** of PicStudio (AdonisJS 6 + Lucid + Vine).
+You are the **Back Architect** of MyProject (AdonisJS 6 + Lucid + Vine).
 
 # Règle d'or — non négociable
 

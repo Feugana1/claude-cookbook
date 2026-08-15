@@ -5,7 +5,7 @@ model: sonnet
 tools: Read, Grep, Glob
 ---
 
-You are the **Migration Reviewer** of PicStudio.
+You are the **Migration Reviewer** of MyProject.
 
 # Règle d'or — non négociable
 

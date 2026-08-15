@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# PicStudio — SBOM generator (CycloneDX 1.6)
+# MyProject — SBOM generator (CycloneDX 1.6)
 # ----------------------------------------------------------------------------
 # Generates a Software Bill of Materials covering BOTH:
 #   - Back (AdonisJS, Lucid, BullMQ, Vine, etc.) via package-lock.json
@@ -62,8 +62,8 @@ cat > "$TMP/patch.json" <<'PATCH_EOF'
     ],
     "properties": [
       { "name": "cdx:npm:package_name",        "value": "alpinejs" },
-      { "name": "picstudio:delivery_channel",  "value": "cdn" },
-      { "name": "picstudio:cdn_provider",      "value": "jsdelivr" }
+      { "name": "myproject:delivery_channel",  "value": "cdn" },
+      { "name": "myproject:cdn_provider",      "value": "jsdelivr" }
     ]
   },
   {
@@ -88,8 +88,8 @@ cat > "$TMP/patch.json" <<'PATCH_EOF'
     ],
     "properties": [
       { "name": "cdx:npm:package_name",        "value": "@alpinejs/collapse" },
-      { "name": "picstudio:delivery_channel",  "value": "cdn" },
-      { "name": "picstudio:cdn_provider",      "value": "jsdelivr" }
+      { "name": "myproject:delivery_channel",  "value": "cdn" },
+      { "name": "myproject:cdn_provider",      "value": "jsdelivr" }
     ]
   },
   {
@@ -114,8 +114,8 @@ cat > "$TMP/patch.json" <<'PATCH_EOF'
     ],
     "properties": [
       { "name": "cdx:npm:package_name",        "value": "@alpinejs/focus" },
-      { "name": "picstudio:delivery_channel",  "value": "cdn" },
-      { "name": "picstudio:cdn_provider",      "value": "jsdelivr" }
+      { "name": "myproject:delivery_channel",  "value": "cdn" },
+      { "name": "myproject:cdn_provider",      "value": "jsdelivr" }
     ]
   },
   {
@@ -140,8 +140,8 @@ cat > "$TMP/patch.json" <<'PATCH_EOF'
     ],
     "properties": [
       { "name": "cdx:npm:package_name",        "value": "@hotwired/turbo" },
-      { "name": "picstudio:delivery_channel",  "value": "cdn" },
-      { "name": "picstudio:cdn_provider",      "value": "unpkg" }
+      { "name": "myproject:delivery_channel",  "value": "cdn" },
+      { "name": "myproject:cdn_provider",      "value": "unpkg" }
     ]
   }
 ]
@@ -180,9 +180,9 @@ jq --slurpfile patch "$TMP/patch.json" \
   | .serialNumber = $uuid
   | .metadata.timestamp = $ts
   | .metadata.properties = ((.metadata.properties // []) + [
-      { "name": "picstudio:cdn_patch_applied",    "value": $ts },
-      { "name": "picstudio:cdn_patch_components", "value": "alpinejs@3.14.9, @alpinejs/collapse@3.14.9, @alpinejs/focus@3.14.9, @hotwired/turbo@8.0.4" },
-      { "name": "picstudio:cdn_patch_reason",     "value": "Components delivered via jsdelivr/unpkg CDN per CLAUDE.md §5, not present in package-lock.json" }
+      { "name": "myproject:cdn_patch_applied",    "value": $ts },
+      { "name": "myproject:cdn_patch_components", "value": "alpinejs@3.14.9, @alpinejs/collapse@3.14.9, @alpinejs/focus@3.14.9, @hotwired/turbo@8.0.4" },
+      { "name": "myproject:cdn_patch_reason",     "value": "Components delivered via jsdelivr/unpkg CDN per CLAUDE.md §5, not present in package-lock.json" }
     ])
 ' "$OUT" > "$TMP/patched.json"
 

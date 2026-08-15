@@ -1,4 +1,4 @@
-# Superpowers ↔ Stack PicStudio — Doc d'intégration
+# Superpowers ↔ Stack MyProject — Doc d'intégration
 
 > **Statut** : actif depuis 2026-05-31. Source unique sur quand utiliser un skill superpowers vs un skill/subagent projet.
 > **Spec** : [`docs/superpowers/specs/2026-05-31-superpowers-integration-design.md`](../superpowers/specs/2026-05-31-superpowers-integration-design.md)
@@ -7,7 +7,7 @@
 
 Le plugin `superpowers@claude-plugins-official` v5.1.0 a été installé le 2026-05-31. Il apporte 14 skills génériques qui couvrent la **discipline de session Claude** (process amont/pendant/aval) : `brainstorming`, `writing-plans`, `executing-plans`, `subagent-driven-development`, `test-driven-development`, `systematic-debugging`, `using-git-worktrees`, `dispatching-parallel-agents`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `finishing-a-development-branch`, `using-superpowers`, `writing-skills`.
 
-La stack Claude PicStudio existante (cf [`experts.md`](experts.md)) est mature : 4 skills custom projet (`/feature`, `/ux-review`, `/secu`, `/pre-pr`) + 12 subagents en 6 couches + 2 hooks. Plusieurs skills superpowers ont un **équivalent projet** (ex : `/feature` ↔ `brainstorming + writing-plans`, `code-reviewer` ↔ `requesting-code-review`). Sans règle de routage explicite, Claude risque d'enfiler les 2 disciplines "par sécurité" → coût tokens + friction + redondance. Cette doc tranche : **le skill projet, projet-aware, prime sur l'équivalent superpowers générique.**
+La stack Claude MyProject existante (cf [`experts.md`](experts.md)) est mature : 4 skills custom projet (`/feature`, `/ux-review`, `/secu`, `/pre-pr`) + 12 subagents en 6 couches + 2 hooks. Plusieurs skills superpowers ont un **équivalent projet** (ex : `/feature` ↔ `brainstorming + writing-plans`, `code-reviewer` ↔ `requesting-code-review`). Sans règle de routage explicite, Claude risque d'enfiler les 2 disciplines "par sécurité" → coût tokens + friction + redondance. Cette doc tranche : **le skill projet, projet-aware, prime sur l'équivalent superpowers générique.**
 
 ## 2. Architecture à 2 couches
 
@@ -46,13 +46,13 @@ Les 2 stacks sont **orthogonales et complémentaires** : superpowers décrit *co
 
 Les skills superpowers s'invoquent uniquement quand :
 - Aucun skill projet ne couvre le contexte (**gap pur** : `systematic-debugging`, `test-driven-development`, `using-git-worktrees`, `writing-skills`, `dispatching-parallel-agents`, `subagent-driven-development`)
-- Le contexte sort du domaine PicStudio (ex : travailler sur la stack Claude elle-même)
+- Le contexte sort du domaine MyProject (ex : travailler sur la stack Claude elle-même)
 
 ## 4. Matrice de routage
 
 | Contexte / déclencheur | Skill / agent à invoquer | NE PAS aussi invoquer |
 |---|---|---|
-| **Nouvelle feature PicStudio** (UI ou backend métier) | `/feature` (qui chaîne `brainstorming` + `product-strategist` + `writing-plans` en interne) | ❌ pas `brainstorming` directement, ❌ pas `writing-plans` directement |
+| **Nouvelle feature MyProject** (UI ou backend métier) | `/feature` (qui chaîne `brainstorming` + `product-strategist` + `writing-plans` en interne) | ❌ pas `brainstorming` directement, ❌ pas `writing-plans` directement |
 | **Refactor / changement structurel projet** non-feature | `brainstorming` (superpowers) → `writing-plans` → `executing-plans` | ❌ pas `/feature` (réservé features) |
 | **Bugfix simple < 5 min, < 2 fichiers** | Action directe, pas de skill | ❌ ni `/feature`, ni `brainstorming`, ni `writing-plans` |
 | **Bug non trivial / behavior unexpected** | `systematic-debugging` (superpowers) puis fix | — |
@@ -65,7 +65,7 @@ Les skills superpowers s'invoquent uniquement quand :
 | **Travailler en isolation d'un workspace** | `using-git-worktrees` (superpowers) | — (gap pur) |
 | **Créer un nouveau skill custom** | `writing-skills` (superpowers) | — (gap pur, méta) |
 | **Audit UX d'un écran config** | `/ux-review` (projet-aware) | ❌ pas `brainstorming` |
-| **Travailler sur la stack Claude elle-même** | Skills superpowers directs (`brainstorming`, `writing-plans`, etc.) | ❌ pas `/feature` (qui parle features PicStudio) |
+| **Travailler sur la stack Claude elle-même** | Skills superpowers directs (`brainstorming`, `writing-plans`, etc.) | ❌ pas `/feature` (qui parle features MyProject) |
 | **Question simple / requête conversationnelle** (ex : "que fait ce fichier ?") | Réponse directe, aucun skill | ❌ pas `using-superpowers`, ❌ pas `brainstorming`. La méta-règle "invoke skill before any response" de `using-superpowers` s'applique aux **tâches**, pas aux questions purement informationnelles. |
 
 ## 5. Cas limites
@@ -104,7 +104,7 @@ La règle est aussi formalisée dans [`docs/anti-patterns.md`](../anti-patterns.
 
 | Skill projet | Équivalent superpowers | Différence | Quand utiliser le projet |
 |---|---|---|---|
-| `/feature` | `brainstorming` + `writing-plans` | Projet ajoute `product-strategist` (couche 0 différenciation) + dispatch experts | Toujours pour features PicStudio |
+| `/feature` | `brainstorming` + `writing-plans` | Projet ajoute `product-strategist` (couche 0 différenciation) + dispatch experts | Toujours pour features MyProject |
 | `/ux-review` | (aucun équivalent direct) | Projet-aware : 6 axes + density gate + Digital Curator | Audit UI projet |
 | `/secu` | `verification-before-completion` (partiel) | Projet wrap `scan-secu.sh` (24 étapes) | Avant push |
 | `/pre-pr` | `verification-before-completion` + `finishing-a-development-branch` (partiel) | Projet enchaîne lint+typecheck+build+sizes | Avant `gh pr create` |

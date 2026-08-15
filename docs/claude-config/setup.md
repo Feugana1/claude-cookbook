@@ -1,6 +1,6 @@
 # Claude Code — setup cross-poste
 
-> Procédure pour reproduire l'environnement Claude Code PicStudio sur une nouvelle machine.
+> Procédure pour reproduire l'environnement Claude Code MyProject sur une nouvelle machine.
 > Source : [`README.md`](README.md) + [`experts.md`](experts.md) + [`skills.md`](skills.md).
 
 ---
@@ -23,8 +23,8 @@ Optionnels (pour `scan-secu.sh` complet) : `trivy`, `gitleaks`, `jscpd`, `licens
 ## 1. Cloner le repo
 
 ```bash
-git clone https://github.com/tamtse/picstudio-all-in-one.git
-cd picstudio-all-in-one
+git clone https://github.com/<your-github>/<your-project>.git
+cd myproject-repo
 npm ci
 cp .env.example .env
 node ace generate:key  # remplir APP_KEY dans .env
@@ -224,7 +224,7 @@ ls docs/competitive-benchmark/
 
 ```bash
 # 1. Settings user (sanitize les paths)
-sed 's|/Users/[^/]*/Documents/dev/picstudio-all-in-one|<PROJECT_ROOT>|g' \
+sed 's|/Users/[^/]*/Documents/dev/myproject-repo|<PROJECT_ROOT>|g' \
    ~/.claude/settings.json > docs/claude-config/settings/user-settings.json
 
 # 2. Plugins

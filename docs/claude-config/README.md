@@ -1,6 +1,6 @@
 # Claude Code — configuration projet
 
-> Documentation de la configuration Claude Code utilisée pour PicStudio :
+> Documentation de la configuration Claude Code utilisée pour MyProject :
 > philosophie, catalogue d'experts spécialisés en 6 couches, procédure de reproduction cross-poste.
 
 ## État (2026-05-30)
@@ -60,7 +60,7 @@ Procédure complète : [`setup.md`](setup.md).
 TL;DR :
 
 ```bash
-git clone <repo> && cd picstudio-all-in-one && npm ci
+git clone <repo> && cd myproject-repo && npm ci
 claude login
 cp docs/claude-config/settings/user-settings.json ~/.claude/settings.json
 # Réinstaller les plugins listés dans settings/installed-plugins.json
@@ -93,7 +93,7 @@ Note : depuis R01 (refactor `.gitignore` whitelist), `.claude/{agents,skills,com
 Quand `~/.claude/settings.json` ou les plugins user changent :
 
 ```bash
-sed 's|/Users/[^/]*/Documents/dev/picstudio-all-in-one|<PROJECT_ROOT>|g' \
+sed 's|/Users/[^/]*/Documents/dev/myproject-repo|<PROJECT_ROOT>|g' \
    ~/.claude/settings.json > docs/claude-config/settings/user-settings.json
 cp ~/.claude/plugins/installed_plugins.json docs/claude-config/settings/installed-plugins.json 2>/dev/null || true
 git add docs/claude-config && git commit -m "chore(claude-config): refresh snapshot $(date +%Y-%m-%d)"

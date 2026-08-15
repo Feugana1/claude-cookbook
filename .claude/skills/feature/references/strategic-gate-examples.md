@@ -18,7 +18,7 @@ Référence chargée par `SKILL.md` step 2 — quand le `product-strategist` ren
 ## REVOIR positionning
 
 ### "Module Tasks/CRM Kanban interne"
-- **Demande** : intégrer un module Tasks Kanban dans PicStudio (comme Honeybook)
+- **Demande** : intégrer un module Tasks Kanban dans MyProject (comme Honeybook)
 - **Verdict** : REVOIR
 - **Pourquoi** : Honeybook + Tave couvrent déjà ce marché en profondeur. Recoder un Kanban interne sans angle premium = "yet another CRM". Reformuler en : "Workflow visuel par client" attaché aux galeries (pas un Kanban générique).
 
@@ -31,9 +31,9 @@ Référence chargée par `SKILL.md` step 2 — quand le `product-strategist` ren
 - **Décision** : feature supprimée 2026-05-30 (S7-03).
 
 ### "Marketplace de presets Lightroom"
-- **Demande** : permettre aux photographes de vendre/acheter des presets sur PicStudio
+- **Demande** : permettre aux photographes de vendre/acheter des presets sur MyProject
 - **Verdict** : NO-GO
-- **Pourquoi** : marché saturé (Tonelist, FilterGrade), pas de pouvoir d'achat depuis PicStudio, dilue le focus "expérience client". Cf PRODUCT.md "the photo leads".
+- **Pourquoi** : marché saturé (Tonelist, FilterGrade), pas de pouvoir d'achat depuis MyProject, dilue le focus "expérience client". Cf PRODUCT.md "the photo leads".
 
 ## Pattern global des verdicts
 

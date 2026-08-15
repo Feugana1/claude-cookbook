@@ -1,4 +1,4 @@
-# Prompt d'Audit UX — PicStudio Digital Curator
+# Prompt d'Audit UX — MyProject Digital Curator
 
 > Utiliser ce prompt pour auditer tout écran ou module de l'app.
 > Appliquer les fixes P0 → P1 → Quick wins dans cet ordre.
@@ -7,7 +7,7 @@
 
 ## Contexte et objectif
 
-Tu audites un écran ou un ensemble d'actions de **PicStudio** (AdonisJS 6 + Edge.js + Alpine.js + TailwindCSS). L'objectif est que chaque écran et chaque action respecte simultanément six axes :
+Tu audites un écran ou un ensemble d'actions de **MyProject** (AdonisJS 6 + Edge.js + Alpine.js + TailwindCSS). L'objectif est que chaque écran et chaque action respecte simultanément six axes :
 
 1. **User-first** — l'utilisateur comprend immédiatement ce qu'il peut faire, sans friction
 2. **PLG (Product-Led Growth)** — zero-friction, progressive disclosure, empty states actifs, inline settings

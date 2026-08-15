@@ -1,4 +1,4 @@
-# Leçons & Discipline d'exécution — PicStudio
+# Leçons & Discipline d'exécution — MyProject
 
 > Source unique des **règles de discipline méta** et des **leçons accumulées** en review.
 > Lue automatiquement par les sessions Claude (référencée par CLAUDE.md §17).
@@ -29,7 +29,7 @@ Seuil d'application : tâche > 5 min ou touchant > 2 fichiers.
 
 **Règle** : pas de feature non demandée, pas d'abstraction pour usage unique, pas de "configurabilité future", pas de gestion d'erreur pour scénarios impossibles.
 
-**Why** : PicStudio a une dette d'abstractions prématurées (services à 1 caller, helpers utilisés une fois) qui alourdissent le grep et la lecture.
+**Why** : MyProject a une dette d'abstractions prématurées (services à 1 caller, helpers utilisés une fois) qui alourdissent le grep et la lecture.
 
 **How** :
 - 3 lignes similaires : laisser les 3 lignes, pas de helper. Helper seulement à 5+ ou si pattern explicite ailleurs
@@ -40,7 +40,7 @@ Seuil d'application : tâche > 5 min ou touchant > 2 fichiers.
 
 **Règle** : chaque ligne modifiée doit tracer directement à la demande user. Pas de "tant que j'y suis" sur du code adjacent. Match le style existant même si on ferait différemment.
 
-**Why** : les bugfixes qui ratissent large créent des diffs illisibles, masquent les vraies modifs en review, et introduisent des régressions. Sur PicStudio les fichiers Edge dépassent souvent 500 lignes — toute modif hors scope est dangereuse.
+**Why** : les bugfixes qui ratissent large créent des diffs illisibles, masquent les vraies modifs en review, et introduisent des régressions. Sur MyProject les fichiers Edge dépassent souvent 500 lignes — toute modif hors scope est dangereuse.
 
 **How** :
 - Bugfix = corriger UNIQUEMENT le bug rapporté. Si on remarque autre chose, le mentionner sans corriger
@@ -159,9 +159,9 @@ Setup Stripe Connect marketplace pas encore fait en prod. Clés déjà reportée
 
 **Checklist** :
 1. Dashboard Stripe → Settings → Connect → Get started → modèle **Express**
-2. Redirect URI OAuth → Connect → Settings → OAuth → Redirects : `https://picstudio.fr/settings/payments/stripe/callback`
+2. Redirect URI OAuth → Connect → Settings → OAuth → Redirects : `https://example.com/settings/payments/stripe/callback`
 3. Webhook → Developers → Webhooks → Add endpoint :
-   - URL : `https://picstudio.fr/webhooks/marketplace/stripe`
+   - URL : `https://example.com/webhooks/marketplace/stripe`
    - Écouter : **"Events on Connected accounts"** (pas "Account events")
    - Events : `checkout.session.completed`, `payment_intent.payment_failed`, `charge.refunded`, `account.updated`
    - Copier le `whsec_` → admin platform-settings
