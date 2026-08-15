@@ -110,7 +110,27 @@ Toute vue Edge créée ou modifiée doit passer la checklist `docs/design-system
 
 **Checklist rapide** : `font-display` sur `h1`, `rounded-2xl` cards, `rounded-xl` boutons, `border-*/40` alertes, empty state avec container `size-14 rounded-2xl`, pas de `border-t/border-b` séparateur, pas de `shadow-lg` standard, pas de `bg-primary` seul.
 
-### 3.2 Migrations — pattern obligatoire
+### 3.2 scan-secu — signal sémantique généraliste, jamais regex nom
+
+Toute étape scan-secu doit détecter LA CLASSE de faille (signal sémantique), pas les instances connues (regex nom de route, whitelist filename).
+
+**Why** : whitelist par nom fichier est fragile — nouveaux sites legit apparaissent (ex: RGPD export 7d, OG scraper 7d, PWA manifest, print-ready email) et fail le scan sans justification. Regex nom rate le pattern quand renommé.
+
+**Pattern canonique** :
+1. Grep signal (ex: `getSignedUrl(..., 'Nh')` avec N≥2, ou `.password =` mutation)
+2. Contexte via `sed -n "$((line-5)),${line}p"` pour lire N lignes avant match
+3. Skip via commentaire `canonical-skip:<class> <raison>` dans contexte
+4. Awk pour parse method-scope quand la vérification exige un scope de fonction
+
+**Exemples appliqués** :
+- `step-22` IDOR + SoftDelete : regex sémantique (`\.query\(\).*where\('id'` sans `effectiveUserId` détecté par awk 5-line context)
+- `step-40` presigned TTL : `'Nh' N≥2 | 'Nd' | expiresIn ≥ 10000s`, canonical-skip context 5L
+- `step-42` session.regenerate : awk parse méthode async, mutation credential → exige `session.regenerate()` same-method
+- `step-50` emailVerified : détecte controllers envoyant email, exige middleware.emailVerified() dans routes
+
+Nouveau site legit (ex: PWA manifest 7d) = ajouter commentaire `canonical-skip:presigned-ttl <raison>` sur ligne match, PAS modifier scan.
+
+### 3.3 Migrations — pattern obligatoire
 
 Toujours utiliser `hasTable` + `createTable` dans les nouvelles migrations AdonisJS. **Ne jamais** utiliser `createTableIfNotExists`.
 
