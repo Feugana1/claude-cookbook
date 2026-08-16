@@ -130,6 +130,8 @@ Les patterns **génériques** (sans nom propre projet) s'appliquent tels quels �
 | Inline quota-check long boolean (`quotaSummary && .quotas && .quotas.X && !.unlimited && .percentage >= 80`) | Helper Edge global `quotaWarningLevel(quotaSummary, key)` retourne `'none' \| 'warning' \| 'danger'` (commits 67610597, bd52f8f5). DRY 4× sidebar + dashboard home. |
 | Inline locked banner amber duplicated entre pages | Composant `components/_feature_locked.edge` (commit 061ac4ca) — variants `inline` + `card`, props `messageKey` + `messageParams`. Helper Edge `canUseResource(quotaSummary, key)` pour la check. Sweep 6 pages. |
 | `@let(X = ...)` dans `@if`/`@elseif` branche puis références dans `@include` du `@else` | `@let` est block-scoped → ne traverse pas les branches `@if/@elseif/@else`. Hoist au scope parent (commit 3373810c sidebar). Symptôme prod : Sentry `X is not defined` au runtime. |
+| Bouton action bricolé mobile icon-only sans label vs desktop pill = incohérent | Composant canonique `_action_button` (icon + label). Mobile size-14 circle + label 11px, desktop pill h-11. Focus-visible + touch 44px. Pattern Airbnb DLS / Apple HIG. |
+| Bottom sheet mobile bricolé avec `x-show` div fixed + backdrop custom | Composant `_action_sheet` (wrapper `<dialog variant='bottom-sheet'>`). Focus-trap natif, safe-area iOS, cols 2/3/4. Slot `actions` contient `<_action_button>` instances. |
 
 ## UI Density (PRODUCT.md "the photo leads" / Axe 6 cognitive restraint)
 
