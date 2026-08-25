@@ -1,0 +1,40 @@
+# Lefthook — git hooks orchestrator (alternative Husky).
+# Wire cookbook conventions au niveau git : commitlint + optionnellement scan-secu delta.
+#
+# Install (dans un projet utilisant le cookbook) :
+#   npm install --save-dev lefthook @commitlint/cli @commitlint/config-conventional
+#   npx lefthook install
+#
+# Complémentaire à docs/templates/husky-pre-commit.sh (si projet préfère Husky).
+
+commit-msg:
+  commands:
+    commitlint:
+      # Valide message commit contre Conventional Commits (cf commitlint.config.js).
+      # Cohérent avec skill `/commit` du cookbook.
+      run: npx --no -- commitlint --edit {1}
+
+pre-commit:
+  parallel: true
+  commands:
+    scan-secu-diff:
+      # Scan sécu delta sur staged files (~3s).
+      # Cf .claude/hooks/precommit-check.sh pour version Claude-triggered.
+      run: |
+        if [ -f scan-secu.sh ]; then
+          SECU_DIFF_STAGED=1 bash scan-secu.sh --diff
+        fi
+      tags: [security]
+
+    file-size-ratchet:
+      # Ratchet §14 (controllers 300 / services 400 / templates 800L).
+      # Fail si nouveau file over ou grandfathered grandit.
+      run: |
+        if [ -f scripts/check-file-sizes.js ]; then
+          node scripts/check-file-sizes.js
+        fi
+      tags: [quality]
+
+# Note : hooks Claude Code (`.claude/hooks/*.sh`) tournent SEULEMENT quand
+# Claude fait Edit/Write/Bash. Lefthook tourne sur git actions manuelles user.
+# Les 2 systèmes sont complémentaires (double sécurité).
