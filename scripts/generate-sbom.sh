@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# MyProject — SBOM generator (CycloneDX 1.6)
+# SBOM generator (CycloneDX 1.6) — cookbook générique
 # ----------------------------------------------------------------------------
 # Generates a Software Bill of Materials covering BOTH:
 #   - Back (AdonisJS, Lucid, BullMQ, Vine, etc.) via package-lock.json

@@ -1,20 +1,22 @@
-# Prompt d'Audit UX — MyProject Digital Curator
+# Prompt d'Audit UX — cookbook générique
 
 > Utiliser ce prompt pour auditer tout écran ou module de l'app.
 > Appliquer les fixes P0 → P1 → Quick wins dans cet ordre.
+>
+> Note : le nom du design system (§Axe 3) et le principe central produit (§Axe 6) sont **projet-specific** — remplacer les mentions génériques par le nom réel du DS et le spirit `PRODUCT.md` du projet.
 
 ---
 
 ## Contexte et objectif
 
-Tu audites un écran ou un ensemble d'actions de **MyProject** (AdonisJS 6 + Edge.js + Alpine.js + TailwindCSS). L'objectif est que chaque écran et chaque action respecte simultanément six axes :
+Tu audites un écran ou un ensemble d'actions du **projet** (typiquement AdonisJS + Edge.js + Alpine.js + TailwindCSS, mais adaptable). L'objectif est que chaque écran et chaque action respecte simultanément six axes :
 
 1. **User-first** — l'utilisateur comprend immédiatement ce qu'il peut faire, sans friction
 2. **PLG (Product-Led Growth)** — zero-friction, progressive disclosure, empty states actifs, inline settings
-3. **Design System Digital Curator** — tonal layering, z-index scale, font-display/tracking, button gradients, rounded-2xl cards
+3. **Design System projet** — tonal layering, z-index scale, font-display/tracking, button gradients, rounded-2xl cards (adapter au DS réel du projet — voir `docs/design-system.md`)
 4. **Pas de redondance** — zéro doublon visuel ou d'information, zéro action inutile
 5. **Premium visuel** — tout doit convaincre par le soin et la finition
-6. **Restraint cognitif** — luxe = moins ; masquer ce qui n'est pas utile *maintenant* à ce user dans ce contexte, sans perdre la pédagogie
+6. **Restraint cognitif** — luxe = moins ; masquer ce qui n'est pas utile *maintenant* à ce user dans ce contexte, sans perdre la pédagogie. Aligné au principe central produit défini dans `PRODUCT.md`.
 
 ---
 
@@ -85,7 +87,7 @@ Tu audites un écran ou un ensemble d'actions de **MyProject** (AdonisJS 6 + Edg
 
 ---
 
-## Axe 3 — Design System Digital Curator
+## Axe 3 — Design System projet
 
 ### Règle No-Line (CRITIQUE — clarifiée 2026-05-28)
 

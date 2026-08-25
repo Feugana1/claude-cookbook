@@ -57,9 +57,10 @@ mkdir -p "$TARGET/.claude/skills"
 mkdir -p "$TARGET/.claude/hooks"
 mkdir -p "$TARGET/scripts"
 mkdir -p "$TARGET/docs/claude-config"
+mkdir -p "$TARGET/.claude-plugin"
 
 # ── Copier les agents (8 génériques) ────────────────────────────────────────
-echo -e "${GREEN}[1/5]${NC} Agents (8 génériques)..."
+echo -e "${GREEN}[1/6]${NC} Agents (8 génériques)..."
 for f in "$COOKBOOK_ROOT"/.claude/agents/*.md; do
   cp "$f" "$TARGET/.claude/agents/"
   echo "    + $(basename "$f")"
@@ -67,7 +68,7 @@ done
 
 # ── Copier les skills (4 slash commands) ────────────────────────────────────
 # NB strip trailing slash sinon macOS BSD cp copie le CONTENU au lieu du dossier
-echo -e "${GREEN}[2/5]${NC} Skills (4 slash commands)..."
+echo -e "${GREEN}[2/6]${NC} Skills (4 slash commands)..."
 for dir in "$COOKBOOK_ROOT"/.claude/skills/*/; do
   skillname=$(basename "$dir")
   cp -r "${dir%/}" "$TARGET/.claude/skills/"
@@ -75,7 +76,7 @@ for dir in "$COOKBOOK_ROOT"/.claude/skills/*/; do
 done
 
 # ── Copier les hooks ────────────────────────────────────────────────────────
-echo -e "${GREEN}[3/5]${NC} Hooks (auto-routing + precommit)..."
+echo -e "${GREEN}[3/6]${NC} Hooks (auto-routing + precommit)..."
 cp "$COOKBOOK_ROOT/.claude/hooks/dispatch-expert.sh" "$TARGET/.claude/hooks/"
 cp "$COOKBOOK_ROOT/.claude/hooks/precommit-check.sh" "$TARGET/.claude/hooks/"
 chmod +x "$TARGET/.claude/hooks/"*.sh
@@ -83,7 +84,7 @@ echo "    + dispatch-expert.sh (chmod +x)"
 echo "    + precommit-check.sh (chmod +x)"
 
 # ── Copier les scripts qualité ──────────────────────────────────────────────
-echo -e "${GREEN}[4/5]${NC} Scripts qualité..."
+echo -e "${GREEN}[4/6]${NC} Scripts qualité..."
 cp "$COOKBOOK_ROOT/scripts/scan-secu.sh" "$TARGET/scan-secu.sh"
 chmod +x "$TARGET/scan-secu.sh"
 cp "$COOKBOOK_ROOT/scripts/check-file-sizes.js" "$TARGET/scripts/"
@@ -94,7 +95,7 @@ echo "    + scripts/check-file-sizes.js — ratchet CI"
 echo "    + scripts/generate-sbom.sh (chmod +x) — CycloneDX SBOM"
 
 # ── Copier la doc ───────────────────────────────────────────────────────────
-echo -e "${GREEN}[5/5]${NC} Docs Claude..."
+echo -e "${GREEN}[5/6]${NC} Docs Claude..."
 cp "$COOKBOOK_ROOT/docs/lessons.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/anti-patterns.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/feature-plan-template.md" "$TARGET/docs/"
@@ -109,6 +110,23 @@ echo "    + docs/anti-patterns.md (catalogue)"
 echo "    + docs/feature-plan-template.md (~200L max)"
 echo "    + docs/ux-audit-prompt.md (6 axes UX)"
 echo "    + docs/claude-config/{README,experts,setup,skills,superpowers-integration}.md"
+
+# ── Manifest plugin + settings.json ─────────────────────────────────────────
+echo -e "${GREEN}[6/6]${NC} Plugin manifest + settings.json..."
+cp "$COOKBOOK_ROOT/.claude-plugin/plugin.json" "$TARGET/.claude-plugin/"
+cp "$COOKBOOK_ROOT/.claude-plugin/marketplace.json" "$TARGET/.claude-plugin/"
+echo "    + .claude-plugin/plugin.json + marketplace.json (v0.2.0)"
+
+# settings.json : ne pas écraser si présent (project-specific — permissions/hooks user
+# peuvent avoir été customisés). Mode --update : préserver. Mode INIT : copier
+# uniquement si absent.
+if [ ! -f "$TARGET/settings.json" ]; then
+  cp "$COOKBOOK_ROOT/settings.json" "$TARGET/settings.json"
+  echo "    + settings.json (permissions deny + hooks wire + env)"
+  echo -e "    ${YELLOW}NOTE${NC}: hooks wire via \${CLAUDE_PLUGIN_ROOT} — restart Claude Code pour les activer."
+else
+  echo -e "    ${YELLOW}settings.json déjà présent — préservé (fusionner manuellement si nécessaire).${NC}"
+fi
 
 # ── CLAUDE.md root : init seulement si absent et mode INIT ──────────────────
 # Copie le template canonical (docs/templates/CLAUDE.md) qui inclut §5
@@ -131,10 +149,12 @@ echo -e "  ${GREEN}${BOLD}✓ Bootstrap terminé${NC}"
 echo -e "${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${BOLD}Installé dans ${TARGET}${NC} :"
+echo -e "  • .claude-plugin/{plugin,marketplace}.json (v0.2.0 — plugin natif Claude Code)"
+echo -e "  • settings.json (permissions deny + hooks wire + env — copié si absent)"
 echo -e "  • 8 sub-agents génériques (.claude/agents/)"
 echo -e "  • 4 skills (.claude/skills/feature, pre-pr, secu, ux-review)"
 echo -e "  • 2 hooks (.claude/hooks/dispatch-expert + precommit-check)"
-echo -e "  • 3 scripts (scan-secu.sh orchestrator ~230L --diff mode + scan-secu.d/ 36 step modules + check-file-sizes.js + generate-sbom.sh)"
+echo -e "  • 3 scripts (scan-secu.sh orchestrator ~220L --diff mode + scan-secu.d/ 41 step modules + check-file-sizes.js + generate-sbom.sh)"
 echo -e "  • 9 docs (lessons, anti-patterns, feature-plan-template, ux-audit-prompt + claude-config/)"
 echo -e "  • 3 templates (docs/templates/{gitleaks.toml, husky-pre-commit, scan-secu-weekly.yml} — wire manuel après bootstrap)"
 if [ "$UPDATE_MODE" = false ]; then

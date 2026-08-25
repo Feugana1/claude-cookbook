@@ -1,7 +1,6 @@
-# Claude Code — setup cross-poste
+# Claude Code — setup cross-poste (cookbook)
 
-> Procédure pour reproduire l'environnement Claude Code MyProject sur une nouvelle machine.
-> Source : [`README.md`](README.md) + [`experts.md`](experts.md) + [`skills.md`](skills.md).
+> Procédure pour installer le cookbook Claude Code sur une nouvelle machine ou un nouveau projet.
 
 ---
 
@@ -20,16 +19,32 @@ Optionnels (pour `scan-secu.sh` complet) : `trivy`, `gitleaks`, `jscpd`, `licens
 
 ---
 
-## 1. Cloner le repo
+## 1. Installation du cookbook
+
+### Voie A — Plugin natif Claude Code (recommandé)
 
 ```bash
-git clone https://github.com/<your-github>/<your-project>.git
-cd myproject-repo
-npm ci
-cp .env.example .env
-node ace generate:key  # remplir APP_KEY dans .env
-# (renseigner DB, Redis, S3, NotchPay, Stripe selon .env.example)
+# Depuis n'importe quel dossier ou projet :
+/plugin marketplace add <owner>/claude-cookbook
+/plugin install cookbook@claude-cookbook
 ```
+
+Le plugin déploie automatiquement : agents, skills, hooks, settings (permissions + wire hooks), MCP config (P1).
+
+### Voie B — Bootstrap script (fallback)
+
+```bash
+# 1. Cloner le cookbook
+git clone <cookbook-repo> ~/dev/claude-cookbook
+
+# 2. Depuis le dossier de ton projet
+cd <mon-projet>
+bash ~/dev/claude-cookbook/bootstrap-claude.sh .
+```
+
+Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir.
+
+Mode update : `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update` (préserve les fichiers spécifiques projet).
 
 ---
 
@@ -42,115 +57,92 @@ claude login
 
 ---
 
-## 3. Configuration projet (`.claude/` dans le repo)
+## 3. Configuration projet installée par le cookbook
 
-**Post-R01** (whitelist `.gitignore`) — tout est déjà dans le repo et sera cloné :
+Après install (Voie A ou B) :
 
 ```
 .claude/
-├── agents/           ← 9 subagents experts (cf experts.md §4.1)
-├── skills/           ← skills projet (ux-review + autres)
-├── commands/         ← slash commands custom
-├── hooks/            ← scripts hooks (dispatch-expert.sh, etc.)
-└── settings.json     ← settings projet partagé (permissions équipe + hooks)
+├── agents/           ← 8 subagents génériques (cf experts.md §4)
+├── skills/           ← /feature /ux-review /secu /pre-pr
+└── hooks/            ← dispatch-expert.sh + precommit-check.sh
+
+settings.json         ← permissions deny + hooks wire (racine cookbook, sourcé au load)
+scripts/              ← scan-secu.sh + 41 étapes + check-file-sizes.js + generate-sbom.sh
+docs/                 ← lessons.md + anti-patterns.md + feature-plan-template.md + ux-audit-prompt.md + claude-config/
 ```
 
-**Avant R01** (état actuel) — `.claude/` est entièrement gitignored : à initialiser à la main depuis le snapshot :
-
-```bash
-# 1. Récupérer les skills depuis snapshot
-ls docs/claude-config/snapshot/ 2>/dev/null || echo "snapshot pas encore créé"
-
-# 2. Réinstaller les skills externes (cf skills.md pour la liste)
-# 3. Créer settings.local.json vide
-mkdir -p .claude
-echo '{"permissions":{"allow":[]}}' > .claude/settings.local.json
-```
-
-Une fois R01 livré, cette section disparaît — `git clone` suffit.
+Extension projet-specific (à ajouter localement, non versionnés dans cookbook) :
+- Agents domain (`nf525-accounting`, `shop-marketplace`, `workflow-email` custom, `public-experience`, etc.)
+- Docs domain (`docs/architecture.md`, `docs/design-system.md`, `docs/database-neon.md`, `docs/storage-s3.md`, `docs/security-multitenant.md`)
+- Vision produit (`PRODUCT.md`, `docs/vision.md`, `docs/competitive-benchmark/*.md`, `docs/roadmap.md`)
+- Hook extension `.claude/hooks/dispatch-expert.local.sh` (sourcé si présent — pour hints domain-specific)
 
 ---
 
 ## 4. Configuration user (`~/.claude/`)
 
-Ces fichiers sont **propres à chaque machine** et ne sont jamais commités dans le projet. Mais leur **structure de référence** est dans le repo :
+Ces fichiers sont **propres à chaque machine** et ne sont jamais commités dans le projet.
 
 ### 4.1 `~/.claude/settings.json`
 
-Copier le snapshot sanitized :
+Préférences user cross-projet (verbosité, modèle par défaut, etc.). Optionnel — chaque user tient le sien.
 
-```bash
-# Backup si existe déjà
-cp ~/.claude/settings.json ~/.claude/settings.json.bak 2>/dev/null || true
+### 4.2 `~/.claude/CLAUDE.md`
 
-# Restaurer
-cp docs/claude-config/settings/user-settings.json ~/.claude/settings.json
-```
-
-> Les paths bash dans `permissions.allow` ont été sanitized en `<PROJECT_ROOT>` dans le snapshot. Claude les régénère au premier usage avec le path réel.
-
-### 4.2 `~/.claude/CLAUDE.md` (préférences cross-projet, R10)
-
-Si présent dans snapshot :
-
-```bash
-cp docs/claude-config/user-claude-md.template ~/.claude/CLAUDE.md
-```
-
-Sinon, créer manuellement avec ses préférences (langue, style commit, niveau verbosité). Cf [`experts.md` §9 R10](experts.md#9-roadmap--état-dimplémentation) pour le contenu recommandé.
+Préférences user cross-projet (langue, style commit, niveau verbosité). Optionnel.
 
 ### 4.3 Plugins marketplace
 
 ```bash
-# Lister les plugins du snapshot
-cat docs/claude-config/settings/installed-plugins.json
+# Lister les plugins installés
+/plugin list
 
-# Réinstaller chacun (manuel, pas d'import auto Claude Code)
-/plugin install <plugin-name>@<plugin-source>
+# Recommandés en complément du cookbook :
+# - superpowers@claude-plugins-official (skills discipline session — brainstorming, writing-plans, systematic-debugging, etc.)
 ```
 
-Plugins actifs actuellement (snapshot 2026-05-30) :
-- `caveman@caveman` — communication ultra-compressée
+Le cookbook référence `superpowers` pour la discipline de session — cf [`superpowers-integration.md`](superpowers-integration.md).
 
 ---
 
 ## 5. Vérification post-install
 
-### 5.1 CLAUDE.md projet chargé
+### 5.1 CLAUDE.md projet chargé (si projet a un CLAUDE.md)
 
 ```bash
-# Lancer une session Claude depuis le repo
 claude
-# Dans la session, taper :
-> Quelle est la règle §17.6 ?
-# Doit citer "UI density gate (>4 sections = STOP)"
+# Dans la session :
+> Quelle est la règle §14 ?
+# Doit citer les limites de taille (controllers 300, services 400, templates 800)
 ```
 
-### 5.2 Subagents listés (12 attendus)
+### 5.2 Subagents listés
 
 ```bash
-# Dans une session Claude :
 > List the agents available to you
 ```
 
-Doit lister les 12 subagents en 6 couches :
+Doit lister les **8 subagents cookbook** en 6 couches :
 
 | Couche | Agent | Model |
 |---|---|---|
 | 0 Strategic | `product-strategist` | sonnet |
-| 1 Architects | `front-curator`, `back-architect` | sonnet |
+| 1 Architects | `back-architect` | sonnet |
 | 2 Cross-cutting | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` | sonnet/haiku |
-| 3 Domain | `nf525-accounting`, `shop-marketplace`, `workflow-email`, `public-experience` | sonnet |
+| 3 Domain | `workflow-email` | sonnet |
 | 4 Linters | `edge-anti-patterns` | haiku |
 | 5 Final gate | `code-reviewer` | sonnet |
 
-### 5.3 Skills listés (4 attendus)
+Si le projet a ajouté des agents projet-specific, ils apparaissent en plus.
+
+### 5.3 Skills listés
 
 ```bash
 # Dans une session Claude, taper /
 ```
 
-Doit lister `/feature`, `/ux-review`, `/secu`, `/pre-pr` parmi les skills built-in.
+Doit lister `/feature`, `/ux-review`, `/secu`, `/pre-pr` parmi les skills disponibles.
 
 ### 5.4 Hook dispatcher actif (PostToolUse Edit/Write)
 
@@ -165,7 +157,7 @@ Doit lister `/feature`, `/ux-review`, `/secu`, `/pre-pr` parmi les skills built-
 ### 5.5 Hook precommit actif (PreToolUse Bash)
 
 ```bash
-# Dans une session, après avoir staged un diff non-trivial (≥ 2 fichiers ou ≥ 50 lignes) :
+# Après avoir staged un diff non-trivial :
 > git commit -m "test"
 # Doit afficher en stderr :
 # "[hook:precommit] Staged paths analysis : ts=... app|views=..."
@@ -176,7 +168,6 @@ Doit lister `/feature`, `/ux-review`, `/secu`, `/pre-pr` parmi les skills built-
 ### 5.6 Permissions deny actives
 
 ```bash
-# Dans une session :
 > git commit --no-verify -m "test"
 # Doit être REFUSÉ : permission deny "Bash(git commit *--no-verify*)"
 ```
@@ -185,19 +176,18 @@ Doit lister `/feature`, `/ux-review`, `/secu`, `/pre-pr` parmi les skills built-
 
 ```bash
 bash scan-secu.sh
-# Doit dérouler les 24 étapes, terminer par "READY TO PUSH" ou "BLOCKED"
+# Doit dérouler les 41 étapes (nombre auto-compté depuis scan-secu.d/),
+# terminer par "READY TO PUSH" / "BLOCKED" / "NEEDS REVIEW" / "SHIP WITH DEBT"
 ```
 
 ### 5.8 Skills opérationnels
 
 ```bash
-# Dans une session Claude :
-> /ux-review pages/portfolio
-# Doit charger ux-audit-prompt.md et auditer le portfolio
+> /ux-review pages/<un-écran>
+# Doit charger ux-audit-prompt.md et auditer
 
-> /feature gallery-music-spotify
-# Doit invoquer product-strategist, charger competitive-benchmark/*,
-# poser les 7 questions canoniques, rendre verdict GO/REVOIR/NO-GO
+> /feature <nouvelle-idée>
+# Doit invoquer brainstorming + product-strategist (si sources produit projet présentes)
 
 > /secu
 # Doit lancer bash scan-secu.sh et résumer FAIL/WARN avec fix proposé
@@ -206,59 +196,16 @@ bash scan-secu.sh
 # Doit séquencer lint → typecheck → build → ratchet
 ```
 
-### 5.9 Référentiel concurrents accessible
-
-```bash
-ls docs/competitive-benchmark/
-# Doit lister : README.md + _template.md + 13 fichiers concurrents
-# (honeybook.md, pic-time.md, pixieset.md, tave.md, studio-ninja.md,
-#  17hats.md, iris-works.md, shootproof.md, sprout-studio.md,
-#  cloudspot.md, unscripted.md, picflow.md, pelli.md)
-```
-
 ---
 
-## 6. Synchronisation snapshot (quand la conf locale évolue)
-
-À refaire après ajout d'un plugin, modification de `~/.claude/settings.json`, ou installation d'un skill externe :
-
-```bash
-# 1. Settings user (sanitize les paths)
-sed 's|/Users/[^/]*/Documents/dev/myproject-repo|<PROJECT_ROOT>|g' \
-   ~/.claude/settings.json > docs/claude-config/settings/user-settings.json
-
-# 2. Plugins
-cp ~/.claude/plugins/installed_plugins.json \
-   docs/claude-config/settings/installed-plugins.json 2>/dev/null || \
-   echo '{}' > docs/claude-config/settings/installed-plugins.json
-
-# 3. Commit
-git add docs/claude-config && \
-git commit -m "chore(claude-config): refresh snapshot $(date +%Y-%m-%d)"
-```
-
-Pas de snapshot nécessaire pour les évolutions **projet** (`.claude/agents/`, `.claude/skills/`, `.claude/hooks/`, `.claude/settings.json`) — elles sont versionnées directement dans le repo après R01.
-
----
-
-## 7. Troubleshooting
+## 6. Troubleshooting
 
 | Symptôme | Cause probable | Fix |
 |---|---|---|
 | Subagent listé mais jamais auto-invoqué | Description-trigger trop vague | Renforcer le `description` frontmatter avec patterns paths précis + verbes "Use PROACTIVELY when…" |
 | Hook bloque légitimement mais on veut bypass | Action OK ponctuellement | `// canonical-skip:<rule>:<reason>` dans le diff (convention scan-secu.sh §22) — pas `--no-verify` |
-| Skill `/ux-review` introuvable | `.claude/skills/` pas encore versionné (avant R01) ou non installé | `ls .claude/skills/ux-review/SKILL.md` — si manquant, copier depuis snapshot ou recréer |
-| `~/.claude/settings.json` perdu | Réinstall OS | Étape 4.1 — restaurer depuis snapshot |
+| Skill `/ux-review` introuvable | `.claude/skills/` pas installé | Voir §1 install ou vérifier `ls .claude/skills/ux-review/SKILL.md` |
 | Permissions explosées (`settings.local.json` grossit) | Accumulation one-shot perl/sed | Lancer skill built-in `fewer-permission-prompts` pour audit + nettoyage |
 | `claude login` refuse | Token expiré | Re-`claude login` |
-
----
-
-## 8. État de l'implémentation
-
-Cette procédure suppose **R01 livré** (cf [`experts.md` §9](experts.md#9-roadmap--état-dimplémentation)). Tant que R01 n'est pas validé :
-- `.claude/agents/`, `.claude/skills/`, `.claude/hooks/`, `.claude/settings.json` **ne sont PAS versionnés**
-- L'étape **§3 (Configuration projet)** se réduit à : créer un `.claude/settings.local.json` vide
-- L'étape **§5 (Vérification)** : seuls les built-in skills répondent
-
-Après R01 → R04c (bloc P0 implémenté), la procédure complète est opérationnelle.
+| `product-strategist` renvoie `BLOCKED-SETUP` | Le projet n'a pas de `PRODUCT.md` ou de `docs/vision.md` | Créer une vision produit minimale avant d'invoquer le skill `/feature` |
+| `code-reviewer` ne trouve pas `docs/security-multitenant.md` | Doc non versionnée dans le projet | Créer les docs domain projet-specific référencées par les experts (voir README §"Ce que le cookbook n'installe pas") |

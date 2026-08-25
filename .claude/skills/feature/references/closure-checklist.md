@@ -34,7 +34,7 @@ Si la feature révèle qu'un concurrent doit être réaudité (parce qu'il a pro
 
 ## 3. Axes de différenciation (si nouvel angle)
 
-Si la feature consolide ou ouvre un nouvel axe de différenciation par rapport au benchmark, l'ajouter à `docs/competitive-benchmark/README.md` section **"Axes de différenciation MyProject (actifs)"** :
+Si la feature consolide ou ouvre un nouvel axe de différenciation par rapport au benchmark, l'ajouter à `docs/competitive-benchmark/README.md` section **"Axes de différenciation actifs"** :
 
 ```markdown
 - **<nom de l'axe>** : <description courte>. Source : feature `<nom>` (2026-XX-XX).

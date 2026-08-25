@@ -59,11 +59,17 @@ case "$rel" in
       # @svg mid-line — output littéral en prod
       echo "[hook:edge-P1] WARNING — @svg() mid-ligne dans $rel — edge-iconify ne déclenche QUE début-de-ligne. Casser sur sa propre ligne. CLAUDE.md §13. Invoke 'edge-anti-patterns' subagent." >&2
     fi
-    # Hints couche 1 + 4
-    echo "[hook:hint] front-curator — audit 6 axes UX + charte Digital Curator (couche 1 architect)." >&2
+    # Hints couche 4 (linter fast-pass)
     case "$rel" in
       *.edge) echo "[hook:hint] edge-anti-patterns — linter rapide 16 patterns P0/P1 §13 (couche 4)." >&2 ;;
     esac
+    # Project-specific front hints — extension point.
+    # Un projet UI-heavy peut ajouter un front-curator ou équivalent via
+    # .claude/hooks/dispatch-expert.local.sh (sourcé si présent).
+    if [ -f .claude/hooks/dispatch-expert.local.sh ]; then
+      # shellcheck disable=SC1091
+      source .claude/hooks/dispatch-expert.local.sh
+    fi
     exit 0
     ;;
 esac
@@ -120,21 +126,16 @@ case "$rel" in
         echo "[hook:hint] data-access-reviewer — preload vs load, raw SQL, pool, TTL Redis (couche 2 fast-pass haiku)." >&2 ;;
     esac
     case "$rel" in
-      *document*|*invoice*|*quote*|*contract*|*credit*|*expense*)
-        echo "[hook:hint] nf525-accounting — immutabilité factures, numérotation FOR UPDATE, soft-delete, devis→facture (couche 3 domain)." >&2 ;;
-    esac
-    case "$rel" in
       *workflow*|*email*|*mail*)
         echo "[hook:hint] workflow-email — Mustache vs ICU, lifecycle sync/sendLater, WorkflowBinding owner_type (couche 3 domain)." >&2 ;;
     esac
-    case "$rel" in
-      *shop*|*marketplace*)
-        echo "[hook:hint] shop-marketplace — commission tier, Stripe Connect vs NotchPay, channels jsonb, invoice auto-gen (couche 3 domain)." >&2 ;;
-    esac
-    case "$rel" in
-      *public_*)
-        echo "[hook:hint] public-experience — SubdomainMiddleware.globalPassthrough, OG meta, BrandingService.loadPublicBranding (couche 3 domain)." >&2 ;;
-    esac
+    # Project-specific domain hints — extension point.
+    # Un projet peut créer .claude/hooks/dispatch-expert.local.sh (sourcé si présent)
+    # pour ajouter ses propres experts domain (compta / marketplace / public / etc.).
+    if [ -f .claude/hooks/dispatch-expert.local.sh ]; then
+      # shellcheck disable=SC1091
+      source .claude/hooks/dispatch-expert.local.sh
+    fi
     exit 0
     ;;
 esac
@@ -142,12 +143,12 @@ esac
 # ---------- Models ----------
 case "$rel" in
   app/models/*.ts)
-    echo "[hook:hint] back-architect — conventions naming, $extras vs columns (couche 1)." >&2
+    echo "[hook:hint] back-architect — conventions naming, columns/extras (couche 1)." >&2
     echo "[hook:hint] data-access-reviewer — preload, JSONB prepare/consume helpers (couche 2)." >&2
-    case "$rel" in
-      *document*|*invoice*|*expense*)
-        echo "[hook:hint] nf525-accounting — schéma compta (couche 3)." >&2 ;;
-    esac
+    if [ -f .claude/hooks/dispatch-expert.local.sh ]; then
+      # shellcheck disable=SC1091
+      source .claude/hooks/dispatch-expert.local.sh
+    fi
     exit 0
     ;;
 esac
@@ -156,9 +157,9 @@ esac
 case "$rel" in
   database/migrations/*.ts)
     echo "[hook:hint] migration-reviewer — IF NOT EXISTS, DEFAULT NOT NULL, JSONB documenté, ALTER CONSTRAINT enum, prepare/consume (couche 2 cross-cutting)." >&2
-    # Suspicion table compta
-    if grep -nE 'documents|invoices|quotes|contracts|credit_notes|expenses' "$file" >/dev/null 2>&1; then
-      echo "[hook:hint] nf525-accounting — table comptable touchée (couche 3 domain)." >&2
+    if [ -f .claude/hooks/dispatch-expert.local.sh ]; then
+      # shellcheck disable=SC1091
+      source .claude/hooks/dispatch-expert.local.sh
     fi
     exit 0
     ;;

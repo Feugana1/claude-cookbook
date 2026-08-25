@@ -1,44 +1,55 @@
-# `/feature` — Verdicts strategic gate (exemples calibration)
+# `/feature` — Verdicts strategic gate (exemples génériques calibration)
 
 Référence chargée par `SKILL.md` step 2 — quand le `product-strategist` rend son verdict, comparer aux verdicts passés pour calibrer.
 
-## GO différentiant
+Les exemples ci-dessous sont **génériques** (abstraits). Chaque projet doit tenir sa propre trace des verdicts passés dans `docs/features/<nom>.md` §Décision ou dans `docs/dev-changelog.md`.
 
-### "Anti-screenshot galerie privée"
-- **Demande** : protéger les galeries privées partagées contre la capture d'écran
+## GO différentiant (patterns)
+
+### Pattern "Angle sécurité premium sur commodity"
+- **Contexte** : la feature est standard sur le marché, mais aucun concurrent tracké ne l'aborde avec l'angle sécurité/premium visé
 - **Verdict** : GO différentiant
-- **Pourquoi** : Pixieset, Pic-Time, ShootProof ne le proposent pas. Angle "premium photo protection" cohérent avec PRODUCT.md.
-- **Conditions de GO** : pas seulement détection, mais aussi watermark dynamique + bandeau visible + blocage clavier sur shortcut macOS. Cf `docs/features/anti-screenshot-galleries.md`.
+- **Pourquoi** : couvre un gap réel + cohérent avec principe central produit
+- **Conditions de GO typiques** : implémentation qui incarne l'angle (ex: watermark dynamique, blocage clavier, audit trail), pas juste checkbox marketing
 
-### "Strategic gate / différenciation produit comme couche 0"
-- **Demande** : ajouter un subagent qui challenge chaque nouvelle feature contre 13 concurrents
+### Pattern "Nouveau primitif dans un espace mûr"
+- **Contexte** : ajouter une primitive méthodologique (skill, agent, workflow) qui n'existe nulle part dans l'écosystème comparable
 - **Verdict** : GO différentiant
-- **Pourquoi** : aucune stack SaaS open-source ne fait cela. Renforce la discipline produit. Cf [`docs/claude-config/experts.md`](../../../docs/claude-config/experts.md) R12.
+- **Pourquoi** : renforce une discipline produit unique, non copiable rapidement
 
-## REVOIR positionning
+## REVOIR positionning (patterns)
 
-### "Module Tasks/CRM Kanban interne"
-- **Demande** : intégrer un module Tasks Kanban dans MyProject (comme Honeybook)
+### Pattern "Copie fonctionnelle d'un concurrent mature"
+- **Contexte** : la feature demandée existe déjà en profondeur chez ≥ 2 concurrents trackés, sans angle différenciant clair
 - **Verdict** : REVOIR
-- **Pourquoi** : Honeybook + Tave couvrent déjà ce marché en profondeur. Recoder un Kanban interne sans angle premium = "yet another CRM". Reformuler en : "Workflow visuel par client" attaché aux galeries (pas un Kanban générique).
+- **Pourquoi** : recoder une commodity = "yet another <catégorie>". Reformuler avec un axe premium projet-specific (ex: attacher la feature à un workflow différenciant existant, la scope-down à un use-case précis)
 
-## NO-GO trop générique
+### Pattern "Feature générique mais implémentation qui pourrait être premium"
+- **Contexte** : la feature est standard mais l'exécution pourrait devenir signature
+- **Verdict** : REVOIR
+- **Pourquoi** : validation possible si le brief est reformulé pour porter l'exécution différenciante
 
-### "Système NPS interne post-livraison"
-- **Demande** : afficher un NPS interne après livraison galerie pour mesurer satisfaction client photographe
+## NO-GO trop générique (patterns)
+
+### Pattern "Donnée dormante sans actionabilité"
+- **Contexte** : feature qui collecte une métrique interne (NPS, satisfaction, sondage) sans workflow d'action clair
 - **Verdict** : NO-GO
-- **Pourquoi** : le flow review existant pointe vers Google avis (preuve sociale + SEO photographe). NPS interne = donnée dormante sans actionabilité. Cf memory `feedback_no_internal_nps`.
-- **Décision** : feature supprimée 2026-05-30 (S7-03).
+- **Pourquoi** : dette produit — collecter sans actionner. Si un flow externe existe déjà (ex: avis Google, review publique), pointer vers lui.
 
-### "Marketplace de presets Lightroom"
-- **Demande** : permettre aux photographes de vendre/acheter des presets sur MyProject
+### Pattern "Marché saturé + hors mission"
+- **Contexte** : entrer dans un marché déjà couvert par des acteurs spécialisés, sans avantage distributionnel/produit
 - **Verdict** : NO-GO
-- **Pourquoi** : marché saturé (Tonelist, FilterGrade), pas de pouvoir d'achat depuis MyProject, dilue le focus "expérience client". Cf PRODUCT.md "the photo leads".
+- **Pourquoi** : dilue le focus produit, coût opportunité élevé
+
+### Pattern "Anti-référence violée"
+- **Contexte** : la feature viole explicitement une anti-référence documentée dans `PRODUCT.md` (ex: transforme le produit en tableur, dashboard SaaS générique, complexité pour experts uniquement)
+- **Verdict** : NO-GO
+- **Pourquoi** : cohérence produit — les anti-références existent pour être respectées
 
 ## Pattern global des verdicts
 
-- **GO** : différenciation claire vs ≥ 3 concurrents trackés + alignement PRODUCT.md "the photo leads"
-- **REVOIR** : idée valide mais positionnement trop générique, reformulable
-- **NO-GO** : feature commodity ou hors mission produit
+- **GO** : différenciation claire vs ≥ 2-3 concurrents trackés + alignement principe central produit + simplification
+- **REVOIR** : idée valide mais positionnement trop générique, reformulable en 1-3 alternatives
+- **NO-GO** : feature commodity, hors mission produit, ou viole une anti-référence
 
-Les verdicts passés sont ajoutés ici à chaque feature significative pour calibrer les futurs `product-strategist` runs.
+Les verdicts passés du projet doivent être ajoutés au fur et à mesure dans `docs/features/<nom>.md` §Décision (ou changelog) pour calibrer les futurs `product-strategist` runs.

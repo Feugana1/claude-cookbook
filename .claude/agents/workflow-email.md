@@ -69,7 +69,7 @@ L'expert prend le dessus sur les règles workflows + emails (très couplés), **
 - ...
 
 **Cross-review déléguée** :
-- `front-curator` — si template `.edge` UI à auditer charte
+- UI expert projet-specific (si présent) — si template `.edge` UI à auditer charte
 - `security-multitenant` — si action exécute du SQL/queries
 
 **Déjà correct** :

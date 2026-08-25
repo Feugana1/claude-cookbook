@@ -1,0 +1,91 @@
+{
+  "respectGitignore": true,
+  "env": {
+    "BASH_DEFAULT_TIMEOUT_MS": "600000",
+    "BASH_MAX_TIMEOUT_MS": "600000",
+    "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "true"
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "Read",
+      "Write",
+      "MultiEdit",
+      "Grep",
+      "Glob",
+      "LS",
+      "TaskCreate",
+      "TaskGet",
+      "TaskList",
+      "TaskUpdate",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(rm -Rf *)",
+      "Bash(rm -fR *)",
+      "Bash(rm -r -f *)",
+      "Bash(rm -f -r *)",
+      "Bash(chmod 777 *)",
+      "Bash(chmod -R 777 *)",
+      "Bash(chown -R *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(> /dev/sda *)",
+      "Bash(format *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(git commit *--no-verify*)",
+      "Bash(git rebase -i *)",
+      "Bash(git branch -D *)",
+      "Bash(git checkout -- *)",
+      "Bash(git restore *)",
+      "Bash(git clean *)",
+      "Bash(git config *)",
+      "Bash(npm install -g *)",
+      "Bash(pip install *)",
+      "Bash(brew install *)",
+      "Bash(gem install *)",
+      "Bash(gh auth logout *)",
+      "Bash(gh auth refresh *)",
+      "Bash(gh release delete *)",
+      "Bash(gh repo delete *)",
+      "Bash(gh repo archive *)",
+      "Bash(gh secret delete *)",
+      "Bash(gh secret set *)",
+      "Bash(gh workflow disable *)",
+      "Bash(gh workflow run *)",
+      "Write(/.env*)",
+      "Edit(/.env*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude/hooks/dispatch-expert.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude/hooks/precommit-check.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

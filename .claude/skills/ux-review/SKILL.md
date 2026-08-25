@@ -1,18 +1,18 @@
 ---
 name: ux-review
-description: Audit a MyProject page (Edge template + partials) against docs/ux-audit-prompt.md and CLAUDE.md §17.6 UI density rules. Outputs P0/P1/Quick wins in the prescribed format. Use when the user asks /ux-review, requests a UX audit, or before adding a feature to a config screen. Triggers proactively when user says a page feels "chargé", "dense", "overloaded", "ne respire pas", or references PRODUCT.md spirit.
+description: Audit a page du projet (Edge template + partials) against docs/ux-audit-prompt.md and CLAUDE.md §17.6 UI density rules. Outputs P0/P1/Quick wins in the prescribed format. Use when the user asks /ux-review, requests a UX audit, or before adding a feature to a config screen. Triggers proactively when user says a page feels "chargé", "dense", "overloaded", "ne respire pas", or references the project's PRODUCT.md spirit.
 tools: Read, Glob, Grep, Bash
 ---
 
-# UX Review — MyProject
+# UX Review — cookbook générique
 
-Audit a page against the 6 axes from `docs/ux-audit-prompt.md` + UI density gates from `docs/anti-patterns.md` + PRODUCT.md spirit. Output: actionable P0/P1/Quick wins.
+Audit a page against the 6 axes from `docs/ux-audit-prompt.md` + UI density gates from `docs/anti-patterns.md` + le principe central du projet (PRODUCT.md ou équivalent). Output: actionable P0/P1/Quick wins.
 
 ## When to invoke
 
-- User types `/ux-review <page>` or `/ux-review pages/portfolio/index.edge`
+- User types `/ux-review <page>` or `/ux-review pages/<module>/index.edge`
 - User says a page feels "chargé", "dense", "overloaded", "ne respire pas", "trop d'options visibles"
-- User references PRODUCT.md, `digital curator`, "the photo leads"
+- User references PRODUCT.md ou le principe central produit du projet
 - **Proactive trigger**: BEFORE adding a new section/setting to an existing config screen — run an audit first to confirm the screen can absorb a new section without breaking Axe 6 cognitive restraint.
 
 ## Inputs
