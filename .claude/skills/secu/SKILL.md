@@ -1,11 +1,11 @@
 ---
 name: secu
-description: Lance scan-secu.sh (24 étapes pre-push), parse les FAIL/WARN par étape, résume et propose un fix concret pour chaque FAIL. À invoquer avant `git push` ou sur demande. Utilise scan-secu.sh comme source de vérité — pas de duplication des règles ici.
+description: Lance scan-secu.sh (41 étapes tier OWASP pre-push), parse les FAIL/WARN par étape, résume et propose un fix concret pour chaque FAIL. À invoquer avant `git push` ou sur demande. Utilise scan-secu.sh comme source de vérité — pas de duplication des règles ici.
 ---
 
 # Skill `/secu`
 
-Invocation manuelle. Wrapper du script `scan-secu.sh` (24 étapes pre-push) avec parsing du résultat et résumé actionnable.
+Invocation manuelle. Wrapper du script `scan-secu.sh` (41 étapes tier OWASP pre-push) avec parsing du résultat et résumé actionnable.
 
 ## Quand l'invoquer
 
@@ -27,7 +27,7 @@ Invocation manuelle. Wrapper du script `scan-secu.sh` (24 étapes pre-push) avec
 
 ## Sources de vérité
 
-- `scan-secu.sh` (24 étapes, TOTAL=24 ligne 30)
+- `scan-secu.sh` (41 étapes, TOTAL auto-compté depuis `scan-secu.d/`)
 - `CLAUDE.md` §13 (anti-patterns P0/P1)
 - `docs/anti-patterns.md` (catalogue exhaustif)
 - `docs/security-multitenant.md` (cross-ref pour étapes 22C/22D)

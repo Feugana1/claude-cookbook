@@ -71,32 +71,51 @@ Conséquence opérationnelle : **un expert qui valide une feature pèse plus qu'
 
 ## 4. Catalogue
 
-Le catalogue est structuré en **6 couches** pour garantir la symétrie front/back, éviter les drifts de scope et clarifier l'ordre d'invocation.
+Cookbook fournit **2 catégories d'agents** :
+
+- **Core stack-aware (8 agents)** — orchestrés en 6 couches, spécifiques AdonisJS/Node/TS
+- **Générique opus opt-in (9 personas)** — cross-stack, activables selon besoin
+
+### Vue d'ensemble
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  Couche 0 — STRATEGIC GATE (sonnet) : différenciation produit    │
+│  CORE COOKBOOK — 8 agents stack-aware AdonisJS (couches 0-5)     │
+│                                                                  │
+│  Couche 0 — STRATEGIC GATE (sonnet)                              │
 │    product-strategist                                            │
-├──────────────────────────────────────────────────────────────────┤
-│  Couche 1 — ARCHITECTS (sonnet) : vision + conventions           │
+│  Couche 1 — ARCHITECTS (sonnet)                                  │
 │    back-architect        (front-architect = projet-specific)     │
-├──────────────────────────────────────────────────────────────────┤
-│  Couche 2 — CROSS-CUTTING (sonnet/haiku) : transverses           │
-│    security-multitenant                                          │
-│    data-access-reviewer (haiku)                                  │
-│    migration-reviewer                                            │
-├──────────────────────────────────────────────────────────────────┤
-│  Couche 3 — DOMAIN (sonnet) : règles métier profondes            │
+│  Couche 2 — CROSS-CUTTING (sonnet/haiku)                         │
+│    security-multitenant + data-access-reviewer (haiku)           │
+│    + migration-reviewer                                          │
+│  Couche 3 — DOMAIN (sonnet)                                      │
 │    workflow-email                                                │
 │    (autres = projet-specific : compta, marketplace, public…)     │
-├──────────────────────────────────────────────────────────────────┤
-│  Couche 4 — LINTERS (haiku) : fast-pass grep                     │
+│  Couche 4 — LINTERS (haiku)                                      │
 │    edge-anti-patterns                                            │
-├──────────────────────────────────────────────────────────────────┤
-│  Couche 5 — FINAL GATE (sonnet) : senior PR-style code review    │
+│  Couche 5 — FINAL GATE (sonnet)                                  │
 │    code-reviewer                                                 │
+├──────────────────────────────────────────────────────────────────┤
+│  GÉNÉRIQUE OPUS OPT-IN — 9 personas cross-stack                  │
+│                                                                  │
+│    architect       — Evidence-First conception + MECE            │
+│    backend         — API RESTful, microservices, cloud-native    │
+│    frontend        — WCAG 2.1, design systems, Core Web Vitals   │
+│    mobile          — iOS HIG + Android Material, cross-platform  │
+│    performance     — Core Web Vitals + RAIL, profil ROI-driven   │
+│    qa              — Test pyramid + coverage + TDD               │
+│    security        — OWASP Top 10 + OWASP LLM + STRIDE           │
+│    reviewer        — Générique code review (hors stack)          │
+│    analyzer        — Root cause 5 Whys + hypothèses ranked       │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+**Quand utiliser core vs générique ?**
+
+- **Stack AdonisJS/Node/TS** : core cookbook (couches 0-5) est projet-aware et prime — invoqué automatiquement par description-trigger
+- **Cross-stack / autre stack / audit générique** : générique opus opt-in — invoqué explicitement pour perspective wide (ex: `security` pour OWASP LLM audit, `architect` pour choix microservices vs monolithe, `performance` pour profil cross-layer)
+- **Combinable** : `/multi-agent <path> back-architect,security` (core Adonis) OU `/multi-agent <path> architect,security` (générique)
 
 **Ordre d'invocation type** :
 - **Nouvelle feature** : `product-strategist` (couche 0) AVANT tout. Si verdict NO-GO → on ne code pas. Si GO → architects → cross-cutting → domain → linter → **`code-reviewer` (couche 5) AVANT git commit**.
@@ -161,6 +180,27 @@ La couche 5 s'invoque **toujours** avant `git commit` si diff non-trivial (≥ 2
 
 > **`code-reviewer`** est **orchestrateur**, pas linter. Il **lance** `scan-secu.sh` et **lit** sa sortie, il ne re-greppe pas ce que scan-secu fait. Il **délègue** les deep-dives (NF525, charte, multi-tenant approfondi) aux experts couche 2/3. Ne minimise aucun finding, verdict ferme.
 
+### 4.1b Subagents génériques opus opt-in
+
+Cross-stack, non-Adonis-specific. Distincts des core cookbook. Activables via description-trigger OU explicitement via `/multi-agent` skill.
+
+| Expert | Model | Rôle | Complémentaire à |
+|---|---|---|---|
+| **`architect`** | opus | Conception Evidence-First + MECE, phased migration, sélection tech | `back-architect` (Adonis conventions) |
+| **`backend`** | opus | API RESTful/GraphQL, microservices, cloud-native, résilience patterns | `back-architect` (Adonis conventions) |
+| **`frontend`** | opus | WCAG 2.1 AA, design systems, Core Web Vitals, mobile-first | `edge-anti-patterns` (grep Edge/Alpine) |
+| **`mobile`** | opus | iOS HIG + Android Material, cross-platform (RN/Flutter), offline-first, touch UX | — |
+| **`performance`** | opus | Core Web Vitals + RAIL, profilage, optim ROI-driven (mesure avant optim) | `data-access-reviewer` (ORM patterns) |
+| **`qa`** | opus | Test pyramid (unit/integration/E2E), coverage critique, TDD, automation | — |
+| **`security`** | opus | OWASP Top 10 + OWASP LLM Top 10, CVE, threat modeling STRIDE/PASTA, Zero Trust | `security-multitenant` (Adonis tenant isolation) |
+| **`reviewer`** | opus | Générique code review (lisibilité, maintenabilité, cohérence, refactor) | `code-reviewer` (couche 5 stack-aware, orchestrateur) |
+| **`analyzer`** | opus | Root cause investigation (5 Whys + hypothèses ranked + reproduction obligatoire) | `/fix-error` skill (petit scope, fix rapide) |
+
+**Quand invoquer un générique opus vs core ?**
+- Core d'abord si stack matche (AdonisJS) — projet-aware prime
+- Générique opus si perspective wide requise (ex: OWASP LLM sur code IA, MECE cross-team, refactor sans stack conventions)
+- Combinables via `/multi-agent`
+
 ### 4.2 Skills (`.claude/skills/*/SKILL.md`)
 
 | Skill | Rôle | Enchaînement interne |
@@ -169,24 +209,89 @@ La couche 5 s'invoque **toujours** avant `git commit` si diff non-trivial (≥ 2
 | `/ux-review <page>` | Audit UX d'un écran | 6 axes UX + density gate + principe central produit du projet |
 | `/secu` | Wrapper `scan-secu.sh` | Lance scan-secu → parse FAIL/WARN → propose fix par étape |
 | `/pre-pr` | Vérification pré-PR | lint → typecheck → build → file-size ratchet → verdict READY/NOT READY |
+| `/multi-agent <path> <experts>` | Dispatch parallèle N experts | Mode PARALLEL (union findings) OU DEBATE (dialectique 2-rounds) |
 
-### 4.3 Hooks (`.claude/hooks/*.sh`)
+### 4.3 Commands (`.claude/commands/*.md`)
+
+Slash commands productivity user-invoquées.
+
+| Command | Rôle |
+|---|---|
+| `/commit` | Conventional Commits sur staged, discipline cookbook (pas --no-verify, pas amend, review si non-trivial) |
+| `/semantic-commit` | Split gros diff en N commits sémantiques cohérents |
+| `/pr-create` | PR draft + auto-select labels + preserve PULL_REQUEST_TEMPLATE.md |
+| `/pr-review` | Review PR existante (own ou reçue), invoque experts, classification must/imo/nits/q |
+| `/pr-fix` | Répondre aux comments review, approche 3-étapes (reproduire → root cause → fix ciblé) |
+| `/plan` | Mode plan explicite pour refactor/archi/infra (complémentaire `/feature`) |
+| `/refactor` | Refactor incrémental discipliné (tests verts avant/après, limite §14, baseline ratchet regen) |
+| `/fix-error` | Diagnostic + fix erreur, 3 étapes (reproduire → root cause → fix), `--preventive` ajoute leçon |
+| `/explain-code` | Explique code (intent + flow + data + edge cases + callers), levels beginner/intermediate/expert |
+| `/analyze-dependencies` | Matrice modules + détection cycles + fan-in/fan-out + dead code |
+| `/analyze-performance` | Bottlenecks + Core Web Vitals + reco rankées ROI (délègue agent `performance`) |
+| `/check-fact` | Vérif claim vs codebase (anti-hallucination), verdicts CORRECT/INCORRECT/PARTIEL/INCONNU |
+| `/tech-debt` | Dashboard santé projet + impact temporel + roadmap phasée |
+
+### 4.4 Hooks (`.claude/hooks/*.sh`)
 
 | Hook | Événement | Rôle |
 |---|---|---|
-| `dispatch-expert.sh` | PostToolUse Edit/Write/MultiEdit | Grep P0 sur path édité → exit 2 si match (BLOCK) + hints stderr layered (couche 1 → 3) pour inviter Claude à invoquer les experts pertinents |
+| `dispatch-expert.sh` | PostToolUse Edit/Write/MultiEdit | Grep P0 sur path édité → exit 2 si match (BLOCK) + hints stderr layered pour inviter Claude à invoquer les experts pertinents |
 | `precommit-check.sh` | PreToolUse Bash (`git commit`) | Détecte staged files → conditionnellement lance typecheck + `check-file-sizes.js` → suggère `code-reviewer` si diff non-trivial |
+| `preserve-file-permissions.sh` | PreToolUse + PostToolUse Edit/Write/MultiEdit | Snapshot chmod avant edit, restore après (fix chmod loss macOS/Linux) |
 
 **Extension point** : les projets peuvent ajouter `.claude/hooks/dispatch-expert.local.sh` (sourcé si présent par `dispatch-expert.sh`) pour hints projet-specific vers domain experts custom.
 
-### 4.4 Permissions (`settings.json` racine cookbook)
+### 4.5 Permissions (`settings.json` racine cookbook)
 
 | Type | Contenu |
 |---|---|
 | `allow` | Bash, Edit, Read, Write, MultiEdit, Grep, Glob, LS, Task*, WebFetch, WebSearch |
 | `deny` | Actions destructives : `rm -rf`, `chmod 777`, force push, reset --hard, `--no-verify`, install globaux, `Write(/.env*)`, etc. Cf `settings.json`. |
+| `statusLine` | `scripts/statusline.sh` — model + $/jour (ccusage) + %tokens |
+| `hooks` | Wire des 3 hooks via `${CLAUDE_PLUGIN_ROOT}` |
 
 Les permissions **user-scoped ad-hoc** s'accumulent dans `~/.claude/settings.json` ou `.claude/settings.local.json` du projet (non versionné). Utiliser le skill built-in `fewer-permission-prompts` pour nettoyer périodiquement.
+
+### 4.6 MCP servers (`.mcp.json` racine cookbook)
+
+Template avec 4 servers pertinents cross-projet :
+
+| Server | Rôle |
+|---|---|
+| `context7` | Recherche documentation technique (via `@upstash/context7-mcp`) |
+| `sequential-thinking` | Réflexion step-by-step structured (via `@modelcontextprotocol/server-sequential-thinking`) |
+| `fetch` | HTTP fetch générique (via `uvx mcp-server-fetch`) |
+| `github` | GitHub API (via `@modelcontextprotocol/server-github`), token via `${GITHUB_PERSONAL_ACCESS_TOKEN}` env |
+
+Extension : chaque projet peut ajouter ses MCP servers (Notion, Slack, DB, etc.) dans son `.mcp.json`.
+
+### 4.7 Config Conventional Commits + linting
+
+| Fichier | Rôle |
+|---|---|
+| `commitlint.config.js` | Enforcement Conventional Commits (types, subject rules ≤ 72 chars, case, etc.) |
+| `lefthook.yml` | Git hooks orchestrator — commit-msg (commitlint) + pre-commit (scan-secu delta + file-size ratchet) |
+| `.markdownlint.json` | Style markdown consistent (line length 200, siblings only H, etc.) |
+| `package.json` | devDeps (commitlint, lefthook, markdownlint) + scripts (`prepare` = lefthook install, `lint:md`) |
+
+Install dans projet :
+```bash
+npm i -D @commitlint/cli @commitlint/config-conventional lefthook markdownlint-cli
+npx lefthook install
+```
+
+### 4.8 CI cookbook self-test (`.github/workflows/cookbook-self-test.yml`)
+
+Workflow GitHub Actions qui teste le cookbook lui-même à chaque push :
+
+| Job | Vérifie |
+|---|---|
+| `bash-lint` | `bash -n` syntax + shellcheck error-only sur tous les `.sh` |
+| `json-validate` | `jq empty` sur tous les `.json` |
+| `agents-frontmatter` | YAML frontmatter valide (name + description) sur tous les agents `.md` |
+| `skills-frontmatter` | Idem pour skills `SKILL.md` |
+| `scan-secu-self` | `scan-secu.sh --diff` tourne jusqu'au verdict sans crash |
+| `leak-check` | Grep noms projet-specific → doit retourner 0 hors fichiers autorisés |
 
 ---
 

@@ -1,24 +1,46 @@
 # Claude Code Cookbook
 
-Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents orchestrés en 6 couches, skills, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
+Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents orchestrés en 6 couches, skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
 
 **Statut** : v0.2.0 — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
 
 ---
 
-## Qu'est-ce qu'il y a dedans
+## Inventory
+
+| Composant | Count | Path |
+|---|---|---|
+| **Sub-agents cookbook** (stack-aware AdonisJS, couches 0-5) | **8** | `.claude/agents/*.md` |
+| **Sub-agents génériques opus** (opt-in, cross-stack) | **9** | `.claude/agents/*.md` |
+| **Skills** (invocation humaine explicite) | **5** | `.claude/skills/*/SKILL.md` |
+| **Commands** (slash commands) | **13** | `.claude/commands/*.md` |
+| **Hooks** (déclenchés automatiquement) | **3** | `.claude/hooks/*.sh` |
+| **scan-secu.sh steps** (tier OWASP T1/T2/T3) | **41** | `scripts/scan-secu.d/step-*.sh` |
+| **Config** (permissions + MCP + statusline + commitlint + lefthook + markdownlint) | **6** | racine |
+
+Total : **~50 fichiers**, ~7000 lignes de méthodologie distillée.
+
+---
+
+## Structure
 
 ```
 .claude-plugin/
 ├── marketplace.json    manifest marketplace (1 plugin déclaré : cookbook)
 └── plugin.json         manifest plugin cookbook v0.2.0
 
-settings.json           permissions deny larges + hooks wire + env (auto-loaded par Claude Code)
-
 .claude/
-├── agents/             8 sub-agents génériques (strategist, code-reviewer, architects, security, workflow-email…)
-├── skills/             4 slash commands (/feature, /pre-pr, /secu, /ux-review)
-└── hooks/              2 hooks shell (dispatch-expert auto-routing + precommit-check rappel reviewer)
+├── agents/             17 sub-agents (8 core stack-aware + 9 generic opus opt-in)
+├── skills/             5 slash commands (/feature, /pre-pr, /secu, /ux-review, /multi-agent)
+├── commands/           13 productivity commands (/commit, /pr-*, /refactor, /explain-code, /tech-debt, ...)
+└── hooks/              3 hooks (dispatch-expert + precommit-check + preserve-file-permissions)
+
+settings.json           permissions deny larges + hooks wire + env + statusLine
+.mcp.json               MCP servers template (Context7 + sequential-thinking + fetch + github)
+commitlint.config.js    Conventional Commits enforcement
+lefthook.yml            git hooks orchestrator (commit-msg + pre-commit)
+.markdownlint.json      markdown style consistent
+package.json            devDeps + scripts
 
 scripts/
 ├── scan-secu.sh        orchestrator ~220L (helpers + counters + verdict + --diff mode)
@@ -26,12 +48,9 @@ scripts/
 │                       SECU_DIFF_STAGED=1 pour scan git diff --cached (pre-commit hook)
 ├── scan-secu.d/        41 stateless step modules sourced in order (tier OWASP T1/T2/T3)
 │                       Drop a `step-NN-<slug>.sh` → TOTAL auto-bumps
-│                       Include gitleaks + env-history-guard + gitignore-env-patterns +
-│                       precommit-hook + pentest black-box remediation (38-46 : sourcemaps,
-│                       sensitive serialize, presigned TTL, reset tokens invalidation,
-│                       session regen, OAuth state, SSRF DNS, quota atomic lock, /health minimal)
 ├── check-file-sizes.js ratchet CI tailles fichiers (controllers/services/templates)
-└── generate-sbom.sh    CycloneDX 1.6 SBOM front + back
+├── generate-sbom.sh    CycloneDX 1.6 SBOM front + back
+└── statusline.sh       statusline model + $/jour (ccusage) + %tokens
 
 docs/templates/
 ├── .gitleaks.toml           allowlist test fixtures + local dev + historical commits
@@ -41,16 +60,14 @@ docs/templates/
 docs/
 ├── lessons.md              Karpathy 4 disciplines + leçons process (template générique)
 ├── anti-patterns.md        Catalogue exhaustif anti-patterns Edge/Alpine/AdonisJS/ORM/sécu
-├── feature-plan-template.md  Template unifié spec + plan + completeness (~200L max)
-│                             Inclut §3b threat model T1-T18 (10 classes originales
-│                             + 8 classes post-pentest 2026-07 : Auth lifecycle, OAuth,
-│                             Info disclosure, Sensitive serialize, Presigned lifecycle,
-│                             CSP hardening, SSRF completeness, GDPR minimization)
+├── feature-plan-template.md Template unifié spec + plan + completeness (~200L max)
+│                            Inclut §1b EARS notation + §3b threat model T1-T18
 ├── ux-audit-prompt.md      6 axes audit UX (User-first, PLG, DS, restraint cognitif…)
 └── claude-config/          Catalogue agents (6 couches), setup cross-poste, superpowers integration
-```
 
-Total : **~30 fichiers, ~5000 lignes** de méthodologie distillée.
+.github/workflows/
+└── cookbook-self-test.yml  CI cookbook lui-même (bash-lint, JSON/YAML valid, frontmatter, scan-secu no-crash, leak-check)
+```
 
 ---
 
@@ -64,7 +81,7 @@ Total : **~30 fichiers, ~5000 lignes** de méthodologie distillée.
 /plugin install cookbook@claude-cookbook
 ```
 
-Wire automatique : hooks + permissions + agents + skills disponibles.
+Wire automatique : hooks + permissions + agents + skills + commands + MCP + statusline.
 
 ### Voie B — Bootstrap script (fallback)
 
@@ -74,7 +91,7 @@ Depuis le dossier de ton nouveau projet :
 bash ~/dev/claude-cookbook/bootstrap-claude.sh .
 ```
 
-Copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet courant + crée `CLAUDE.md` minimal à enrichir.
+Copie `.claude/`, `.claude-plugin/`, `scripts/`, `docs/`, `settings.json`, `.mcp.json` dans le projet courant + crée `CLAUDE.md` minimal à enrichir.
 
 ### Mise à jour dans un projet existant
 
@@ -83,6 +100,35 @@ bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update
 ```
 
 Mode update : écrase uniquement les fichiers du cookbook, ne touche pas aux fichiers spécifiques projet (`CLAUDE.md`, agents custom, hooks override, etc.).
+
+---
+
+## Architecture agents — 2 catégories
+
+### 1. Core cookbook (stack-aware AdonisJS) — 8 agents en 6 couches
+
+```
+Couche 0 STRATEGIC GATE  : product-strategist        ← avant toute nouvelle feature
+Couche 1 ARCHITECTS       : back-architect           (front-architect = projet-specific si UI-heavy)
+Couche 2 CROSS-CUTTING    : security-multitenant | data-access-reviewer (haiku) | migration-reviewer
+Couche 3 DOMAIN           : workflow-email           (autres = projet-specific : compta, marketplace, public, etc.)
+Couche 4 LINTERS          : edge-anti-patterns (haiku)
+Couche 5 FINAL GATE       : code-reviewer           ← avant git commit
+```
+
+### 2. Generic opus (opt-in, cross-stack) — 9 personas
+
+| Agent | Rôle | Complémentaire à |
+|---|---|---|
+| `architect` | Conception Evidence-First + MECE + phased migration | `back-architect` (stack) |
+| `backend` | API RESTful/GraphQL, microservices, cloud-native | `back-architect` |
+| `frontend` | WCAG 2.1, design systems, Core Web Vitals | `edge-anti-patterns` |
+| `mobile` | iOS HIG + Android Material, cross-platform, offline-first | — |
+| `performance` | Core Web Vitals + RAIL + profilage ROI-driven | — |
+| `qa` | Test pyramid + coverage + TDD + automation | — |
+| `security` | OWASP Top 10 + OWASP LLM + threat modeling STRIDE | `security-multitenant` (Adonis tenant) |
+| `reviewer` | Générique code review lisibilité/maintenabilité | `code-reviewer` (couche 5 stack) |
+| `analyzer` | Root cause 5 Whys + hypothèses ranked | `/fix-error` (petit scope) |
 
 ---
 

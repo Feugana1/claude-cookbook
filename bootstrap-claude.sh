@@ -59,40 +59,52 @@ mkdir -p "$TARGET/scripts"
 mkdir -p "$TARGET/docs/claude-config"
 mkdir -p "$TARGET/.claude-plugin"
 
-# ── Copier les agents (8 génériques) ────────────────────────────────────────
-echo -e "${GREEN}[1/6]${NC} Agents (8 génériques)..."
+# ── Copier les agents (17 total : 8 core stack-aware + 9 opus opt-in) ──────
+echo -e "${GREEN}[1/6]${NC} Agents (17 total : 8 core + 9 opus opt-in)..."
 for f in "$COOKBOOK_ROOT"/.claude/agents/*.md; do
   cp "$f" "$TARGET/.claude/agents/"
   echo "    + $(basename "$f")"
 done
 
-# ── Copier les skills (4 slash commands) ────────────────────────────────────
+# ── Copier les skills (5) + commands (13) ──────────────────────────────────
 # NB strip trailing slash sinon macOS BSD cp copie le CONTENU au lieu du dossier
-echo -e "${GREEN}[2/6]${NC} Skills (4 slash commands)..."
+echo -e "${GREEN}[2/6]${NC} Skills (5) + commands (13)..."
 for dir in "$COOKBOOK_ROOT"/.claude/skills/*/; do
   skillname=$(basename "$dir")
   cp -r "${dir%/}" "$TARGET/.claude/skills/"
-  echo "    + /$skillname"
+  echo "    + skill /$skillname"
+done
+mkdir -p "$TARGET/.claude/commands"
+for f in "$COOKBOOK_ROOT"/.claude/commands/*.md; do
+  cp "$f" "$TARGET/.claude/commands/"
+  echo "    + command /$(basename "$f" .md)"
 done
 
-# ── Copier les hooks ────────────────────────────────────────────────────────
-echo -e "${GREEN}[3/6]${NC} Hooks (auto-routing + precommit)..."
+# ── Copier les hooks (3) ────────────────────────────────────────────────────
+echo -e "${GREEN}[3/6]${NC} Hooks (3 : dispatch-expert + precommit-check + preserve-file-permissions)..."
 cp "$COOKBOOK_ROOT/.claude/hooks/dispatch-expert.sh" "$TARGET/.claude/hooks/"
 cp "$COOKBOOK_ROOT/.claude/hooks/precommit-check.sh" "$TARGET/.claude/hooks/"
+cp "$COOKBOOK_ROOT/.claude/hooks/preserve-file-permissions.sh" "$TARGET/.claude/hooks/"
 chmod +x "$TARGET/.claude/hooks/"*.sh
 echo "    + dispatch-expert.sh (chmod +x)"
 echo "    + precommit-check.sh (chmod +x)"
+echo "    + preserve-file-permissions.sh (chmod +x)"
 
 # ── Copier les scripts qualité ──────────────────────────────────────────────
 echo -e "${GREEN}[4/6]${NC} Scripts qualité..."
 cp "$COOKBOOK_ROOT/scripts/scan-secu.sh" "$TARGET/scan-secu.sh"
 chmod +x "$TARGET/scan-secu.sh"
+mkdir -p "$TARGET/scripts/scan-secu.d"
+cp "$COOKBOOK_ROOT/scripts/scan-secu.d/"*.sh "$TARGET/scripts/scan-secu.d/"
 cp "$COOKBOOK_ROOT/scripts/check-file-sizes.js" "$TARGET/scripts/"
 cp "$COOKBOOK_ROOT/scripts/generate-sbom.sh" "$TARGET/scripts/"
-chmod +x "$TARGET/scripts/generate-sbom.sh"
-echo "    + scan-secu.sh (root, chmod +x) — 31 steps OWASP 3 tiers"
-echo "    + scripts/check-file-sizes.js — ratchet CI"
+cp "$COOKBOOK_ROOT/scripts/statusline.sh" "$TARGET/scripts/"
+chmod +x "$TARGET/scripts/generate-sbom.sh" "$TARGET/scripts/statusline.sh"
+echo "    + scan-secu.sh (root, chmod +x) — 41 steps tier OWASP T1/T2/T3"
+echo "    + scripts/scan-secu.d/ — 41 step modules"
+echo "    + scripts/check-file-sizes.js — ratchet §14 CI"
 echo "    + scripts/generate-sbom.sh (chmod +x) — CycloneDX SBOM"
+echo "    + scripts/statusline.sh (chmod +x) — model + \$/jour + %tokens"
 
 # ── Copier la doc ───────────────────────────────────────────────────────────
 echo -e "${GREEN}[5/6]${NC} Docs Claude..."
@@ -111,21 +123,45 @@ echo "    + docs/feature-plan-template.md (~200L max)"
 echo "    + docs/ux-audit-prompt.md (6 axes UX)"
 echo "    + docs/claude-config/{README,experts,setup,skills,superpowers-integration}.md"
 
-# ── Manifest plugin + settings.json ─────────────────────────────────────────
-echo -e "${GREEN}[6/6]${NC} Plugin manifest + settings.json..."
+# ── Manifest plugin + settings.json + .mcp.json + config ────────────────────
+echo -e "${GREEN}[6/6]${NC} Plugin manifest + settings.json + MCP + Conventional Commits config..."
 cp "$COOKBOOK_ROOT/.claude-plugin/plugin.json" "$TARGET/.claude-plugin/"
 cp "$COOKBOOK_ROOT/.claude-plugin/marketplace.json" "$TARGET/.claude-plugin/"
 echo "    + .claude-plugin/plugin.json + marketplace.json (v0.2.0)"
 
-# settings.json : ne pas écraser si présent (project-specific — permissions/hooks user
-# peuvent avoir été customisés). Mode --update : préserver. Mode INIT : copier
-# uniquement si absent.
+# settings.json : ne pas écraser si présent
 if [ ! -f "$TARGET/settings.json" ]; then
   cp "$COOKBOOK_ROOT/settings.json" "$TARGET/settings.json"
-  echo "    + settings.json (permissions deny + hooks wire + env)"
+  echo "    + settings.json (permissions deny + hooks wire + env + statusLine)"
   echo -e "    ${YELLOW}NOTE${NC}: hooks wire via \${CLAUDE_PLUGIN_ROOT} — restart Claude Code pour les activer."
 else
   echo -e "    ${YELLOW}settings.json déjà présent — préservé (fusionner manuellement si nécessaire).${NC}"
+fi
+
+# .mcp.json : idem, ne pas écraser
+if [ ! -f "$TARGET/.mcp.json" ]; then
+  cp "$COOKBOOK_ROOT/.mcp.json" "$TARGET/.mcp.json"
+  echo "    + .mcp.json (Context7 + sequential-thinking + fetch + github)"
+else
+  echo -e "    ${YELLOW}.mcp.json déjà présent — préservé (fusionner manuellement si nécessaire).${NC}"
+fi
+
+# Conventional Commits config (commitlint + lefthook + markdownlint + package.json)
+for f in commitlint.config.js lefthook.yml .markdownlint.json; do
+  if [ ! -f "$TARGET/$f" ]; then
+    cp "$COOKBOOK_ROOT/$f" "$TARGET/$f"
+    echo "    + $f"
+  else
+    echo -e "    ${YELLOW}$f déjà présent — préservé.${NC}"
+  fi
+done
+# package.json : jamais copier (chaque projet a le sien). Suggérer merge manuel deps.
+if [ ! -f "$TARGET/package.json" ]; then
+  echo -e "    ${YELLOW}NOTE${NC}: pas de package.json cible. Créer + ajouter deps :"
+  echo -e "        ${BLUE}npm i -D @commitlint/cli @commitlint/config-conventional lefthook markdownlint-cli${NC}"
+else
+  echo -e "    ${YELLOW}package.json existe déjà — ajouter deps manuellement si commitlint/lefthook pas installés :${NC}"
+  echo -e "        ${BLUE}npm i -D @commitlint/cli @commitlint/config-conventional lefthook markdownlint-cli${NC}"
 fi
 
 # ── CLAUDE.md root : init seulement si absent et mode INIT ──────────────────
@@ -150,11 +186,14 @@ echo -e "${BOLD}═════════════════════�
 echo ""
 echo -e "${BOLD}Installé dans ${TARGET}${NC} :"
 echo -e "  • .claude-plugin/{plugin,marketplace}.json (v0.2.0 — plugin natif Claude Code)"
-echo -e "  • settings.json (permissions deny + hooks wire + env — copié si absent)"
-echo -e "  • 8 sub-agents génériques (.claude/agents/)"
-echo -e "  • 4 skills (.claude/skills/feature, pre-pr, secu, ux-review)"
-echo -e "  • 2 hooks (.claude/hooks/dispatch-expert + precommit-check)"
-echo -e "  • 3 scripts (scan-secu.sh orchestrator ~220L --diff mode + scan-secu.d/ 41 step modules + check-file-sizes.js + generate-sbom.sh)"
+echo -e "  • settings.json (permissions deny + hooks wire + env + statusLine — copié si absent)"
+echo -e "  • .mcp.json (Context7 + sequential-thinking + fetch + github — copié si absent)"
+echo -e "  • commitlint.config.js + lefthook.yml + .markdownlint.json (Conventional Commits + linting)"
+echo -e "  • 17 sub-agents (.claude/agents/) — 8 core stack-aware + 9 opus opt-in"
+echo -e "  • 5 skills (.claude/skills/feature, pre-pr, secu, ux-review, multi-agent)"
+echo -e "  • 13 commands (.claude/commands/ : commit, semantic-commit, pr-*, plan, refactor, fix-error, explain-code, analyze-*, check-fact, tech-debt)"
+echo -e "  • 3 hooks (.claude/hooks/dispatch-expert + precommit-check + preserve-file-permissions)"
+echo -e "  • 5 scripts (scan-secu.sh orchestrator ~220L --diff mode + scan-secu.d/ 41 step modules + check-file-sizes.js + generate-sbom.sh + statusline.sh)"
 echo -e "  • 9 docs (lessons, anti-patterns, feature-plan-template, ux-audit-prompt + claude-config/)"
 echo -e "  • 3 templates (docs/templates/{gitleaks.toml, husky-pre-commit, scan-secu-weekly.yml} — wire manuel après bootstrap)"
 if [ "$UPDATE_MODE" = false ]; then

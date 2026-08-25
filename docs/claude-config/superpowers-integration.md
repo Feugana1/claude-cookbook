@@ -6,7 +6,7 @@
 
 Le plugin `superpowers@claude-plugins-official` apporte des skills génériques qui couvrent la **discipline de session Claude** (process amont/pendant/aval) : `brainstorming`, `writing-plans`, `executing-plans`, `subagent-driven-development`, `test-driven-development`, `systematic-debugging`, `using-git-worktrees`, `dispatching-parallel-agents`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `finishing-a-development-branch`, `using-superpowers`, `writing-skills`.
 
-Le cookbook fournit des skills **projet-aware** (`/feature`, `/ux-review`, `/secu`, `/pre-pr`) + 8 subagents en 6 couches + 2 hooks. Plusieurs skills superpowers ont un **équivalent cookbook** (ex : `/feature` ↔ `brainstorming + writing-plans`, `code-reviewer` ↔ `requesting-code-review`). Sans règle de routage explicite, Claude risque d'enfiler les 2 disciplines "par sécurité" → coût tokens + friction + redondance.
+Le cookbook fournit des skills **projet-aware** (`/feature`, `/ux-review`, `/secu`, `/pre-pr`, `/multi-agent`) + 13 commands productivity + 17 subagents (8 core stack-aware + 9 génériques opus opt-in) + 3 hooks. Plusieurs skills superpowers ont un **équivalent cookbook** (ex : `/feature` ↔ `brainstorming + writing-plans`, `code-reviewer` ↔ `requesting-code-review`). Sans règle de routage explicite, Claude risque d'enfiler les 2 disciplines "par sécurité" → coût tokens + friction + redondance.
 
 Cette doc tranche : **le skill cookbook, projet-aware, prime sur l'équivalent superpowers générique.**
 

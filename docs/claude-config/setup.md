@@ -63,7 +63,7 @@ Après install (Voie A ou B) :
 
 ```
 .claude/
-├── agents/           ← 8 subagents génériques (cf experts.md §4)
+├── agents/           ← 17 subagents (8 core stack-aware + 9 génériques opus opt-in — cf experts.md §4)
 ├── skills/           ← /feature /ux-review /secu /pre-pr
 └── hooks/            ← dispatch-expert.sh + precommit-check.sh
 
@@ -123,7 +123,9 @@ claude
 > List the agents available to you
 ```
 
-Doit lister les **8 subagents cookbook** en 6 couches :
+Doit lister les **17 subagents cookbook** :
+
+**Core stack-aware (8 en 6 couches)** :
 
 | Couche | Agent | Model |
 |---|---|---|
@@ -133,6 +135,20 @@ Doit lister les **8 subagents cookbook** en 6 couches :
 | 3 Domain | `workflow-email` | sonnet |
 | 4 Linters | `edge-anti-patterns` | haiku |
 | 5 Final gate | `code-reviewer` | sonnet |
+
+**Generic opus opt-in (9 personas cross-stack)** :
+
+| Agent | Rôle |
+|---|---|
+| `architect` | Conception Evidence-First + MECE |
+| `backend` | API RESTful/GraphQL, microservices |
+| `frontend` | WCAG 2.1, Core Web Vitals |
+| `mobile` | iOS HIG + Android Material |
+| `performance` | Profilage + optim ROI-driven |
+| `qa` | Test pyramid + coverage |
+| `security` | OWASP Top 10 + OWASP LLM |
+| `reviewer` | Générique code review (hors stack) |
+| `analyzer` | Root cause 5 Whys |
 
 Si le projet a ajouté des agents projet-specific, ils apparaissent en plus.
 

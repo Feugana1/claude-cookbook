@@ -7,12 +7,17 @@
 
 | Item | Volumétrie | Statut |
 |---|---|---|
-| Subagents experts (couches 0-5) | 8 (7 sonnet + 1 haiku) | ✅ versionnés `.claude/agents/` |
-| Skills | 4 (`/feature`, `/ux-review`, `/secu`, `/pre-pr`) | ✅ versionnés `.claude/skills/` |
-| Hooks | 2 (`dispatch-expert.sh`, `precommit-check.sh`) | ✅ versionnés `.claude/hooks/` |
-| Settings template | `settings.json` — permissions deny + hooks wire + env | ✅ versionné racine cookbook |
+| Subagents core (couches 0-5, stack-aware AdonisJS) | 8 (7 sonnet + 1 haiku) | ✅ versionnés `.claude/agents/` |
+| Subagents génériques opus (opt-in, cross-stack) | 9 personas (architect, backend, frontend, mobile, performance, qa, security, reviewer, analyzer) | ✅ versionnés `.claude/agents/` |
+| Skills | 5 (`/feature`, `/ux-review`, `/secu`, `/pre-pr`, `/multi-agent`) | ✅ versionnés `.claude/skills/` |
+| Commands | 13 (`/commit`, `/semantic-commit`, `/pr-create`, `/pr-review`, `/pr-fix`, `/plan`, `/refactor`, `/fix-error`, `/explain-code`, `/analyze-dependencies`, `/analyze-performance`, `/check-fact`, `/tech-debt`) | ✅ versionnés `.claude/commands/` |
+| Hooks | 3 (`dispatch-expert.sh`, `precommit-check.sh`, `preserve-file-permissions.sh`) | ✅ versionnés `.claude/hooks/` |
+| Settings template | `settings.json` — permissions deny + hooks wire + env + statusLine | ✅ versionné racine cookbook |
+| MCP template | `.mcp.json` — Context7 + sequential-thinking + fetch + github | ✅ versionné racine cookbook |
+| Config Conventional Commits | `commitlint.config.js` + `lefthook.yml` + `.markdownlint.json` + `package.json` | ✅ versionnés racine |
 | Plugin manifest | `.claude-plugin/plugin.json` + `marketplace.json` | ✅ distribution native Claude Code |
-| Scripts qualité | `scan-secu.sh` orchestrator + 41 étapes + `check-file-sizes.js` + `generate-sbom.sh` | ✅ versionnés `scripts/` |
+| Scripts qualité | `scan-secu.sh` orchestrator + 41 étapes + `check-file-sizes.js` + `generate-sbom.sh` + `statusline.sh` | ✅ versionnés `scripts/` |
+| CI self-test | `.github/workflows/cookbook-self-test.yml` | ✅ versionné |
 
 Ce qui reste **à ajouter par chaque projet** (non versionné dans cookbook) :
 - `PRODUCT.md` (vision produit)

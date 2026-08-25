@@ -13,7 +13,7 @@ L'expert prend le dessus sur la review code, **sans complaisance**. Tu DOIS :
 
 1. **Charger tes sources de vérité AVANT review** — première sortie : `Sources chargées : [liste]`. Sans cette ligne, review invalide.
 2. **NE PAS DUPLIQUER L'EXISTANT** — le projet a déjà :
-   - `scan-secu.sh` (24 étapes pre-push : crypto/XSS/SQLi/secrets/SSRF/Trivy/Gitleaks/duplication/ReDoS/proto-pollution/deps/license/build/file-size/discipline/Edge anti-patterns/feature duplication/i18n parity/SBOM)
+   - `scan-secu.sh` (41 étapes tier OWASP T1/T2/T3 pre-push : crypto/XSS/SQLi/secrets/SSRF/Trivy/Gitleaks/duplication/ReDoS/proto-pollution/deps/license/build/file-size/discipline/Edge anti-patterns/feature duplication/i18n parity/SBOM/pentest T11-T18)
    - Skill `/secu` (wrapper scan-secu.sh)
    - Skill `/pre-pr` (lint + typecheck + build + ratchet)
    - Hooks dispatch-expert.sh (P0 grep live) + precommit-check.sh (typecheck + ratchet conditionnels)
@@ -134,7 +134,7 @@ Composer la review en :
 
 #### 🛠️ Outils existants lancés
 
-- `scan-secu.sh` : <X/24 étapes OK, Y FAIL, Z WARN, A skipped>
+- `scan-secu.sh` : <X/41 étapes OK, Y FAIL, Z WARN, A skipped>
 - `precommit-check.sh` (hook auto) : typecheck OK, ratchet OK
 - (Lints/CI : référer à CI ou suggérer `/pre-pr` si pas encore lancé)
 

@@ -14,20 +14,22 @@ Ce fichier indique aux agents Claude Code comment opérer ce cookbook quand il e
 ```
 
 Wire automatique. Confirmer à l'utilisateur :
-- 8 sub-agents installés (couches 0-5)
-- 4 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`)
-- 2 hooks wire (dispatch-expert.sh PostToolUse + precommit-check.sh PreToolUse)
-- `settings.json` chargé (permissions deny + hooks)
-- `scan-secu.sh` disponible dans `scripts/`
+- 17 sub-agents installés (8 core stack-aware couches 0-5 + 9 génériques opus opt-in)
+- 5 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`, `/multi-agent`)
+- 13 commands disponibles (`/commit`, `/semantic-commit`, `/pr-create`, `/pr-review`, `/pr-fix`, `/plan`, `/refactor`, `/fix-error`, `/explain-code`, `/analyze-dependencies`, `/analyze-performance`, `/check-fact`, `/tech-debt`)
+- 3 hooks wire (dispatch-expert.sh PostToolUse + precommit-check.sh PreToolUse Bash + preserve-file-permissions.sh Pre+PostToolUse)
+- `settings.json` chargé (permissions deny + hooks + statusLine)
+- `.mcp.json` chargé (Context7 + sequential-thinking + fetch + github)
+- `scan-secu.sh` disponible dans `scripts/` (41 étapes tier OWASP)
 
 ### Voie B — Bootstrap script
 
 1. **Identifie le projet cible** (cwd ou path explicite)
 2. **Lance** : `bash ~/dev/claude-cookbook/bootstrap-claude.sh <path>`
 3. **Confirme à l'utilisateur** :
-   - Liste les 8 agents installés dans `<path>/.claude/agents/`
-   - Liste les 4 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`)
-   - Indique que `scan-secu.sh` est à la racine, exécutable
+   - Liste les 17 agents installés dans `<path>/.claude/agents/` (8 core + 9 opus opt-in)
+   - Liste les 5 skills + 13 commands
+   - Indique que `scan-secu.sh` est à la racine, exécutable (41 étapes)
    - Mentionne le `CLAUDE.md` minimal à enrichir
 4. **Avant d'écrire le 1er commit** : invoque le subagent `product-strategist` pour valider la première feature (couche 0 strategic gate) — **si le projet a une vision produit documentée** (`PRODUCT.md` ou `docs/vision.md`), sinon expliquer qu'il faut d'abord créer une vision.
 
@@ -111,7 +113,7 @@ Quand tu démarres un projet **frais** avec ce cookbook :
 1. Install cookbook (Voie A plugin OU Voie B bootstrap)
 2. Lis le `CLAUDE.md` créé (template ou existant) — c'est ton instruction-set
 3. Lis `docs/lessons.md` §1 (Karpathy 4 disciplines)
-4. Vérifie `.claude/agents/` — 8 agents génériques disponibles
+4. Vérifie `.claude/agents/` — 17 agents disponibles (8 core stack-aware + 9 génériques opus opt-in)
 5. **Si le projet a une vision produit** (`PRODUCT.md` OU `docs/vision.md`) : pour la première feature, invoque `product-strategist` avant tout code
 6. **Si le projet n'a pas de vision produit** : ne pas invoquer `product-strategist` (il rendra `BLOCKED-SETUP`) — proposer d'abord de créer une vision minimale
 7. Après chaque commit non-trivial : invoque `code-reviewer`
