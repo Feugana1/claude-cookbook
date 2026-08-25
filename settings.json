@@ -72,6 +72,10 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/.claude/hooks/dispatch-expert.sh"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude/hooks/preserve-file-permissions.sh"
           }
         ]
       }
@@ -85,7 +89,21 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/.claude/hooks/precommit-check.sh"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/.claude/hooks/preserve-file-permissions.sh"
+          }
+        ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "${CLAUDE_PLUGIN_ROOT}/scripts/statusline.sh",
+    "refreshInterval": 30
   }
 }

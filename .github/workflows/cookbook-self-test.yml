@@ -1,0 +1,183 @@
+name: cookbook-self-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  bash-lint:
+    name: Bash syntax + shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: bash -n syntax check on all .sh
+        run: |
+          fail=0
+          while IFS= read -r -d '' f; do
+            if ! bash -n "$f" 2>&1; then
+              echo "::error file=$f::bash syntax error"
+              fail=1
+            fi
+          done < <(find . -name '*.sh' -not -path './.git/*' -print0)
+          exit $fail
+
+      - name: shellcheck all .sh
+        run: |
+          # Warnings only, no fail-on-warn (many bash idioms produce noise)
+          shellcheck --severity=error --external-sources \
+            $(find . -name '*.sh' -not -path './.git/*') || {
+              echo "::warning::shellcheck reported issues (severity: error)"
+              exit 1
+            }
+
+  json-validate:
+    name: JSON validity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: jq empty on all .json
+        run: |
+          fail=0
+          while IFS= read -r -d '' f; do
+            if ! jq empty "$f" 2>&1; then
+              echo "::error file=$f::invalid JSON"
+              fail=1
+            fi
+          done < <(find . -name '*.json' -not -path './.git/*' -not -path './node_modules/*' -print0)
+          exit $fail
+
+  agents-frontmatter:
+    name: Agents YAML frontmatter valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Validate each agent has name/description/tools frontmatter
+        run: |
+          fail=0
+          for f in .claude/agents/*.md; do
+            [ -f "$f" ] || continue
+            # Extract frontmatter (between --- markers)
+            frontmatter=$(awk '/^---$/{c++; if(c==2)exit; next} c==1' "$f")
+            if [ -z "$frontmatter" ]; then
+              echo "::error file=$f::missing YAML frontmatter"
+              fail=1
+              continue
+            fi
+            name=$(echo "$frontmatter" | yq eval '.name // ""' -)
+            desc=$(echo "$frontmatter" | yq eval '.description // ""' -)
+            tools=$(echo "$frontmatter" | yq eval '.tools // ""' -)
+            if [ -z "$name" ] || [ "$name" = "null" ]; then
+              echo "::error file=$f::missing 'name' in frontmatter"
+              fail=1
+            fi
+            if [ -z "$desc" ] || [ "$desc" = "null" ]; then
+              echo "::error file=$f::missing 'description' in frontmatter"
+              fail=1
+            fi
+            if [ -z "$tools" ] || [ "$tools" = "null" ]; then
+              echo "::warning file=$f::missing 'tools' in frontmatter (agent will inherit *)"
+            fi
+          done
+          exit $fail
+
+  skills-frontmatter:
+    name: Skills SKILL.md frontmatter valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Validate each skill has name/description
+        run: |
+          fail=0
+          for f in .claude/skills/*/SKILL.md; do
+            [ -f "$f" ] || continue
+            frontmatter=$(awk '/^---$/{c++; if(c==2)exit; next} c==1' "$f")
+            if [ -z "$frontmatter" ]; then
+              echo "::error file=$f::missing YAML frontmatter"
+              fail=1
+              continue
+            fi
+            name=$(echo "$frontmatter" | yq eval '.name // ""' -)
+            desc=$(echo "$frontmatter" | yq eval '.description // ""' -)
+            if [ -z "$name" ] || [ "$name" = "null" ]; then
+              echo "::error file=$f::missing 'name' in frontmatter"
+              fail=1
+            fi
+            if [ -z "$desc" ] || [ "$desc" = "null" ]; then
+              echo "::error file=$f::missing 'description' in frontmatter"
+              fail=1
+            fi
+          done
+          exit $fail
+
+  scan-secu-self:
+    name: scan-secu.sh runs on cookbook itself
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run scan-secu.sh --diff (should complete without crash)
+        run: |
+          # Cookbook n'a pas d'app back → beaucoup de SKIP + quelques FAIL attendus.
+          # Ce job vérifie que le script tourne jusqu'au verdict sans crash silencieux.
+          set +e
+          bash scripts/scan-secu.sh --diff 2>&1 | tee /tmp/scan-out.log
+          exit_code=$?
+          set -e
+
+          # Vérifier que le verdict final est présent (script arrivé au bout)
+          if ! grep -qE "READY TO PUSH|BLOCKED|NEEDS REVIEW|SHIP WITH DEBT" /tmp/scan-out.log; then
+            echo "::error::scan-secu did not reach verdict — likely crashed mid-run"
+            exit 1
+          fi
+
+          # Exit code non-zero attendu (cookbook = pas d'app back complète)
+          # Le vrai check est : le script est arrivé au bout
+          echo "::notice::scan-secu completed with exit $exit_code (verdict present)"
+
+  leak-check:
+    name: No project-specific leaks in generic files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grep for project-specific names outside allowed files
+        env:
+          # Pattern défini via env pour éviter que le workflow lui-même
+          # match sa propre regex (faux positif self-CI).
+          FORBIDDEN_PATTERN: 'MyProj''ect|Pixi''eset|Pic-Ti''me|Honey''book|Ta''ve|Pel''li|Picfl''ow|Digital Cur''ator'
+        run: |
+          # Reconstruit le pattern (retire les '' séparateurs) — un tick simple ne peut
+          # apparaître ni dans un nom de projet ni dans le workflow, donc pas de match self.
+          PATTERN=$(echo "$FORBIDDEN_PATTERN" | tr -d "'")
+          LEAKS=$(grep -rn -E "$PATTERN" . \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude-dir=.github 2>/dev/null | \
+            grep -v "docs/templates/CLAUDE.md" | \
+            grep -v "AGENTS.md" || true)
+          if [ -n "$LEAKS" ]; then
+            echo "::error::project-specific names leaked in generic cookbook files:"
+            echo "$LEAKS"
+            exit 1
+          fi
+          echo "::notice::No project-specific leaks — cookbook stays generic"

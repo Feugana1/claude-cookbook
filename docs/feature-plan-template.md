@@ -42,6 +42,31 @@ L'ancienne approche "spec longue + plan exhaustif inline" produisait des docs de
 - **Pain mesuré** : ticket support, churn, métrique, conversation client
 - **Value delivered** : gain concret côté user (en 1 phrase)
 
+## 1b. Requirements EARS (optionnel — pour features à forte criticité, ex: paiement, auth, compta, sécurité)
+
+> **Notation EARS** (Easy Approach to Requirements Syntax) — inspiré développement piloté par spécification. À utiliser pour features où l'ambiguïté = risque. Skip si feature simple / mineure.
+
+Chaque requirement = 1 phrase avec un des 5 patterns :
+
+| Pattern | Structure | Exemple |
+|---|---|---|
+| **Ubiquitous** | `THE SYSTEM SHALL <comportement>` | THE SYSTEM SHALL logger toute mutation d'un document facturé |
+| **Event-driven** | `WHEN <trigger> THE SYSTEM SHALL <comportement>` | WHEN un webhook Stripe checkout.session.completed est reçu, THE SYSTEM SHALL vérifier la signature avant d'appliquer |
+| **State-driven** | `WHILE <state>, THE SYSTEM SHALL <comportement>` | WHILE l'utilisateur a un trial actif, THE SYSTEM SHALL afficher le countdown en topbar |
+| **Optional feature** | `WHERE <feature flag>, THE SYSTEM SHALL <comportement>` | WHERE la feature `has_online_payments` est activée sur le plan, THE SYSTEM SHALL exposer /pay/:token |
+| **Unwanted behaviour** | `IF <condition indésirable>, THEN THE SYSTEM SHALL <mitigation>` | IF plus de 5 tentatives de login échouent en 15 min, THEN THE SYSTEM SHALL bloquer l'IP 1h |
+
+**Requirements (5-15 max — pas plus, sinon la feature est trop grosse, la split)** :
+
+R1. <pattern EARS + comportement>
+R2. <pattern EARS + comportement>
+R3. …
+
+**Chaque requirement Rn doit** :
+- Être testable (peut se traduire en test unitaire OU test manuel scenario)
+- Référencer un fichier `app/` cible dans §3 File map
+- Être tracé au verdict `product-strategist` (§1 problem résolu par ce Rn ?)
+
 ## 2. Decisions actées (table)
 
 | # | Décision | Why | Alternatives rejetées |

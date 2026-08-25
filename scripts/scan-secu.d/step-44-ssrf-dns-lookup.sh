@@ -20,8 +20,14 @@ for candidate in \
 done
 
 # Fallback : chercher n'importe quel fichier avec `isSafeWebhookUrl` ou `isPrivateOrLoopback`
+# Guard : ne grep que sur dirs existants (sinon `grep -r absentdir/` exit 2 tue le script sous set -e)
 if [ -z "$WEBHOOK_SVC" ]; then
-  WEBHOOK_SVC=$(grep -rl "isSafeWebhookUrl\|isPrivateOrLoopback\|SSRF" app/ src/ --include="*.ts" 2>/dev/null | head -1)
+  SEARCH_DIRS=""
+  [ -d app ] && SEARCH_DIRS="$SEARCH_DIRS app"
+  [ -d src ] && SEARCH_DIRS="$SEARCH_DIRS src"
+  if [ -n "$SEARCH_DIRS" ]; then
+    WEBHOOK_SVC=$(grep -rl "isSafeWebhookUrl\|isPrivateOrLoopback\|SSRF" $SEARCH_DIRS --include="*.ts" 2>/dev/null | head -1 || true)
+  fi
 fi
 
 if [ -z "$WEBHOOK_SVC" ] || [ ! -f "$WEBHOOK_SVC" ]; then

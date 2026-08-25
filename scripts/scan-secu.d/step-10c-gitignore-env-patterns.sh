@@ -19,6 +19,6 @@ else
   if [ -z "$GITIGNORE_MISS" ]; then
     pass "All essential .env* patterns ignored"
   else
-    fail ".gitignore manque patterns : $GITIGNORE_MISS— add them"
+    fail ".gitignore manque patterns : ${GITIGNORE_MISS}— add them"
   fi
 fi
