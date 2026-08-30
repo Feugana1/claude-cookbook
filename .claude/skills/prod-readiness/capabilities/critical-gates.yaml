@@ -1,0 +1,24 @@
+# Critical gates V0 — score plafonné à 60 si l'un échoue
+# Extensible : ajouter un item ici pour élargir le filet de sécurité prod.
+# Chaque item référence une capability existante par name.
+
+gates:
+  - capability: db_backup
+    cap_score_to: 60
+    reason: "Perte de données = catastrophe. Un score high est trompeur si aucun backup DB n'est en place."
+    exempt_at_maturity: [prototype]
+
+  - capability: tls_enforced
+    cap_score_to: 60
+    reason: "Traffic non chiffré expose credentials et data en transit."
+    exempt_at_maturity: [prototype]
+
+  - capability: authentication
+    cap_score_to: 60
+    reason: "Routes prod sans auth = accès public à data privée. Applicable dès qu'il y a des routes non-public marquées."
+    exempt_at_maturity: [prototype]
+
+  - capability: error_tracking
+    cap_score_to: 60
+    reason: "Sans agrégation prod, erreurs invisibles. Debugging aveugle en cas d'incident."
+    exempt_at_maturity: [prototype]

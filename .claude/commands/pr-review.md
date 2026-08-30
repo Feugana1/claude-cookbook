@@ -168,7 +168,7 @@ gh pr review <N> --request-changes --body "..."
 
 ## Sources
 
-- Cookbook `code-reviewer` (couche 5) : `.claude/agents/code-reviewer.md`
+- Cookbook `code-reviewer` (couche 5) : `.claude/agents/stacks/adonisjs/code-reviewer.md`
 - Cookbook `/multi-agent` : dispatch parallèle experts
 - Cookbook `/pr-fix` : réponse aux comments
 - gh CLI : https://cli.github.com/manual/gh_pr_review

@@ -14,8 +14,8 @@ Ce fichier indique aux agents Claude Code comment opérer ce cookbook quand il e
 ```
 
 Wire automatique. Confirmer à l'utilisateur :
-- 17 sub-agents installés (8 core stack-aware couches 0-5 + 9 génériques opus opt-in)
-- 5 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`, `/multi-agent`)
+- Selon mode : 10 agents `roles/` (mode `none` / cross-stack) OU 13 agents (mode `adonisjs` : 6 roles/ conservés + 7 stacks/adonisjs/ durcis, zero redondance)
+- 7 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`, `/multi-agent`, `/ai-config`, `/prod-readiness`)
 - 13 commands disponibles (`/commit`, `/semantic-commit`, `/pr-create`, `/pr-review`, `/pr-fix`, `/plan`, `/refactor`, `/fix-error`, `/explain-code`, `/analyze-dependencies`, `/analyze-performance`, `/check-fact`, `/tech-debt`)
 - 3 hooks wire (dispatch-expert.sh PostToolUse + precommit-check.sh PreToolUse Bash + preserve-file-permissions.sh Pre+PostToolUse)
 - `settings.json` chargé (permissions deny + hooks + statusLine)
@@ -25,12 +25,17 @@ Wire automatique. Confirmer à l'utilisateur :
 ### Voie B — Bootstrap script
 
 1. **Identifie le projet cible** (cwd ou path explicite)
-2. **Lance** : `bash ~/dev/claude-cookbook/bootstrap-claude.sh <path>`
-3. **Confirme à l'utilisateur** :
-   - Liste les 17 agents installés dans `<path>/.claude/agents/` (8 core + 9 opus opt-in)
-   - Liste les 5 skills + 13 commands
+2. **Détermine la stack cible** — demander à l'user :
+   - Projet AdonisJS/Node/TS → `--stack=adonisjs` (13 agents : 6 roles/ + 7 stacks/adonisjs/ durcis)
+   - Autre stack ou volonté cross-stack → `--stack=none` (10 roles/ génériques)
+3. **Lance** : `bash ~/dev/claude-cookbook/bootstrap-claude.sh <path> --stack=<mode>`
+4. **Confirme à l'utilisateur** :
+   - Mode `none` : 10 agents installés dans `.claude/agents/roles/`
+   - Mode `adonisjs` : 13 agents (6 roles/ conservés + 7 stacks/adonisjs/ durcis, aucune redondance)
+   - Liste les 7 skills + 13 commands
    - Indique que `scan-secu.sh` est à la racine, exécutable (41 étapes)
    - Mentionne le `CLAUDE.md` minimal à enrichir
+   - Renvoie vers `docs/claude-config/inheritance-map.md` pour le mapping override
 4. **Avant d'écrire le 1er commit** : invoque le subagent `product-strategist` pour valider la première feature (couche 0 strategic gate) — **si le projet a une vision produit documentée** (`PRODUCT.md` ou `docs/vision.md`), sinon expliquer qu'il faut d'abord créer une vision.
 
 ---
@@ -50,18 +55,33 @@ Wire automatique. Confirmer à l'utilisateur :
 
 ---
 
-## Architecture du cookbook — 6 couches d'experts
+## Architecture du cookbook
 
-Référence canonique : `docs/claude-config/experts.md`.
+Règles :
+1. **Un rôle = un fichier**
+2. **Générique OU stack, jamais les deux** pour un même use case (bootstrap install exclusif via `--stack=none|adonisjs`)
+3. **Stack durcit rôle** — les fichiers `stacks/X/` héritent conceptuellement de leur `roles/Y` équivalent et le durcissent avec les conventions stack
+
+Référence canonique : `docs/claude-config/experts.md` + `docs/claude-config/inheritance-map.md` (mapping override).
+
+**`.claude/agents/roles/`** — 10 rôles génériques opus, 1 fichier par use case :
+`analyzer`, `architect`, `backend`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`, `reviewer`, `security`.
+
+**`.claude/agents/stacks/adonisjs/`** — 7 experts stack-aware (couches 1-5) :
 
 ```
-Couche 0 — Strategic gate         : product-strategist (avant toute new feature)
-Couche 1 — Architects             : back-architect (front-architect = projet-specific si UI-heavy)
-Couche 2 — Cross-cutting          : security-multitenant, data-access-reviewer (haiku), migration-reviewer
-Couche 3 — Domain                 : workflow-email (autres = projet-specific : compta, marketplace, public, etc.)
-Couche 4 — Linters fast           : edge-anti-patterns (haiku, scan grep)
-Couche 5 — Final gate             : code-reviewer (avant git commit)
+Couche 1 — Architect       : back-architect         ← extends roles/architect + roles/backend
+Couche 2 — Cross-cutting   : security-multitenant   ← extends roles/security
+                             data-access-reviewer (haiku) — pur ajout stack (aucun roles/ équivalent)
+                             migration-reviewer            — pur ajout stack
+Couche 3 — Domain          : workflow-email                — pur ajout stack
+Couche 4 — Linter          : edge-anti-patterns (haiku)    — PAIR avec roles/frontend (linter narrow)
+Couche 5 — Final gate      : code-reviewer          ← extends roles/reviewer (avant git commit)
 ```
+
+**En mode `--stack=adonisjs`** : `roles/architect`, `roles/backend`, `roles/security`, `roles/reviewer` NE sont PAS installés (leur override stack prend le relais). Conservés : `analyzer`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`.
+
+**Couche 0 strategic gate** : `product-strategist` vit dans `roles/` (générique, conservé dans les 2 modes). Un projet ajoute sa propre stack en créant `.claude/agents/stacks/<nom>/`.
 
 **Règle d'or** : un expert dit "REJECT" → tu corriges, tu ne contournes pas. Pas de complaisance.
 
@@ -71,10 +91,12 @@ Couche 5 — Final gate             : code-reviewer (avant git commit)
 
 1. Lis `docs/claude-config/experts.md` §7 (Maintenance du catalogue)
 2. Vérifie qu'aucun agent existant ne couvre déjà le besoin (anti-duplication)
-3. Si nouveau : crée dans `.claude/agents/<name>.md` avec frontmatter `name/description/tools/model`
-4. Description **active** ("Use PROACTIVELY when…", "Triggers when user says…") — pas "Specialized in…"
+3. Si nouveau — choisis le dossier selon le scope :
+   - **Générique cross-stack** → `.claude/agents/roles/<name>.md`
+   - **Stack-specific** → `.claude/agents/stacks/<stack>/<name>.md` (créer le dossier stack si absent)
+4. Frontmatter `name/description/tools/model`. Description **active** ("Use PROACTIVELY when…", "Triggers when user says…") — pas "Specialized in…"
 5. Ajoute au catalogue dans `docs/claude-config/experts.md`
-6. **Si générique (cross-project)** : propose copie vers le cookbook (`cp .claude/agents/<name>.md ~/dev/claude-cookbook/.claude/agents/`)
+6. **Si générique (cross-project)** : propose copie vers le cookbook (`cp .claude/agents/roles/<name>.md ~/dev/claude-cookbook/.claude/agents/roles/`)
 7. **Si project-specific** : reste local au projet (ex : agent compta NF525, agent marketplace commission, front-architect projet-specific)
 
 ---
@@ -113,7 +135,7 @@ Quand tu démarres un projet **frais** avec ce cookbook :
 1. Install cookbook (Voie A plugin OU Voie B bootstrap)
 2. Lis le `CLAUDE.md` créé (template ou existant) — c'est ton instruction-set
 3. Lis `docs/lessons.md` §1 (Karpathy 4 disciplines)
-4. Vérifie `.claude/agents/` — 17 agents disponibles (8 core stack-aware + 9 génériques opus opt-in)
+4. Vérifie `.claude/agents/` — selon mode : 10 agents (mode `none`) OU 13 agents (mode `adonisjs`). Voir `docs/claude-config/inheritance-map.md` pour comprendre les substitutions.
 5. **Si le projet a une vision produit** (`PRODUCT.md` OU `docs/vision.md`) : pour la première feature, invoque `product-strategist` avant tout code
 6. **Si le projet n'a pas de vision produit** : ne pas invoquer `product-strategist` (il rendra `BLOCKED-SETUP`) — proposer d'abord de créer une vision minimale
 7. Après chaque commit non-trivial : invoque `code-reviewer`

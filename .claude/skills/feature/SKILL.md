@@ -109,7 +109,7 @@ digraph feature_flow {
 
 ## Sources
 
-- [`docs/claude-config/experts.md`](../../docs/claude-config/experts.md) — catalogue 6 couches d'experts
+- [`docs/claude-config/experts.md`](../../docs/claude-config/experts.md) — catalogue roles/ + stacks/adonisjs/ (couches 1-5)
 - [`docs/claude-config/superpowers-integration.md`](../../docs/claude-config/superpowers-integration.md) — règle d'or routage
 - `PRODUCT.md` + `docs/vision.md` — direction produit
 - `docs/competitive-benchmark/` — fiches 13 concurrents

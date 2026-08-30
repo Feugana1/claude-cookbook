@@ -37,12 +37,16 @@ Le plugin déploie automatiquement : agents, skills, hooks, settings (permission
 # 1. Cloner le cookbook
 git clone <cookbook-repo> ~/dev/claude-cookbook
 
-# 2. Depuis le dossier de ton projet
+# 2. Depuis le dossier de ton projet — choisir la stack (exclusif)
 cd <mon-projet>
-bash ~/dev/claude-cookbook/bootstrap-claude.sh .
+bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS (13 agents)
+# ou
+bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=none       # cross-stack universel (10 roles/)
 ```
 
-Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir.
+Sans `--stack` en TTY : le script propose un menu interactif. En CI non-TTY : défaut `none`.
+
+Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir. Mapping override roles ↔ stacks : [`inheritance-map.md`](inheritance-map.md).
 
 Mode update : `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update` (préserve les fichiers spécifiques projet).
 
@@ -63,9 +67,16 @@ Après install (Voie A ou B) :
 
 ```
 .claude/
-├── agents/           ← 17 subagents (8 core stack-aware + 9 génériques opus opt-in — cf experts.md §4)
-├── skills/           ← /feature /ux-review /secu /pre-pr
-└── hooks/            ← dispatch-expert.sh + precommit-check.sh
+├── agents/                       ← install exclusif selon --stack=none|adonisjs
+│   ├── roles/                    ← mode `none` : 10 rôles / mode `adonisjs` : 6 rôles conservés
+│   │                                (analyzer, frontend, mobile, performance,
+│   │                                product-strategist, qa)
+│   └── stacks/adonisjs/          ← mode `adonisjs` : 7 experts stack-aware (couches 1-5)
+│                                    dont 3 override roles/ (back-architect, code-reviewer,
+│                                    security-multitenant) + 4 purs ajouts (data-access-reviewer,
+│                                    edge-anti-patterns, migration-reviewer, workflow-email)
+├── skills/                       ← /feature /ux-review /secu /pre-pr /multi-agent
+└── hooks/                        ← dispatch-expert.sh + precommit-check.sh
 
 settings.json         ← permissions deny + hooks wire (racine cookbook, sourcé au load)
 scripts/              ← scan-secu.sh + 41 étapes + check-file-sizes.js + generate-sbom.sh
@@ -125,30 +136,30 @@ claude
 
 Doit lister les **17 subagents cookbook** :
 
-**Core stack-aware (8 en 6 couches)** :
+**Stack AdonisJS (7 experts en 5 couches)** — `.claude/agents/stacks/adonisjs/` :
 
 | Couche | Agent | Model |
 |---|---|---|
-| 0 Strategic | `product-strategist` | sonnet |
-| 1 Architects | `back-architect` | sonnet |
+| 1 Architect | `back-architect` | sonnet |
 | 2 Cross-cutting | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` | sonnet/haiku |
 | 3 Domain | `workflow-email` | sonnet |
-| 4 Linters | `edge-anti-patterns` | haiku |
+| 4 Linter | `edge-anti-patterns` | haiku |
 | 5 Final gate | `code-reviewer` | sonnet |
 
-**Generic opus opt-in (9 personas cross-stack)** :
+**Rôles génériques opus (10 personas cross-stack)** — `.claude/agents/roles/` :
 
 | Agent | Rôle |
 |---|---|
+| `analyzer` | Root cause 5 Whys |
 | `architect` | Conception Evidence-First + MECE |
 | `backend` | API RESTful/GraphQL, microservices |
 | `frontend` | WCAG 2.1, Core Web Vitals |
 | `mobile` | iOS HIG + Android Material |
 | `performance` | Profilage + optim ROI-driven |
+| `product-strategist` | Strategic gate différenciation feature (couche 0) |
 | `qa` | Test pyramid + coverage |
-| `security` | OWASP Top 10 + OWASP LLM |
 | `reviewer` | Générique code review (hors stack) |
-| `analyzer` | Root cause 5 Whys |
+| `security` | OWASP Top 10 + OWASP LLM |
 
 Si le projet a ajouté des agents projet-specific, ils apparaissent en plus.
 

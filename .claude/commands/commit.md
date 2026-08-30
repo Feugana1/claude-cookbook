@@ -93,5 +93,5 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## Sources
 
 - Conventional Commits spec : https://www.conventionalcommits.org
-- Cookbook code-reviewer : `.claude/agents/code-reviewer.md` (couche 5 — invoqué avant commit non-trivial)
+- Cookbook code-reviewer : `.claude/agents/stacks/adonisjs/code-reviewer.md` (couche 5 — invoqué avant commit non-trivial)
 - Cookbook precommit hook : `.claude/hooks/precommit-check.sh` (typecheck + ratchet automatiques)

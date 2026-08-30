@@ -1,0 +1,93 @@
+# Delivery capabilities V0 — 6 items
+
+- name: ci
+  domain: delivery
+  weight: 9
+  maturity_required:
+    prototype: optional
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - dir_nonempty: ".github/workflows"
+    - file_exists: ".gitlab-ci.yml"
+    - file_exists: ".circleci/config.yml"
+    - file_exists: "azure-pipelines.yml"
+    - file_exists: "Jenkinsfile"
+  confirmation_signals:
+    - workflow_runs_tests: true
+
+- name: cd
+  domain: delivery
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - github_workflow_contains: "deploy"
+    - github_workflow_contains: "release"
+    - platform_auto_deploy: [vercel, netlify, cloudflare-pages, fly.io, railway, render]
+
+- name: rollback_strategy
+  domain: delivery
+  weight: 7
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: required
+    enterprise: required
+  detection_signals:
+    - github_workflow: "rollback"
+    - documented_in: ["docs/deploy.md", "docs/runbook*.md"]
+    - platform_rollback: [vercel-instant-rollback, aws-blue-green, k8s-rollout]
+
+- name: infrastructure_as_code
+  domain: delivery
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - dir_nonempty: "terraform"
+    - dir_nonempty: "pulumi"
+    - dir_nonempty: "cdk"
+    - file_exists: "serverless.yml"
+    - file_exists: "wrangler.toml"
+    - file_exists: "fly.toml"
+    - file_exists: "railway.json"
+    - dir_nonempty: "helm"
+    - dir_nonempty: "k8s"
+
+- name: multiple_environments
+  domain: delivery
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - file_exists: ".env.staging"
+    - file_exists: ".env.production"
+    - env_naming: ["staging", "preview", "production"]
+    - platform_envs: [vercel-preview, netlify-preview]
+
+- name: feature_flags
+  domain: delivery
+  weight: 4
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: recommended
+  detection_signals:
+    - dep: 'launchdarkly-*'
+    - dep: '@growthbook/*'
+    - dep: 'unleash-*'
+    - dep: '@statsig/*'
+    - dep: 'posthog-node'  # feature flags module
+    - env: 'FEATURE_FLAGS_*'

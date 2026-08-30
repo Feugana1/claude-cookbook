@@ -4,7 +4,7 @@
     "name": "Lionel FOTSO"
   },
   "metadata": {
-    "description": "Cookbook Claude Code stack AdonisJS/Node/TS — 8 sub-agents orchestrés en 6 couches, 4 skills, 2 hooks P0 déterministes, scan-secu 41 étapes tier OWASP.",
+    "description": "Cookbook Claude Code stack AdonisJS/Node/TS — 17 sub-agents (10 roles/ génériques opus + 7 stacks/adonisjs/ couches 1-5), 7 skills, 3 hooks P0 déterministes, scan-secu 41 étapes tier OWASP + scan-prod-readiness capabilities V0.",
     "version": "0.2.0"
   },
   "plugins": [

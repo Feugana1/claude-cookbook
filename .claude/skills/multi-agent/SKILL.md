@@ -225,7 +225,7 @@ Max 2 rounds — au-delà = décision meta (main context tranche).
 
 ## Sources
 
-- Cookbook 6 couches d'experts : `docs/claude-config/experts.md` §4
-- Cookbook code-reviewer (couche 5 final gate) : `.claude/agents/code-reviewer.md`
+- Cookbook agents (roles/ + stacks/adonisjs/) : `docs/claude-config/experts.md` §4
+- Cookbook code-reviewer (couche 5 final gate) : `.claude/agents/stacks/adonisjs/code-reviewer.md`
 - Karpathy §2.2 "Sous-agents : déléguer recherche, pas décision" : `docs/lessons.md`
 - Dispatch matrix : `.claude/skills/feature/references/dispatch-matrix.md`

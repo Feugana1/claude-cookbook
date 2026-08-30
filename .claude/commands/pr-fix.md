@@ -127,6 +127,6 @@ Si nouveau CI fail : boucler `/pr-fix` sur les nouveaux errors.
 ## Sources
 
 - Cookbook `/commit` : `.claude/commands/commit.md` (discipline commit)
-- Cookbook `code-reviewer` : `.claude/agents/code-reviewer.md` (couche 5 — invocable pour re-review post-fix)
+- Cookbook `code-reviewer` : `.claude/agents/stacks/adonisjs/code-reviewer.md` (couche 5 — invocable pour re-review post-fix)
 - Cookbook lessons §1.3 surgical changes
 - gh CLI review commands : https://cli.github.com/manual/gh_pr_review
