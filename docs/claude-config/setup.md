@@ -37,12 +37,16 @@ Le plugin déploie automatiquement : agents, skills, hooks, settings (permission
 # 1. Cloner le cookbook
 git clone <cookbook-repo> ~/dev/claude-cookbook
 
-# 2. Depuis le dossier de ton projet
+# 2. Depuis le dossier de ton projet — choisir la stack (exclusif)
 cd <mon-projet>
-bash ~/dev/claude-cookbook/bootstrap-claude.sh .
+bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS (13 agents)
+# ou
+bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=none       # cross-stack universel (10 roles/)
 ```
 
-Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir.
+Sans `--stack` en TTY : le script propose un menu interactif. En CI non-TTY : défaut `none`.
+
+Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir. Mapping override roles ↔ stacks : [`inheritance-map.md`](inheritance-map.md).
 
 Mode update : `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update` (préserve les fichiers spécifiques projet).
 
@@ -63,11 +67,14 @@ Après install (Voie A ou B) :
 
 ```
 .claude/
-├── agents/
-│   ├── roles/                    ← 10 rôles génériques opus (analyzer, architect, backend,
-│   │                                frontend, mobile, performance, product-strategist,
-│   │                                qa, reviewer, security)
-│   └── stacks/adonisjs/          ← 7 experts stack-aware (couches 1-5)
+├── agents/                       ← install exclusif selon --stack=none|adonisjs
+│   ├── roles/                    ← mode `none` : 10 rôles / mode `adonisjs` : 6 rôles conservés
+│   │                                (analyzer, frontend, mobile, performance,
+│   │                                product-strategist, qa)
+│   └── stacks/adonisjs/          ← mode `adonisjs` : 7 experts stack-aware (couches 1-5)
+│                                    dont 3 override roles/ (back-architect, code-reviewer,
+│                                    security-multitenant) + 4 purs ajouts (data-access-reviewer,
+│                                    edge-anti-patterns, migration-reviewer, workflow-email)
 ├── skills/                       ← /feature /ux-review /secu /pre-pr /multi-agent
 └── hooks/                        ← dispatch-expert.sh + precommit-check.sh
 

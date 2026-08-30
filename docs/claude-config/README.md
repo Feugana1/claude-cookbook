@@ -30,6 +30,7 @@ Ce qui reste **à ajouter par chaque projet** (non versionné dans cookbook) :
 | Fichier | Rôle |
 |---|---|
 | [`experts.md`](experts.md) | **Doc maître** — démarche d'automatisation, catalogue `roles/` + `stacks/adonisjs/`, règle d'or "expert prend le dessus sans complaisance" |
+| [`inheritance-map.md`](inheritance-map.md) | **Mapping override roles ↔ stacks** — quel rôle est remplacé par quel expert stack, quel expert stack est purement additif, comment ajouter une nouvelle stack |
 | [`setup.md`](setup.md) | Procédure step-by-step pour reproduire sur un nouveau poste (pré-requis, login, vérifications) |
 | [`skills.md`](skills.md) | Inventaire des skills installés (built-in Claude Code + cookbook) |
 | [`superpowers-integration.md`](superpowers-integration.md) | Matrice routage skills cookbook vs `superpowers@claude-plugins-official` |
@@ -42,20 +43,27 @@ Détail complet : [`experts.md`](experts.md).
 
 ## Catalogue résumé
 
-**`.claude/agents/roles/`** — 10 rôles génériques opus (1 fichier / use case) :
+Install exclusif via `bootstrap-claude.sh --stack=none|adonisjs` — un rôle générique ET son override stack ne coexistent JAMAIS (zero redondance).
+
+**Mode `--stack=none`** — 10 rôles génériques opus (1 fichier / use case) dans `.claude/agents/roles/` :
 `analyzer`, `architect`, `backend`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`, `reviewer`, `security`.
 
-**`.claude/agents/stacks/adonisjs/`** — 7 experts stack-aware (couches 1-5) :
+**Mode `--stack=adonisjs`** — 6 rôles conservés + 7 experts stack durcis (`.claude/agents/stacks/adonisjs/`) :
 
 ```
-Couche 1 ARCHITECT       : back-architect           (front-architect = projet-specific si UI-heavy)
-Couche 2 CROSS-CUTTING   : security-multitenant | data-access-reviewer (haiku) | migration-reviewer
-Couche 3 DOMAIN          : workflow-email           (autres = projet-specific : compta, marketplace, public, etc.)
-Couche 4 LINTER          : edge-anti-patterns (haiku)
-Couche 5 FINAL GATE      : code-reviewer           ← avant git commit
+Couche 1 ARCHITECT       : back-architect         ← extends roles/architect + roles/backend
+Couche 2 CROSS-CUTTING   : security-multitenant   ← extends roles/security
+                           data-access-reviewer (haiku) + migration-reviewer — purs ajouts
+Couche 3 DOMAIN          : workflow-email                                     — pur ajout
+Couche 4 LINTER          : edge-anti-patterns (haiku) — PAIR avec roles/frontend (linter narrow)
+Couche 5 FINAL GATE      : code-reviewer          ← extends roles/reviewer   ← avant git commit
 ```
 
-**Couche 0 strategic gate** : `product-strategist` vit dans `roles/` (générique).
+Roles conservés en mode adonisjs (aucun override) : `analyzer`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`.
+
+**Couche 0 strategic gate** : `product-strategist` vit dans `roles/` (générique, conservé dans les 2 modes).
+
+Mapping override complet : [`inheritance-map.md`](inheritance-map.md).
 
 Chaque expert applique la **règle d'or** : sources chargées AVANT analyse, STAY IN SCOPE, sans complaisance, cite `file:line`, format sortie standardisé, tests internes de validation.
 

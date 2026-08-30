@@ -71,10 +71,12 @@ Conséquence opérationnelle : **un expert qui valide une feature pèse plus qu'
 
 ## 4. Catalogue
 
-Cookbook fournit **2 catégories d'agents**, une par dossier — règle *un rôle = un fichier* :
+Cookbook fournit **2 catégories d'agents**, une par dossier — règle *un rôle = un fichier* + install **exclusif** via `bootstrap-claude.sh --stack=none|adonisjs` (zero redondance) :
 
-- **Rôles génériques opus (10 personas)** — `.claude/agents/roles/`, cross-stack, miroir wasabeef
-- **Stack AdonisJS (7 experts)** — `.claude/agents/stacks/adonisjs/`, couches 1-5 stack-aware
+- **Rôles génériques opus (10 personas)** — `.claude/agents/roles/`, cross-stack, miroir wasabeef (installé en mode `--stack=none`)
+- **Stack AdonisJS (7 experts)** — `.claude/agents/stacks/adonisjs/`, couches 1-5 stack-aware qui **héritent + durcissent** les rôles équivalents (installé en mode `--stack=adonisjs` avec 6 roles/ conservés = 13 agents total)
+
+Mapping override complet : [`inheritance-map.md`](inheritance-map.md).
 
 ### Vue d'ensemble
 
@@ -114,9 +116,13 @@ Cookbook fournit **2 catégories d'agents**, une par dossier — règle *un rôl
 
 **Quand utiliser stack vs rôle générique ?**
 
-- **Stack AdonisJS/Node/TS** : `stacks/adonisjs/` (couches 1-5) est projet-aware et prime — invoqué automatiquement par description-trigger
-- **Cross-stack / autre stack / audit générique** : `roles/` opus opt-in — invoqué explicitement pour perspective wide (ex: `security` pour OWASP LLM audit, `architect` pour choix microservices vs monolithe, `performance` pour profil cross-layer)
-- **Combinable** : `/multi-agent <path> back-architect,security-multitenant` (stack Adonis) OU `/multi-agent <path> architect,security` (générique)
+Le choix est fait **au bootstrap**, pas à l'invocation : `--stack=none` installe 10 roles/, `--stack=adonisjs` installe 6 roles/ conservés + 7 stacks/adonisjs/ durcis. Pas de coexistence stack + rôle overridé — la redondance est un anti-pattern (2 experts qui se marchent dessus, ambiguïté d'invocation).
+
+- **Mode `--stack=adonisjs`** : les 7 experts stack sont invoqués automatiquement par description-trigger sur les fichiers AdonisJS. Les 6 rôles conservés (`analyzer`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`) restent invocables pour leur scope cross-stack.
+- **Mode `--stack=none`** : seuls les 10 rôles génériques sont disponibles. Utile pour projets non-Adonis ou audit purement cross-stack.
+- **Combinable** : `/multi-agent <path> back-architect,security-multitenant` (mode adonisjs) OU `/multi-agent <path> architect,security` (mode none).
+
+Voir [`inheritance-map.md`](inheritance-map.md) pour le mapping complet override et la logique d'héritage.
 
 **Ordre d'invocation type** :
 - **Nouvelle feature** : `product-strategist` (couche 0) AVANT tout. Si verdict NO-GO → on ne code pas. Si GO → architects → cross-cutting → domain → linter → **`code-reviewer` (couche 5) AVANT git commit**.
