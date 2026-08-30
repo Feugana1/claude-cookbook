@@ -9,7 +9,7 @@
 |---|---|---|
 | Rôles génériques opus (cross-stack) | 10 personas (analyzer, architect, backend, frontend, mobile, performance, product-strategist, qa, reviewer, security) | ✅ versionnés `.claude/agents/roles/` |
 | Experts stack AdonisJS (couches 1-5) | 7 (5 sonnet + 2 haiku) | ✅ versionnés `.claude/agents/stacks/adonisjs/` |
-| Skills | 5 (`/feature`, `/ux-review`, `/secu`, `/pre-pr`, `/multi-agent`) | ✅ versionnés `.claude/skills/` |
+| Skills | 6 (`/feature`, `/ux-review`, `/secu`, `/pre-pr`, `/multi-agent`, `/ai-config`) | ✅ versionnés `.claude/skills/` |
 | Commands | 13 (`/commit`, `/semantic-commit`, `/pr-create`, `/pr-review`, `/pr-fix`, `/plan`, `/refactor`, `/fix-error`, `/explain-code`, `/analyze-dependencies`, `/analyze-performance`, `/check-fact`, `/tech-debt`) | ✅ versionnés `.claude/commands/` |
 | Hooks | 3 (`dispatch-expert.sh`, `precommit-check.sh`, `preserve-file-permissions.sh`) | ✅ versionnés `.claude/hooks/` |
 | Settings template | `settings.json` — permissions deny + hooks wire + env + statusLine | ✅ versionné racine cookbook |

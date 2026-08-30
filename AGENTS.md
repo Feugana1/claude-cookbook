@@ -15,7 +15,7 @@ Ce fichier indique aux agents Claude Code comment opérer ce cookbook quand il e
 
 Wire automatique. Confirmer à l'utilisateur :
 - Selon mode : 10 agents `roles/` (mode `none` / cross-stack) OU 13 agents (mode `adonisjs` : 6 roles/ conservés + 7 stacks/adonisjs/ durcis, zero redondance)
-- 5 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`, `/multi-agent`)
+- 6 skills disponibles (`/feature`, `/pre-pr`, `/secu`, `/ux-review`, `/multi-agent`, `/ai-config`)
 - 13 commands disponibles (`/commit`, `/semantic-commit`, `/pr-create`, `/pr-review`, `/pr-fix`, `/plan`, `/refactor`, `/fix-error`, `/explain-code`, `/analyze-dependencies`, `/analyze-performance`, `/check-fact`, `/tech-debt`)
 - 3 hooks wire (dispatch-expert.sh PostToolUse + precommit-check.sh PreToolUse Bash + preserve-file-permissions.sh Pre+PostToolUse)
 - `settings.json` chargé (permissions deny + hooks + statusLine)
@@ -32,7 +32,7 @@ Wire automatique. Confirmer à l'utilisateur :
 4. **Confirme à l'utilisateur** :
    - Mode `none` : 10 agents installés dans `.claude/agents/roles/`
    - Mode `adonisjs` : 13 agents (6 roles/ conservés + 7 stacks/adonisjs/ durcis, aucune redondance)
-   - Liste les 5 skills + 13 commands
+   - Liste les 6 skills + 13 commands
    - Indique que `scan-secu.sh` est à la racine, exécutable (41 étapes)
    - Mentionne le `CLAUDE.md` minimal à enrichir
    - Renvoie vers `docs/claude-config/inheritance-map.md` pour le mapping override

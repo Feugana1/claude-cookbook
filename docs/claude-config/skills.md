@@ -25,10 +25,11 @@ Disponibles par défaut, sans installation. Inventaire non-exhaustif (varie selo
 
 ## Skills installés par le cookbook (`.claude/skills/`)
 
-**5 skills invocables via `/<name>`** :
+**6 skills invocables via `/<name>`** :
 
 | Skill | Path | Trigger | Source de vérité | Subagent associé |
 |---|---|---|---|---|
+| `/ai-config` | `.claude/skills/ai-config/SKILL.md` | Nouveau projet, "audit config claude", session sans CLAUDE.md/AGENTS.md | `scripts/scan-ai-config.sh` (18 standards P0/P1/P2) + `docs/templates/*` | — (scaffold interactif) |
 | `/feature <nom>` | `.claude/skills/feature/SKILL.md` | **AVANT toute nouvelle feature non-triviale** | `PRODUCT.md` OU `docs/product.md` du projet + `docs/competitive-benchmark/` si présent | `product-strategist` (orchestre puis dispatch experts couches 1-3) |
 | `/ux-review <page>` | `.claude/skills/ux-review/SKILL.md` | Avant add-feature config, "ça paraît dense" | `docs/ux-audit-prompt.md` + `docs/design-system.md` du projet | front-architect projet-specific si présent (peut être délégué pour audit profond) |
 | `/secu` | `.claude/skills/secu/SKILL.md` | Avant `git push`, modifs sensibles | `scan-secu.sh` (41 étapes tier OWASP) | `security-multitenant` pour deep-dive sur FAIL |

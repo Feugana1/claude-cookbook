@@ -12,10 +12,12 @@ Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub
 |---|---|---|
 | **Roles génériques opus** (cross-stack, 1 fichier par use case) | **10** | `.claude/agents/roles/*.md` |
 | **Sub-agents stack AdonisJS** (couches 1-5, sonnet/haiku) | **7** | `.claude/agents/stacks/adonisjs/*.md` |
-| **Skills** (invocation humaine explicite) | **5** | `.claude/skills/*/SKILL.md` |
+| **Skills** (invocation humaine explicite) | **6** | `.claude/skills/*/SKILL.md` |
 | **Commands** (slash commands) | **13** | `.claude/commands/*.md` |
 | **Hooks** (déclenchés automatiquement) | **3** | `.claude/hooks/*.sh` |
 | **scan-secu.sh steps** (tier OWASP T1/T2/T3) | **41** | `scripts/scan-secu.d/step-*.sh` |
+| **scan-ai-config.sh standards** (P0/P1/P2 gap analysis) | **18** | `scripts/scan-ai-config.sh` |
+| **Templates scaffold** (CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, lessons, mcp.json + wire) | **10** | `docs/templates/*` |
 | **Config** (permissions + MCP + statusline + commitlint + lefthook + markdownlint) | **6** | racine |
 
 Total : **~50 fichiers**, ~7000 lignes de méthodologie distillée.
