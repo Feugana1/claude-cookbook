@@ -1,14 +1,14 @@
 # Claude Code — configuration projet (cookbook)
 
 > Documentation de la configuration Claude Code fournie par le cookbook :
-> philosophie, catalogue d'experts spécialisés en 6 couches, procédure de reproduction cross-poste.
+> philosophie, catalogue d'experts (1 rôle = 1 fichier, miroir wasabeef), procédure de reproduction cross-poste.
 
 ## Ce que le cookbook installe
 
 | Item | Volumétrie | Statut |
 |---|---|---|
-| Subagents core (couches 0-5, stack-aware AdonisJS) | 8 (7 sonnet + 1 haiku) | ✅ versionnés `.claude/agents/` |
-| Subagents génériques opus (opt-in, cross-stack) | 9 personas (architect, backend, frontend, mobile, performance, qa, security, reviewer, analyzer) | ✅ versionnés `.claude/agents/` |
+| Rôles génériques opus (cross-stack) | 10 personas (analyzer, architect, backend, frontend, mobile, performance, product-strategist, qa, reviewer, security) | ✅ versionnés `.claude/agents/roles/` |
+| Experts stack AdonisJS (couches 1-5) | 7 (5 sonnet + 2 haiku) | ✅ versionnés `.claude/agents/stacks/adonisjs/` |
 | Skills | 5 (`/feature`, `/ux-review`, `/secu`, `/pre-pr`, `/multi-agent`) | ✅ versionnés `.claude/skills/` |
 | Commands | 13 (`/commit`, `/semantic-commit`, `/pr-create`, `/pr-review`, `/pr-fix`, `/plan`, `/refactor`, `/fix-error`, `/explain-code`, `/analyze-dependencies`, `/analyze-performance`, `/check-fact`, `/tech-debt`) | ✅ versionnés `.claude/commands/` |
 | Hooks | 3 (`dispatch-expert.sh`, `precommit-check.sh`, `preserve-file-permissions.sh`) | ✅ versionnés `.claude/hooks/` |
@@ -29,7 +29,7 @@ Ce qui reste **à ajouter par chaque projet** (non versionné dans cookbook) :
 
 | Fichier | Rôle |
 |---|---|
-| [`experts.md`](experts.md) | **Doc maître** — démarche d'automatisation, catalogue 6 couches, règle d'or "expert prend le dessus sans complaisance" |
+| [`experts.md`](experts.md) | **Doc maître** — démarche d'automatisation, catalogue `roles/` + `stacks/adonisjs/`, règle d'or "expert prend le dessus sans complaisance" |
 | [`setup.md`](setup.md) | Procédure step-by-step pour reproduire sur un nouveau poste (pré-requis, login, vérifications) |
 | [`skills.md`](skills.md) | Inventaire des skills installés (built-in Claude Code + cookbook) |
 | [`superpowers-integration.md`](superpowers-integration.md) | Matrice routage skills cookbook vs `superpowers@claude-plugins-official` |
@@ -38,18 +38,24 @@ Ce qui reste **à ajouter par chaque projet** (non versionné dans cookbook) :
 
 Une instruction CLAUDE.md est consultative (suivie ~80 %). Une règle dure doit être déterministe :
 **hook** (grep + exit 2), **permission deny**, ou **subagent expert** chargé sur sa propre source de vérité.
-Détail complet et catalogue 6 couches : [`experts.md`](experts.md).
+Détail complet : [`experts.md`](experts.md).
 
-## Catalogue 6 couches (résumé)
+## Catalogue résumé
+
+**`.claude/agents/roles/`** — 10 rôles génériques opus (1 fichier / use case) :
+`analyzer`, `architect`, `backend`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`, `reviewer`, `security`.
+
+**`.claude/agents/stacks/adonisjs/`** — 7 experts stack-aware (couches 1-5) :
 
 ```
-Couche 0 STRATEGIC GATE  : product-strategist        ← avant toute nouvelle feature (projet-specific si vision produit doc)
-Couche 1 ARCHITECTS       : back-architect           (front-architect = projet-specific si UI-heavy)
-Couche 2 CROSS-CUTTING    : security-multitenant | data-access-reviewer (haiku) | migration-reviewer
-Couche 3 DOMAIN           : workflow-email           (autres = projet-specific : compta, marketplace, public, etc.)
-Couche 4 LINTERS          : edge-anti-patterns (haiku)
-Couche 5 FINAL GATE       : code-reviewer           ← avant git commit
+Couche 1 ARCHITECT       : back-architect           (front-architect = projet-specific si UI-heavy)
+Couche 2 CROSS-CUTTING   : security-multitenant | data-access-reviewer (haiku) | migration-reviewer
+Couche 3 DOMAIN          : workflow-email           (autres = projet-specific : compta, marketplace, public, etc.)
+Couche 4 LINTER          : edge-anti-patterns (haiku)
+Couche 5 FINAL GATE      : code-reviewer           ← avant git commit
 ```
+
+**Couche 0 strategic gate** : `product-strategist` vit dans `roles/` (générique).
 
 Chaque expert applique la **règle d'or** : sources chargées AVANT analyse, STAY IN SCOPE, sans complaisance, cite `file:line`, format sortie standardisé, tests internes de validation.
 

@@ -68,7 +68,7 @@ jobs:
       - name: Validate each agent has name/description/tools frontmatter
         run: |
           fail=0
-          for f in .claude/agents/*.md; do
+          for f in $(find .claude/agents -name '*.md' -type f); do
             [ -f "$f" ] || continue
             # Extract frontmatter (between --- markers)
             frontmatter=$(awk '/^---$/{c++; if(c==2)exit; next} c==1' "$f")

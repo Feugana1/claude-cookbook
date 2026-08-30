@@ -1,7 +1,7 @@
 {
   "name": "cookbook",
   "version": "0.2.0",
-  "description": "Cookbook Claude Code stack AdonisJS/Node/TS — 8 sub-agents, 4 skills, 2 hooks P0, scan-secu 41 étapes tier OWASP.",
+  "description": "Cookbook Claude Code stack AdonisJS/Node/TS — 17 sub-agents (roles/ + stacks/adonisjs/), 5 skills, 3 hooks P0, scan-secu 41 étapes tier OWASP.",
   "author": {
     "name": "Lionel FOTSO"
   },

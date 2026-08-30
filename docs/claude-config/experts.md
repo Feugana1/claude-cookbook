@@ -71,20 +71,33 @@ Conséquence opérationnelle : **un expert qui valide une feature pèse plus qu'
 
 ## 4. Catalogue
 
-Cookbook fournit **2 catégories d'agents** :
+Cookbook fournit **2 catégories d'agents**, une par dossier — règle *un rôle = un fichier* :
 
-- **Core stack-aware (8 agents)** — orchestrés en 6 couches, spécifiques AdonisJS/Node/TS
-- **Générique opus opt-in (9 personas)** — cross-stack, activables selon besoin
+- **Rôles génériques opus (10 personas)** — `.claude/agents/roles/`, cross-stack, miroir wasabeef
+- **Stack AdonisJS (7 experts)** — `.claude/agents/stacks/adonisjs/`, couches 1-5 stack-aware
 
 ### Vue d'ensemble
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  CORE COOKBOOK — 8 agents stack-aware AdonisJS (couches 0-5)     │
+│  RÔLES GÉNÉRIQUES OPUS — 10 personas cross-stack                 │
+│  .claude/agents/roles/                                           │
 │                                                                  │
-│  Couche 0 — STRATEGIC GATE (sonnet)                              │
-│    product-strategist                                            │
-│  Couche 1 — ARCHITECTS (sonnet)                                  │
+│    analyzer          — Root cause 5 Whys + hypothèses ranked     │
+│    architect         — Evidence-First conception + MECE          │
+│    backend           — API RESTful, microservices, cloud-native  │
+│    frontend          — WCAG 2.1, design systems, Core Web Vitals │
+│    mobile            — iOS HIG + Android Material, cross-platform│
+│    performance       — Core Web Vitals + RAIL, profil ROI-driven │
+│    product-strategist — Strategic gate différenciation (couche 0)│
+│    qa                — Test pyramid + coverage + TDD             │
+│    reviewer          — Générique code review (hors stack)        │
+│    security          — OWASP Top 10 + OWASP LLM + STRIDE         │
+├──────────────────────────────────────────────────────────────────┤
+│  STACK ADONISJS — 7 experts en 5 couches                         │
+│  .claude/agents/stacks/adonisjs/                                 │
+│                                                                  │
+│  Couche 1 — ARCHITECT (sonnet)                                   │
 │    back-architect        (front-architect = projet-specific)     │
 │  Couche 2 — CROSS-CUTTING (sonnet/haiku)                         │
 │    security-multitenant + data-access-reviewer (haiku)           │
@@ -92,30 +105,18 @@ Cookbook fournit **2 catégories d'agents** :
 │  Couche 3 — DOMAIN (sonnet)                                      │
 │    workflow-email                                                │
 │    (autres = projet-specific : compta, marketplace, public…)     │
-│  Couche 4 — LINTERS (haiku)                                      │
+│  Couche 4 — LINTER (haiku)                                       │
 │    edge-anti-patterns                                            │
 │  Couche 5 — FINAL GATE (sonnet)                                  │
 │    code-reviewer                                                 │
-├──────────────────────────────────────────────────────────────────┤
-│  GÉNÉRIQUE OPUS OPT-IN — 9 personas cross-stack                  │
-│                                                                  │
-│    architect       — Evidence-First conception + MECE            │
-│    backend         — API RESTful, microservices, cloud-native    │
-│    frontend        — WCAG 2.1, design systems, Core Web Vitals   │
-│    mobile          — iOS HIG + Android Material, cross-platform  │
-│    performance     — Core Web Vitals + RAIL, profil ROI-driven   │
-│    qa              — Test pyramid + coverage + TDD               │
-│    security        — OWASP Top 10 + OWASP LLM + STRIDE           │
-│    reviewer        — Générique code review (hors stack)          │
-│    analyzer        — Root cause 5 Whys + hypothèses ranked       │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-**Quand utiliser core vs générique ?**
+**Quand utiliser stack vs rôle générique ?**
 
-- **Stack AdonisJS/Node/TS** : core cookbook (couches 0-5) est projet-aware et prime — invoqué automatiquement par description-trigger
-- **Cross-stack / autre stack / audit générique** : générique opus opt-in — invoqué explicitement pour perspective wide (ex: `security` pour OWASP LLM audit, `architect` pour choix microservices vs monolithe, `performance` pour profil cross-layer)
-- **Combinable** : `/multi-agent <path> back-architect,security` (core Adonis) OU `/multi-agent <path> architect,security` (générique)
+- **Stack AdonisJS/Node/TS** : `stacks/adonisjs/` (couches 1-5) est projet-aware et prime — invoqué automatiquement par description-trigger
+- **Cross-stack / autre stack / audit générique** : `roles/` opus opt-in — invoqué explicitement pour perspective wide (ex: `security` pour OWASP LLM audit, `architect` pour choix microservices vs monolithe, `performance` pour profil cross-layer)
+- **Combinable** : `/multi-agent <path> back-architect,security-multitenant` (stack Adonis) OU `/multi-agent <path> architect,security` (générique)
 
 **Ordre d'invocation type** :
 - **Nouvelle feature** : `product-strategist` (couche 0) AVANT tout. Si verdict NO-GO → on ne code pas. Si GO → architects → cross-cutting → domain → linter → **`code-reviewer` (couche 5) AVANT git commit**.
@@ -125,7 +126,7 @@ Cookbook fournit **2 catégories d'agents** :
 La couche 0 ne s'invoque pas sur bugfix/refactor pur.
 La couche 5 s'invoque **toujours** avant `git commit` si diff non-trivial (≥ 2 fichiers OU ≥ 50 lignes OU touche app/middleware/migrations/routes).
 
-### 4.1 Subagents cookbook (`.claude/agents/*.md`)
+### 4.1 Subagents cookbook (`.claude/agents/roles/*.md` + `.claude/agents/stacks/adonisjs/*.md`)
 
 #### Couche 0 — Strategic gate
 

@@ -52,18 +52,23 @@ echo -e "  Mode   : ${YELLOW}$([ "$UPDATE_MODE" = true ] && echo "UPDATE (preser
 echo ""
 
 # ── Préparer arborescence cible ─────────────────────────────────────────────
-mkdir -p "$TARGET/.claude/agents"
+mkdir -p "$TARGET/.claude/agents/roles"
+mkdir -p "$TARGET/.claude/agents/stacks/adonisjs"
 mkdir -p "$TARGET/.claude/skills"
 mkdir -p "$TARGET/.claude/hooks"
 mkdir -p "$TARGET/scripts"
 mkdir -p "$TARGET/docs/claude-config"
 mkdir -p "$TARGET/.claude-plugin"
 
-# ── Copier les agents (17 total : 8 core stack-aware + 9 opus opt-in) ──────
-echo -e "${GREEN}[1/6]${NC} Agents (17 total : 8 core + 9 opus opt-in)..."
-for f in "$COOKBOOK_ROOT"/.claude/agents/*.md; do
-  cp "$f" "$TARGET/.claude/agents/"
-  echo "    + $(basename "$f")"
+# ── Copier les agents (17 total : 10 roles génériques opus + 7 stack AdonisJS) ──────
+echo -e "${GREEN}[1/6]${NC} Agents (17 total : 10 roles/ opus + 7 stacks/adonisjs/)..."
+for f in "$COOKBOOK_ROOT"/.claude/agents/roles/*.md; do
+  cp "$f" "$TARGET/.claude/agents/roles/"
+  echo "    + roles/$(basename "$f")"
+done
+for f in "$COOKBOOK_ROOT"/.claude/agents/stacks/adonisjs/*.md; do
+  cp "$f" "$TARGET/.claude/agents/stacks/adonisjs/"
+  echo "    + stacks/adonisjs/$(basename "$f")"
 done
 
 # ── Copier les skills (5) + commands (13) ──────────────────────────────────
@@ -189,7 +194,7 @@ echo -e "  • .claude-plugin/{plugin,marketplace}.json (v0.2.0 — plugin natif
 echo -e "  • settings.json (permissions deny + hooks wire + env + statusLine — copié si absent)"
 echo -e "  • .mcp.json (Context7 + sequential-thinking + fetch + github — copié si absent)"
 echo -e "  • commitlint.config.js + lefthook.yml + .markdownlint.json (Conventional Commits + linting)"
-echo -e "  • 17 sub-agents (.claude/agents/) — 8 core stack-aware + 9 opus opt-in"
+echo -e "  • 17 sub-agents — 10 roles/ (générique opus) + 7 stacks/adonisjs/ (stack-aware sonnet/haiku)"
 echo -e "  • 5 skills (.claude/skills/feature, pre-pr, secu, ux-review, multi-agent)"
 echo -e "  • 13 commands (.claude/commands/ : commit, semantic-commit, pr-*, plan, refactor, fix-error, explain-code, analyze-*, check-fact, tech-debt)"
 echo -e "  • 3 hooks (.claude/hooks/dispatch-expert + precommit-check + preserve-file-permissions)"
@@ -204,7 +209,7 @@ echo -e "${BOLD}Next steps${NC} :"
 echo -e "  1. ${BLUE}Éditer${NC} CLAUDE.md §5 Domain Model Glossary — lister PRIMARY_MODELS du projet"
 echo -e "  2. ${BLUE}Éditer${NC} CLAUDE.md §1 Stack + §2 Conventions + §3 i18n"
 echo -e "  3. ${BLUE}Export${NC} PRIMARY_MODELS_RE dans scripts/scan-secu.env (cf §5)"
-echo -e "  4. ${BLUE}Ajouter${NC} agents domain-specific dans .claude/agents/ (les 8 du cookbook sont génériques)"
+echo -e "  4. ${BLUE}Ajouter${NC} agents domain-specific dans .claude/agents/stacks/<votre-stack>/ (les 7 fournis ciblent AdonisJS)"
 echo -e "  5. ${BLUE}Première feature${NC} : invoquer subagent product-strategist via Agent tool"
 echo -e "  6. ${BLUE}Avant commit${NC} : code-reviewer"
 echo -e "  7. ${BLUE}Avant push${NC} : bash scan-secu.sh --full"
@@ -212,6 +217,6 @@ echo -e "  8. ${BLUE}Wire delta hook${NC} : cp docs/templates/husky-pre-commit.s
 echo -e "  9. ${BLUE}Wire CI cron${NC}   : cp docs/templates/scan-secu-weekly.yml .github/workflows/"
 echo -e "  10. ${BLUE}Wire allowlist${NC} : cp docs/templates/.gitleaks.toml . (edit paths)"
 echo ""
-echo -e "${YELLOW}Doc canonical${NC} : docs/claude-config/experts.md (catalogue 6 couches)"
+echo -e "${YELLOW}Doc canonical${NC} : docs/claude-config/experts.md (catalogue roles/ + stacks/adonisjs/)"
 echo -e "${YELLOW}Discipline${NC}   : docs/lessons.md §1 (Karpathy 4)"
 echo ""

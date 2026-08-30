@@ -63,9 +63,13 @@ Après install (Voie A ou B) :
 
 ```
 .claude/
-├── agents/           ← 17 subagents (8 core stack-aware + 9 génériques opus opt-in — cf experts.md §4)
-├── skills/           ← /feature /ux-review /secu /pre-pr
-└── hooks/            ← dispatch-expert.sh + precommit-check.sh
+├── agents/
+│   ├── roles/                    ← 10 rôles génériques opus (analyzer, architect, backend,
+│   │                                frontend, mobile, performance, product-strategist,
+│   │                                qa, reviewer, security)
+│   └── stacks/adonisjs/          ← 7 experts stack-aware (couches 1-5)
+├── skills/                       ← /feature /ux-review /secu /pre-pr /multi-agent
+└── hooks/                        ← dispatch-expert.sh + precommit-check.sh
 
 settings.json         ← permissions deny + hooks wire (racine cookbook, sourcé au load)
 scripts/              ← scan-secu.sh + 41 étapes + check-file-sizes.js + generate-sbom.sh
@@ -125,30 +129,30 @@ claude
 
 Doit lister les **17 subagents cookbook** :
 
-**Core stack-aware (8 en 6 couches)** :
+**Stack AdonisJS (7 experts en 5 couches)** — `.claude/agents/stacks/adonisjs/` :
 
 | Couche | Agent | Model |
 |---|---|---|
-| 0 Strategic | `product-strategist` | sonnet |
-| 1 Architects | `back-architect` | sonnet |
+| 1 Architect | `back-architect` | sonnet |
 | 2 Cross-cutting | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` | sonnet/haiku |
 | 3 Domain | `workflow-email` | sonnet |
-| 4 Linters | `edge-anti-patterns` | haiku |
+| 4 Linter | `edge-anti-patterns` | haiku |
 | 5 Final gate | `code-reviewer` | sonnet |
 
-**Generic opus opt-in (9 personas cross-stack)** :
+**Rôles génériques opus (10 personas cross-stack)** — `.claude/agents/roles/` :
 
 | Agent | Rôle |
 |---|---|
+| `analyzer` | Root cause 5 Whys |
 | `architect` | Conception Evidence-First + MECE |
 | `backend` | API RESTful/GraphQL, microservices |
 | `frontend` | WCAG 2.1, Core Web Vitals |
 | `mobile` | iOS HIG + Android Material |
 | `performance` | Profilage + optim ROI-driven |
+| `product-strategist` | Strategic gate différenciation feature (couche 0) |
 | `qa` | Test pyramid + coverage |
-| `security` | OWASP Top 10 + OWASP LLM |
 | `reviewer` | Générique code review (hors stack) |
-| `analyzer` | Root cause 5 Whys |
+| `security` | OWASP Top 10 + OWASP LLM |
 
 Si le projet a ajouté des agents projet-specific, ils apparaissent en plus.
 

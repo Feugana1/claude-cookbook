@@ -1,6 +1,6 @@
 # Claude Code Cookbook
 
-Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents orchestrés en 6 couches, skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
+Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents en 2 dossiers (`roles/` génériques opus + `stacks/adonisjs/` couches 1-5), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
 
 **Statut** : v0.2.0 — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
 
@@ -10,8 +10,8 @@ Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub
 
 | Composant | Count | Path |
 |---|---|---|
-| **Sub-agents cookbook** (stack-aware AdonisJS, couches 0-5) | **8** | `.claude/agents/*.md` |
-| **Sub-agents génériques opus** (opt-in, cross-stack) | **9** | `.claude/agents/*.md` |
+| **Roles génériques opus** (cross-stack, 1 fichier par use case) | **10** | `.claude/agents/roles/*.md` |
+| **Sub-agents stack AdonisJS** (couches 1-5, sonnet/haiku) | **7** | `.claude/agents/stacks/adonisjs/*.md` |
 | **Skills** (invocation humaine explicite) | **5** | `.claude/skills/*/SKILL.md` |
 | **Commands** (slash commands) | **13** | `.claude/commands/*.md` |
 | **Hooks** (déclenchés automatiquement) | **3** | `.claude/hooks/*.sh` |
@@ -30,7 +30,15 @@ Total : **~50 fichiers**, ~7000 lignes de méthodologie distillée.
 └── plugin.json         manifest plugin cookbook v0.2.0
 
 .claude/
-├── agents/             17 sub-agents (8 core stack-aware + 9 generic opus opt-in)
+├── agents/
+│   ├── roles/          10 rôles génériques opus (1 fichier par use case, miroir wasabeef)
+│   │                   analyzer, architect, backend, frontend, mobile, performance,
+│   │                   product-strategist, qa, reviewer, security
+│   └── stacks/
+│       └── adonisjs/   7 experts stack-aware (couches 1-5, sonnet/haiku)
+│                       back-architect, code-reviewer, data-access-reviewer,
+│                       edge-anti-patterns, migration-reviewer, security-multitenant,
+│                       workflow-email
 ├── skills/             5 slash commands (/feature, /pre-pr, /secu, /ux-review, /multi-agent)
 ├── commands/           13 productivity commands (/commit, /pr-*, /refactor, /explain-code, /tech-debt, ...)
 └── hooks/              3 hooks (dispatch-expert + precommit-check + preserve-file-permissions)
@@ -63,7 +71,7 @@ docs/
 ├── feature-plan-template.md Template unifié spec + plan + completeness (~200L max)
 │                            Inclut §1b EARS notation + §3b threat model T1-T18
 ├── ux-audit-prompt.md      6 axes audit UX (User-first, PLG, DS, restraint cognitif…)
-└── claude-config/          Catalogue agents (6 couches), setup cross-poste, superpowers integration
+└── claude-config/          Catalogue agents (roles/ + stacks/adonisjs/), setup cross-poste, superpowers integration
 
 .github/workflows/
 └── cookbook-self-test.yml  CI cookbook lui-même (bash-lint, JSON/YAML valid, frontmatter, scan-secu no-crash, leak-check)
@@ -105,30 +113,40 @@ Mode update : écrase uniquement les fichiers du cookbook, ne touche pas aux fic
 
 ## Architecture agents — 2 catégories
 
-### 1. Core cookbook (stack-aware AdonisJS) — 8 agents en 6 couches
+Règle : **un rôle = un fichier**. Les rôles génériques vivent dans `roles/`, les experts spécifiques à une stack vivent dans `stacks/<name>/`. Structure miroir de [wasabeef/claude-code-cookbook](https://github.com/wasabeef/claude-code-cookbook/tree/main/plugins/fr/agents/roles).
 
-```
-Couche 0 STRATEGIC GATE  : product-strategist        ← avant toute nouvelle feature
-Couche 1 ARCHITECTS       : back-architect           (front-architect = projet-specific si UI-heavy)
-Couche 2 CROSS-CUTTING    : security-multitenant | data-access-reviewer (haiku) | migration-reviewer
-Couche 3 DOMAIN           : workflow-email           (autres = projet-specific : compta, marketplace, public, etc.)
-Couche 4 LINTERS          : edge-anti-patterns (haiku)
-Couche 5 FINAL GATE       : code-reviewer           ← avant git commit
-```
+### 1. Roles génériques opus — 10 personas (cross-stack)
 
-### 2. Generic opus (opt-in, cross-stack) — 9 personas
+Un rôle = un use case. Utilisables partout, quel que soit le framework.
 
-| Agent | Rôle | Complémentaire à |
+| Rôle | Use case | Model |
 |---|---|---|
-| `architect` | Conception Evidence-First + MECE + phased migration | `back-architect` (stack) |
-| `backend` | API RESTful/GraphQL, microservices, cloud-native | `back-architect` |
-| `frontend` | WCAG 2.1, design systems, Core Web Vitals | `edge-anti-patterns` |
-| `mobile` | iOS HIG + Android Material, cross-platform, offline-first | — |
-| `performance` | Core Web Vitals + RAIL + profilage ROI-driven | — |
-| `qa` | Test pyramid + coverage + TDD + automation | — |
-| `security` | OWASP Top 10 + OWASP LLM + threat modeling STRIDE | `security-multitenant` (Adonis tenant) |
-| `reviewer` | Générique code review lisibilité/maintenabilité | `code-reviewer` (couche 5 stack) |
-| `analyzer` | Root cause 5 Whys + hypothèses ranked | `/fix-error` (petit scope) |
+| `analyzer` | Root cause 5 Whys + hypothèses ranked | opus |
+| `architect` | Conception Evidence-First + MECE + phased migration | opus |
+| `backend` | API RESTful/GraphQL, microservices, cloud-native | opus |
+| `frontend` | WCAG 2.1, design systems, Core Web Vitals | opus |
+| `mobile` | iOS HIG + Android Material, cross-platform, offline-first | opus |
+| `performance` | Core Web Vitals + RAIL + profilage ROI-driven | opus |
+| `product-strategist` | Strategic gate différenciation feature (couche 0) | sonnet |
+| `qa` | Test pyramid + coverage + TDD + automation | opus |
+| `reviewer` | Générique code review lisibilité/maintenabilité | opus |
+| `security` | OWASP Top 10 + OWASP LLM + threat modeling STRIDE | opus |
+
+### 2. Stack AdonisJS — 7 experts stack-aware (couches 1-5)
+
+Experts qui appliquent les conventions §14 (300/400/800L limits), multi-tenant Adonis, ORM Lucid, etc. Ils prennent le dessus sur les rôles génériques quand la stack est AdonisJS.
+
+```
+Couche 1 ARCHITECT       : back-architect
+Couche 2 CROSS-CUTTING   : security-multitenant | data-access-reviewer (haiku) | migration-reviewer
+Couche 3 DOMAIN          : workflow-email
+Couche 4 LINTER          : edge-anti-patterns (haiku)
+Couche 5 FINAL GATE      : code-reviewer                                       ← avant git commit
+```
+
+### Ajouter une stack
+
+Créer `.claude/agents/stacks/<votre-stack>/` (ex : `laravel/`, `nextjs/`, `django/`) puis y déposer les experts stack-aware. Les rôles génériques `roles/` restent utilisables tels quels.
 
 ---
 
