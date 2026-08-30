@@ -1,0 +1,131 @@
+# Security capabilities V0 — 8 items
+
+- name: tls_enforced
+  domain: security
+  weight: 10
+  maturity_required:
+    prototype: recommended
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - file_contains: {path: "next.config.*", pattern: "redirects.*https"}
+    - file_contains: {path: "vercel.json", pattern: "https"}
+    - file_contains: {path: "*.conf", pattern: "return 301 https"}
+    - config_key: {file: "*.toml", key: "always_use_https"}
+    - serverless_platform: [vercel, netlify, cloudflare-workers]  # auto-TLS
+  confirmation_signals:
+    - env_present: "FORCE_HTTPS=true"
+  critical_gate: true
+
+- name: authentication
+  domain: security
+  weight: 10
+  maturity_required:
+    prototype: optional
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: '@auth/*'
+    - dep: 'next-auth'
+    - dep: '@adonisjs/auth'
+    - dep: 'passport'
+    - dep: 'lucia'
+    - dep: '@clerk/*'
+    - dep: '@supabase/auth-helpers-*'
+    - dep: '@auth0/*'
+  confirmation_signals:
+    - middleware_present: "auth"
+  critical_gate: true
+
+- name: secrets_management
+  domain: security
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - file_exists: ".env.example"
+    - file_exists: ".env.vault"
+    - dep: 'dotenv'
+    - iac_module: "vault"
+    - iac_module: "aws_secretsmanager"
+    - platform_secrets: [vercel, netlify, github-actions, aws-parameter-store]
+  confirmation_signals:
+    - no_secrets_in_git: true  # gitleaks scan clean
+
+- name: security_headers
+  domain: security
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: 'helmet'
+    - file_contains: {path: "next.config.*", pattern: "Strict-Transport-Security"}
+    - file_contains: {path: "*.conf", pattern: "Content-Security-Policy"}
+    - middleware_present: "csp"
+
+- name: rate_limiting
+  domain: security
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: 'express-rate-limit'
+    - dep: '@upstash/ratelimit'
+    - dep: 'rate-limiter-flexible'
+    - iac_module: "cloudflare_rate_limit"
+    - cdn_config: {provider: cloudflare, feature: rate_limit}
+
+- name: waf
+  domain: security
+  weight: 5
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - cdn_config: {provider: cloudflare, feature: waf}
+    - iac_module: "aws_waf"
+    - platform_feature: {vercel: firewall}
+
+- name: dependency_scanning
+  domain: security
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - github_workflow: "dependabot"
+    - github_workflow_contains: "trivy"
+    - github_workflow_contains: "snyk"
+    - github_workflow_contains: "npm audit"
+    - file_exists: ".github/dependabot.yml"
+
+- name: input_validation
+  domain: security
+  weight: 8
+  maturity_required:
+    prototype: recommended
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: 'zod'
+    - dep: 'joi'
+    - dep: 'yup'
+    - dep: '@vinejs/vine'
+    - dep: 'valibot'
+    - dep: 'class-validator'

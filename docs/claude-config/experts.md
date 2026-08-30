@@ -111,6 +111,14 @@ Mapping override complet : [`inheritance-map.md`](inheritance-map.md).
 │    edge-anti-patterns                                            │
 │  Couche 5 — FINAL GATE (sonnet)                                  │
 │    code-reviewer                                                 │
+├──────────────────────────────────────────────────────────────────┤
+│  COUCHE 6 — PRODUCTION READINESS (skill /prod-readiness)         │
+│  Post-final-gate, avant push production réelle                   │
+│                                                                  │
+│    /prod-readiness — score /100 + critical gates + gaps          │
+│                       + plan P0/P1/P2, sans providers hardcodés  │
+│                       (V0). Sources : capabilities/*.yaml (32),  │
+│                       methodology/{scoring,maturity,confidence}. │
 └──────────────────────────────────────────────────────────────────┘
 ```
 

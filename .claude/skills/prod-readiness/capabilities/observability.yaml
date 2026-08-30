@@ -1,0 +1,97 @@
+# Observability capabilities V0 — 6 items
+
+- name: error_tracking
+  domain: observability
+  weight: 10
+  maturity_required:
+    prototype: optional
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: '@sentry/*'
+    - dep: 'rollbar'
+    - dep: '@bugsnag/*'
+    - dep: '@honeybadger-io/*'
+    - dep: 'datadog-*'
+    - env: 'SENTRY_DSN'
+    - env: 'ROLLBAR_TOKEN'
+    - env: 'BUGSNAG_API_KEY'
+  confirmation_signals:
+    - config_file: "sentry.*.config.*"
+    - env_value_nonempty: 'SENTRY_DSN'
+  critical_gate: true
+
+- name: logs_aggregation
+  domain: observability
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: 'pino'
+    - dep: 'winston'
+    - dep: 'bunyan'
+    - env: 'LOG_LEVEL'
+    - iac_module: "cloudwatch_log_group"
+    - platform_logs: [vercel, fly.io, railway, render]
+    - external_logs: [datadog, loki, elasticsearch, papertrail]
+
+- name: metrics
+  domain: observability
+  weight: 7
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - dep: 'prom-client'
+    - dep: '@opentelemetry/*'
+    - route_present: ["/metrics"]
+    - external_metrics: [datadog, grafana-cloud, honeycomb, new-relic]
+
+- name: distributed_tracing
+  domain: observability
+  weight: 5
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: optional  # required seulement > 5 services
+    enterprise: recommended
+  detection_signals:
+    - dep: '@opentelemetry/api'
+    - dep: 'jaeger-client'
+    - dep: 'dd-trace'
+    - env: 'OTEL_EXPORTER_*'
+  contextual_requirement:
+    # Élève required si context.microservices_count > 5
+    microservices_threshold: 5
+
+- name: uptime_monitoring
+  domain: observability
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - external_service: [better-stack, uptime-robot, pingdom, statuspage, checkly, healthchecks-io]
+    - documented_in: ["docs/monitoring.md", "README.md"]
+
+- name: alerting
+  domain: observability
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: required
+    enterprise: required
+  detection_signals:
+    - env: 'PAGERDUTY_*'
+    - env: 'OPSGENIE_*'
+    - env: 'SLACK_WEBHOOK'
+    - config_alerts: [sentry, datadog, cloudwatch-alarm, grafana-alert]

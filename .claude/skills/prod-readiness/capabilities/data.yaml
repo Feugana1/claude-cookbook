@@ -1,0 +1,93 @@
+# Data capabilities V0 — 6 items
+
+- name: database_managed
+  domain: data
+  weight: 7
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: recommended
+    enterprise: optional  # peut préférer self-hosted pour contrôle
+  detection_signals:
+    - managed_db: [supabase, neon, planetscale, railway-pg, render-pg, aws-rds, gcp-cloudsql]
+    - env: 'DATABASE_URL'  # heuristic
+
+- name: migrations_versioned
+  domain: data
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - dir_nonempty: "database/migrations"
+    - dir_nonempty: "prisma/migrations"
+    - dir_nonempty: "drizzle"
+    - dep: 'knex'
+    - dep: '@adonisjs/lucid'
+    - dep: 'typeorm'
+    - dep: '@prisma/*'
+    - dep: 'drizzle-orm'
+
+- name: connection_pooling
+  domain: data
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - dep: 'pg-pool'
+    - config_key: {file: "*.config.*", key: "pool"}
+    - platform_pooling: [neon-pooler, supabase-pgbouncer, planetscale]
+
+- name: object_storage
+  domain: data
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - dep: '@aws-sdk/client-s3'
+    - dep: '@google-cloud/storage'
+    - dep: '@azure/storage-blob'
+    - dep: '@supabase/storage-*'
+    - dep: '@vercel/blob'
+    - env: 'S3_BUCKET'
+    - env: 'STORAGE_URL'
+
+- name: cache_layer
+  domain: data
+  weight: 5
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - dep: 'redis'
+    - dep: 'ioredis'
+    - dep: '@upstash/redis'
+    - dep: 'node-cache'
+    - env: 'REDIS_URL'
+    - managed_cache: [upstash, aws-elasticache, redis-cloud]
+
+- name: pii_handling
+  domain: data
+  weight: 7
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - documented_in: ["docs/privacy.md", "docs/gdpr.md", "docs/data-model.md"]
+    - dep: 'crypto-js'  # signals encryption at app level
+    - iac_key: "encryption_at_rest"
+    - documented_data_deletion: ["docs/data-retention.md", "docs/gdpr.md"]
+  contextual_requirement:
+    compliance_triggers: [gdpr, ccpa, hipaa]

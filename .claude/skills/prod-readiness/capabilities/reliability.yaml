@@ -1,0 +1,84 @@
+# Reliability capabilities V0 — 6 items
+
+- name: db_backup
+  domain: reliability
+  weight: 10
+  maturity_required:
+    prototype: optional
+    mvp: required
+    production: required
+    enterprise: required
+  detection_signals:
+    - iac_module: "aws_backup_plan"
+    - iac_config: {resource: "aws_db_instance", key: "backup_retention_period", operator: ">", value: 0}
+    - managed_db: [supabase, neon, planetscale, railway, render, fly.io]  # auto-backup
+    - github_workflow: "backup"
+    - script_present: "backup.sh"
+  confirmation_signals:
+    - documented_in: ["README.md", "docs/*.md"]
+  critical_gate: true
+
+- name: db_restore_testing
+  domain: reliability
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - github_workflow_contains: "restore"
+    - script_present: "restore-test.sh"
+    - documented_in_run: ["docs/dr.md", "docs/runbook*.md"]
+
+- name: health_checks
+  domain: reliability
+  weight: 7
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - route_present: ["/health", "/healthz", "/ready"]
+    - k8s_probe: ["livenessProbe", "readinessProbe"]
+    - platform_health: [vercel, fly.io]  # auto-health
+
+- name: retry_backoff
+  domain: reliability
+  weight: 5
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: recommended
+    enterprise: required
+  detection_signals:
+    - dep: 'p-retry'
+    - dep: 'async-retry'
+    - dep: 'exponential-backoff'
+    - dep: 'axios-retry'
+
+- name: graceful_shutdown
+  domain: reliability
+  weight: 6
+  maturity_required:
+    prototype: optional
+    mvp: recommended
+    production: required
+    enterprise: required
+  detection_signals:
+    - code_pattern: "SIGTERM"
+    - code_pattern: "graceful"
+    - dep: 'lightship'
+
+- name: multi_region_ha
+  domain: reliability
+  weight: 8
+  maturity_required:
+    prototype: optional
+    mvp: optional
+    production: optional
+    enterprise: required
+  detection_signals:
+    - iac_multi_region: true
+    - platform_multi_region: [vercel-edge, cloudflare-workers, fly.io-multi]
