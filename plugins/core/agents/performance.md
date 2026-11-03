@@ -1,7 +1,7 @@
 ---
 name: performance
-description: Generic performance specialist opus — Core Web Vitals, RAIL model, profilage, optimisation phasée avec ROI mesuré. Use pour audit perf backend + frontend + DB + réseau. Triggers when user says "performance", "lent", "optimisation", "bottleneck", "profil", "Core Web Vitals", "latence", "throughput", "mémoire".
-model: opus
+description: Use for performance audits - Core Web Vitals, RAIL, profiling, DB/network/memory bottlenecks, optimizations ranked by measured ROI. Triggers when user says "performance", "lent", "latence", "bottleneck", "optimisation", "profil", "throughput", "mémoire".
+model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: product-strategist
-description: Use PROACTIVELY BEFORE any new feature implementation. Strategic gate (couche 0) that challenges differentiation. Reads the project's PRODUCT.md / vision doc + docs/competitive-benchmark/*.md (if present) + docs/ux-audit-prompt.md, then runs the 7 differentiation questions. Output strict verdict GO différentiant | REVOIR positionning | NO-GO trop générique. Triggers when user says "ajoute X feature", "on doit avoir X", "et si on faisait X", or asks for spec/design of any new feature/module/section. Also triggers when a session starts implementing a new file in app/controllers/, app/services/, resources/views/pages/ for a NEW module (not bugfix or refactor).
+description: Use PROACTIVELY BEFORE implementing any new feature - strategic gate that challenges differentiation. Reads PRODUCT.md or docs/vision.md (and docs/competitive-benchmark/ if present), runs 7 differentiation questions, returns GO différentiant | REVOIR positionnement | NO-GO trop générique, or BLOCKED-SETUP without a product vision. Triggers when user says "ajoute X feature", "on doit avoir X", "et si on faisait X", or asks to spec a new feature/module. Not for bugfix or refactor.
 model: sonnet
 tools: Read, Grep, Glob, WebFetch, WebSearch
 ---

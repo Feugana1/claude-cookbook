@@ -51,7 +51,7 @@ when working on this project.
 ## 3. i18n
 
 State the default + supported locales here, and the fallback rules.
-Agents (workflow-email especially) check that any user-facing text goes
+Agents (a workflow/email domain agent, if you add one) check that any user-facing text goes
 through the i18n layer.
 
 ## 4. Edge / Alpine

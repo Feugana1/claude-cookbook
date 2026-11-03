@@ -16,13 +16,13 @@ Un agent du pack **durcit** un rôle du core : il garde la règle d'or (sources 
 
 | Rôle core | Remplacé par | Ce que le pack ajoute |
 |---|---|---|
-| `architect` + `backend` | `back-architect` | limites de taille de fichiers, Vine, ordre des routes, helpers `_helpers/` |
+| `architect` | `back-architect` | limites de taille de fichiers, Vine, ordre des routes, helpers `_helpers/` |
 | `reviewer` | `code-reviewer` | review PR-style stack-aware, orchestre les autres experts du pack |
 | `security` | `security-multitenant` | isolation tenant, IDOR via `.where('userId', …).firstOrFail()`, CSRF, URLs signées |
 
 ## Rôles du core conservés (aucun override)
 
-`analyzer`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa`. Le linter `edge-anti-patterns` est en **paire** avec `frontend` (le rôle fait WCAG/UX, le linter fait les patterns Edge grepables).
+`analyzer`, `frontend`, `performance`, `product-strategist`, `qa`. Le linter `edge-anti-patterns` est en **paire** avec `frontend` (le rôle fait WCAG/UX, le linter fait les patterns Edge grepables).
 
 ## Experts propres à la stack (aucun rôle équivalent)
 
@@ -39,13 +39,13 @@ Un expert **domain** (workflow/email, compta, marketplace…) est spécifique à
 ```
                        core (agents/)                 pack adonisjs (agents/)
 Couche 0 strategic     product-strategist   ─────►    (conservé)
-Couche 1 architect     architect + backend  ─────►    back-architect       (durcit, fusionne)
+Couche 1 architect     architect            ─────►    back-architect       (durcit)
 Couche 2 cross-cutting security             ─────►    security-multitenant (durcit)
                        (aucun)              ─ADD──►   data-access-reviewer
                        (aucun)              ─ADD──►   migration-reviewer
 Couche 4 linter        frontend             ─PAIR─    edge-anti-patterns   (linter étroit)
 Couche 5 final gate    reviewer             ─────►    code-reviewer        (durcit, orchestre)
-Conservés tels quels : analyzer, mobile, performance, qa
+Conservés tels quels : analyzer, performance, qa
 ```
 
 ## Ajouter une stack

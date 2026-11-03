@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Generic code reviewer opus — lisibilité, maintenabilité, cohérence, extraction refactor. Use as the final review gate before commit (couche 5) when no stack-specific reviewer is installed. Triggers when user says "review this code", "audit lisibilité", "évalue maintenabilité", "before commit", "relis avant push".
+description: Use as the final review gate before git commit when no stack-specific reviewer is installed - readability, maintainability, consistency, refactor extraction. Triggers when user says "review this code", "audit lisibilité", "évalue maintenabilité", "before commit", "relis avant push".
 model: opus
 tools: Read, Grep, Glob, Bash
 ---

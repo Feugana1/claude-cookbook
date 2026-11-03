@@ -61,7 +61,7 @@ case "$rel" in
     fi
     # Hints couche 4 (linter fast-pass)
     case "$rel" in
-      *.edge) echo "[hook:hint] edge-anti-patterns — linter rapide 16 patterns P0/P1 §13 (couche 4)." >&2 ;;
+      *.edge) echo "[hook:hint] edge-anti-patterns — linter rapide patterns P0/P1 Edge/Alpine (couche 4)." >&2 ;;
     esac
     # Project-specific front hints — extension point.
     # Un projet UI-heavy peut ajouter un front-curator ou équivalent via

@@ -49,12 +49,12 @@ Install **exclusif** : un rôle générique et son override stack ne coexistent 
 | Couche | Rôle | Générique (`roles/`) | Stack AdonisJS (`stacks/adonisjs/`) |
 |---|---|---|---|
 | 0 Strategic gate | valide la feature avant code | `product-strategist` | — |
-| 1 Architect | structure, conventions | `architect`, `backend` | `back-architect` |
+| 1 Architect | structure, conventions, API | `architect` | `back-architect` |
 | 2 Cross-cutting | sécurité, données | `security`, `performance` | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` |
 | 3 Domain | règles métier | — | aucun : modèle dans `docs/templates/example-domain-agent.md` |
-| 4 Linter | grep rapide (haiku) | `frontend` | `edge-anti-patterns` |
+| 4 UI / linter | UX web et mobile ; grep rapide (haiku) | `frontend` | `edge-anti-patterns` |
 | 5 Final gate | review avant commit | `reviewer` | `code-reviewer` |
-| Transverse | investigation, tests, mobile | `analyzer`, `qa`, `mobile` | — |
+| Transverse | investigation, tests | `analyzer`, `qa` | — |
 
 Notes d'usage :
 - `product-strategist` est la gate d'entrée des **nouvelles features** (pas bugfix ni refactor). Sans vision produit (`PRODUCT.md` ou `docs/vision.md`), il rend `BLOCKED-SETUP`.

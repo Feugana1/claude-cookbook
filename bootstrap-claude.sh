@@ -57,10 +57,10 @@ fi
 # Sources de vérité mapping : plugins/adonisjs/README.md
 # Mode `none`     : tous les roles/ (générique cross-stack)
 # Mode `adonisjs` : roles/ non remplacés + stacks/adonisjs/
-#   Roles conservés : analyzer, frontend, mobile, performance, product-strategist, qa
-#   Roles remplacés : architect, backend (→ back-architect) ; reviewer (→ code-reviewer) ;
+#   Roles conservés : analyzer, frontend, performance, product-strategist, qa
+#   Roles remplacés : architect (→ back-architect) ; reviewer (→ code-reviewer) ;
 #                     security (→ security-multitenant)
-ROLES_ADONISJS_KEPT=(analyzer frontend mobile performance product-strategist qa)
+ROLES_ADONISJS_KEPT=(analyzer frontend performance product-strategist qa)
 
 if [ -z "$STACK" ]; then
   if [ -t 0 ] && [ -t 1 ]; then

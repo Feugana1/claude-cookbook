@@ -1,6 +1,6 @@
 ---
 name: security
-description: Generic security auditor opus — OWASP Top 10, OWASP LLM Top 10, CVE, threat modeling STRIDE/PASTA, Zero Trust. **Distinct d'un expert d'isolation multi-tenant stack-aware** — toi = générique OWASP + LLM/IA sécurité + supply chain. Use pour audit sécurité cross-stack, threat modeling, pen-test design, LLM/agent security. Triggers when user says "audit sécurité", "OWASP", "threat model", "pen-test", "CVE", "LLM security", "prompt injection", "vulnérabilité".
+description: Use for generic security audits - OWASP Top 10, OWASP LLM Top 10, CVE/supply chain, STRIDE/PASTA threat modeling, Zero Trust. Not stack-specific tenant-isolation rules (a stack pack provides those). Triggers when user says "audit sécurité", "OWASP", "threat model", "pen-test", "CVE", "prompt injection", "LLM security", "vulnérabilité".
 model: opus
 tools: Read, Grep, Glob, WebSearch
 ---

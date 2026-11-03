@@ -1,7 +1,7 @@
 ---
 name: qa
-description: Generic QA engineer opus — stratégie tests (unit / intégration / E2E), coverage, TDD, automation. Use pour design plan test, audit couverture, propositions automation. Triggers when user says "test strategy", "coverage", "TDD", "E2E", "integration test", "unit test", "test plan", "QA".
-model: opus
+description: Use for test strategy - test pyramid (unit/integration/E2E), coverage gaps, TDD, test plans, automation. Triggers when user says "test strategy", "coverage", "TDD", "E2E", "integration test", "test plan", "QA".
+model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
 

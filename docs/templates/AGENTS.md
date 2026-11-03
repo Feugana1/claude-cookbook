@@ -17,7 +17,7 @@
 
 1. **Vérifie diff** : `git diff --cached` (si staged) sinon `git diff`
 2. **Match path → expert** :
-   - Fichier back → invoquer expert `back-architect` (mode stack) OU `backend` + `architect` (mode none)
+   - Fichier back → invoquer expert `back-architect` (mode stack) OU `architect` (mode none)
    - Sécurité tenant → `security-multitenant` OU `security`
    - Templates UI → `edge-anti-patterns` (Adonis) OU `frontend`
    - Migrations DB → `migration-reviewer`
