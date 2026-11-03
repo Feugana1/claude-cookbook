@@ -13,7 +13,6 @@ PACKS=$(find plugins -mindepth 1 -maxdepth 1 -type d ! -name core 2>/dev/null | 
 
 ROLES=$(count $CORE/agents -name '*.md')
 SKILLS=$(find $CORE/skills -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
-COMMANDS=$(count $CORE/commands -name '*.md')
 HOOKS=$(count $CORE/hooks -name '*.sh')
 SECU_STEPS=$(count $CORE/scripts/scan-secu.d -name 'step-*.sh')
 CAPABILITIES=$(count $CORE/skills/prod-readiness/capabilities -name '*.yaml')
@@ -33,8 +32,8 @@ for p in $PACKS; do
 done
 
 if [ "${1:-}" = "--json" ]; then
-  printf '{"version":"%s","core":{"agents":%s,"skills":%s,"commands":%s,"hooks":%s,"scan_secu_steps":%s,"prod_readiness_capabilities":%s},"packs":{%s},"templates":%s}\n' \
-    "$VERSION" "$ROLES" "$SKILLS" "$COMMANDS" "$HOOKS" "$SECU_STEPS" "$CAPABILITIES" "$pack_json" "$TEMPLATES"
+  printf '{"version":"%s","core":{"agents":%s,"skills":%s,"hooks":%s,"scan_secu_steps":%s,"prod_readiness_capabilities":%s},"packs":{%s},"templates":%s}\n' \
+    "$VERSION" "$ROLES" "$SKILLS" "$HOOKS" "$SECU_STEPS" "$CAPABILITIES" "$pack_json" "$TEMPLATES"
   exit 0
 fi
 
@@ -44,7 +43,6 @@ claude-cookbook v${VERSION}
 core  (${CORE}/)
   agents                      ${ROLES}
   skills                      ${SKILLS}
-  commands                    ${COMMANDS}
   hooks                       ${HOOKS}
   scan-secu steps             ${SECU_STEPS}
   prod-readiness capabilities ${CAPABILITIES}

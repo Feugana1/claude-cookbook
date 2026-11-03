@@ -9,7 +9,7 @@ Instructions pour un agent Claude Code. Vue d'ensemble : [README.md](README.md).
 1. Cible = cwd ou chemin explicite.
 2. Stack : demander à l'user — projet AdonisJS/Node/TS → `--stack=adonisjs`, sinon `--stack=none`.
 3. `bash $COOKBOOK_DIR/bootstrap-claude.sh <path> --stack=<mode>` (ou plugin : voir setup.md §1).
-4. Confirmer : agents/skills/commands/hooks installés (lire la sortie du script, ne pas recopier de chiffres), `CLAUDE.md` minimal à enrichir, `plugins/adonisjs/README.md` pour le mapping override.
+4. Confirmer : agents/skills/hooks installés (lire la sortie du script, ne pas recopier de chiffres), `CLAUDE.md` minimal à enrichir, `plugins/adonisjs/README.md` pour le mapping override.
 5. Avant le 1er commit d'une nouvelle feature : `product-strategist` **si** `PRODUCT.md` ou `docs/vision.md` existe. Sinon ne pas l'invoquer (`BLOCKED-SETUP`) et proposer de créer une vision minimale (`docs/templates/PRODUCT.md`).
 
 ## « Audite avec scan-secu »

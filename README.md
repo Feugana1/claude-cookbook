@@ -28,8 +28,7 @@ plugins/
 ├── core/                            générique, aucune mention de stack
 │   ├── .claude-plugin/plugin.json   source unique de la version
 │   ├── agents/                      rôles génériques (1 fichier par use case)
-│   ├── skills/                      /feature /pre-pr /secu /ai-config /prod-readiness /multi-agent
-│   ├── commands/                    commands productivité (/commit, /pr-*, …)
+│   ├── skills/                      /feature /pre-pr /secu /commit /pr /refactor /multi-agent /ai-config /prod-readiness
 │   ├── hooks/                       precommit-check, preserve-file-permissions
 │   └── scripts/                     scan-secu.sh + scan-secu.d/ (steps génériques),
 │                                    scan-ai-config, scan-prod-readiness, sbom, statusline

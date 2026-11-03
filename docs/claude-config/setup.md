@@ -51,7 +51,6 @@ Liste et comptes : `bash $COOKBOOK_DIR/scripts/inventory.sh`.
 |---|---|
 | Agents (roles génériques + stack) | `.claude/agents/` |
 | Skills | `.claude/skills/` |
-| Commands | `.claude/commands/` |
 | Hooks | `.claude/hooks/` |
 | Scan sécurité, prod-readiness, SBOM, statusline | `scripts/` |
 | Templates (CLAUDE, AGENTS, PRODUCT…) | `docs/templates/` |

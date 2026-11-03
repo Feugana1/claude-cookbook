@@ -1,6 +1,7 @@
 ---
 name: prod-readiness
-description: Évalue la maturité production d'un projet (score /100 pondéré + critical gates), identifie les gaps par domaine (security/reliability/observability/delivery/data), propose actions concrètes rangées P0/P1/P2 avec effort estimé. Distinct de /ai-config (kit Claude Code) — /prod-readiness = readiness infra/prod. Couche 6 (post-final-gate). Use PROACTIVELY quand user dit "prêt pour prod ?", "audit prod", "prod readiness", "shipper en prod", "on peut lancer ?", "/prod-readiness". V0 sans providers hardcodés (recos génériques par capability).
+description: Assess production readiness (score /100 weighted with critical gates) across security, reliability, observability, delivery and data, with P0/P1/P2 actions and effort. Mode --debt adds code health (dependencies, tests, docs, architecture, quality) with trend and roadmap. Triggers when user says "prêt pour prod ?", "audit prod", "prod readiness", "shipper en prod", "on peut lancer ?", "dette technique", "santé du projet".
+argument-hint: "[--debt] [--trend] [--roadmap]"
 ---
 
 # Skill `/prod-readiness`
@@ -9,13 +10,17 @@ Diagnostic + score + plan actionable pour amener un projet à la maturité produ
 
 ## Positionnement dans le cookbook
 
-- **Couche 6 — Production readiness** — après `code-reviewer` (couche 5, avant `git commit`)
+- **Couche 6 — Production readiness** — après le reviewer final (couche 5, avant `git commit`)
 - **Distinct de `/ai-config`** :
   - `/ai-config` = "as-tu bien Claude Code installé ?" (18 standards kit)
   - `/prod-readiness` = "es-tu prêt à shipper en prod ?" (capabilities infra/prod)
 - **Distinct de `/pre-pr`** :
   - `/pre-pr` = lint + typecheck + build (technique fichier)
   - `/prod-readiness` = capabilities operationnelles (backup, monitoring, alerting, TLS…)
+
+## Mode `--debt` — santé du code
+
+`/prod-readiness --debt` ajoute au diagnostic la **santé du code** : dépendances, tests, documentation, architecture, qualité, avec impact temporel, tendance (`--trend`) et roadmap par ROI (`--roadmap`). Sécurité et delivery ne sont pas recalculés : ils viennent de la carte de capabilities. Méthode complète : `methodology/tech-debt.md`.
 
 ## Ce que ça NE fait PAS (V0)
 

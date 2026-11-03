@@ -1,6 +1,6 @@
 ---
 name: ai-config
-description: Scan la configuration Claude Code du projet vs standards cookbook (18 items P0/P1/P2), identifie les gaps, et propose un scaffold interactif des fichiers manquants depuis docs/templates/. Use PROACTIVELY quand user dit "audit config claude", "scan ai config", "quels standards me manquent", "setup claude sur ce projet", "/ai-config". Auto-trigger quand session démarre sur repo sans CLAUDE.md OU AGENTS.md OU .claude/agents/.
+description: Scan la configuration Claude Code du projet vs standards cookbook (items P0/P1/P2), identifie les gaps, et propose un scaffold interactif des fichiers manquants depuis docs/templates/. Use PROACTIVELY quand user dit "audit config claude", "scan ai config", "quels standards me manquent", "setup claude sur ce projet", "/ai-config". Auto-trigger quand session démarre sur repo sans CLAUDE.md OU AGENTS.md OU .claude/agents/.
 ---
 
 # Skill `/ai-config`
@@ -9,12 +9,12 @@ Audit + scaffold de la configuration IA du projet (Claude Code standards). Cible
 
 ## Ce que ça fait
 
-1. **Scan** : lance `bash scripts/scan-ai-config.sh` (18 items, tier P0/P1/P2) — 100% read-only
+1. **Scan** : lance `bash scripts/scan-ai-config.sh` (items tier P0/P1/P2) — 100% read-only
 2. **Rapport** : verdict par item PRESENT / PARTIAL / MISSING avec evidence
 3. **Verdict global** : NEEDS BOOTSTRAP (P0 manquant) | PARTIAL | COMPLET
 4. **Scaffold interactif** : propose de créer les fichiers manquants depuis `docs/templates/`
 
-## Standards vérifiés (18 items)
+## Standards vérifiés
 
 ### P0 — Foundation (bloquant)
 
@@ -35,7 +35,6 @@ Audit + scaffold de la configuration IA du projet (Claude Code standards). Cible
 | docs/lessons.md | `docs/lessons.md` | `docs/lessons.md` (livré par le cookbook) |
 | .mcp.json (MCP servers config) | `.mcp.json` | `docs/templates/mcp.json` |
 | .claude/skills/ (any skill) | `.claude/skills/` | via bootstrap |
-| .claude/commands/ (any command) | `.claude/commands/` | via bootstrap |
 | .claude/hooks/dispatch-expert.sh | `.claude/hooks/dispatch-expert.sh` | via bootstrap |
 | scan-secu.sh | `scan-secu.sh` | via bootstrap |
 
@@ -76,7 +75,7 @@ Format :
 ## Scan AI Config — Résumé
 
 Verdict : <NEEDS BOOTSTRAP | PARTIAL | COMPLET>
-Score : X/18 présent (Y partial, Z manquant)
+Score : X/N présent (Y partial, Z manquant)
 
 ### P0 manquants (bloquants)
 - ✗ <item> — <evidence>
@@ -121,7 +120,7 @@ docs/lessons.md (cookbook)         →  docs/lessons.md
 docs/templates/mcp.json         →  .mcp.json
 ```
 
-Pour les items foundation via bootstrap (`.claude/agents/`, `.claude/skills/`, `.claude/commands/`, `.claude/hooks/`, `scan-secu.sh`, `settings.json`, `commitlint.config.js`, `lefthook.yml`) :
+Pour les items foundation via bootstrap (`.claude/agents/`, `.claude/skills/`, `.claude/hooks/`, `scan-secu.sh`, `settings.json`, `commitlint.config.js`, `lefthook.yml`) :
 
 Proposer à l'user :
 > "Foundation cookbook manquante. Lancer le bootstrap ?
@@ -164,7 +163,7 @@ Proposer de relancer `/ai-config` après pour vérifier PARTIAL → COMPLET.
 ### Projet cookbook installé mais docs pas remplies
 
 1. `/ai-config` → verdict PARTIAL
-2. Score : 15/18 présent, PRODUCT.md + docs/architecture.md manquants
+2. Score : 15/N présent, PRODUCT.md + docs/architecture.md manquants
 3. Cherry-pick ces 2 items → scaffold
 4. Rappel : éditer PRODUCT.md §1 avec la vraie vision
 

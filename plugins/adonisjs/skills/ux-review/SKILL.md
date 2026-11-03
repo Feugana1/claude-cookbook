@@ -1,7 +1,7 @@
 ---
 name: ux-review
-description: Audit a page du projet (Edge template + partials) against docs/ux-audit-prompt.md and CLAUDE.md §17.6 UI density rules. Outputs P0/P1/Quick wins in the prescribed format. Use when the user asks /ux-review, requests a UX audit, or before adding a feature to a config screen. Triggers proactively when user says a page feels "chargé", "dense", "overloaded", "ne respire pas", or references the project's PRODUCT.md spirit.
-tools: Read, Glob, Grep, Bash
+description: Audit a page du projet (Edge template + partials) against docs/ux-audit-prompt.md and the project UI density rules (CLAUDE.md). Outputs P0/P1/Quick wins in the prescribed format. Use when the user asks /ux-review, requests a UX audit, or before adding a feature to a config screen. Triggers proactively when user says a page feels "chargé", "dense", "overloaded", "ne respire pas", or references the project's PRODUCT.md spirit.
+allowed-tools: Read Glob Grep Bash
 ---
 
 # UX Review — cookbook générique

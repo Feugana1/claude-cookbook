@@ -128,20 +128,15 @@ else
   echo -e "    ${YELLOW}Roles remplacés (non copiés) : architect, backend (→ back-architect), reviewer (→ code-reviewer), security (→ security-multitenant)${NC}"
 fi
 
-# ── Copier les skills + commands ──────────────────────────────────
+# ── Copier les skills ──────────────────────────────────
 # NB strip trailing slash sinon macOS BSD cp copie le CONTENU au lieu du dossier
-echo -e "${GREEN}[2/6]${NC} Skills + commands..."
+echo -e "${GREEN}[2/6]${NC} Skills..."
 SKILL_DIRS=("$CORE"/skills/*/)
 [ "$STACK" = "adonisjs" ] && SKILL_DIRS+=("$PACK"/skills/*/)
 for dir in "${SKILL_DIRS[@]}"; do
   skillname=$(basename "$dir")
   cp -r "${dir%/}" "$TARGET/.claude/skills/"
   echo "    + skill /$skillname"
-done
-mkdir -p "$TARGET/.claude/commands"
-for f in "$CORE"/commands/*.md; do
-  cp "$f" "$TARGET/.claude/commands/"
-  echo "    + command /$(basename "$f" .md)"
 done
 
 # ── Copier les hooks ────────────────────────────────────────────────────────
@@ -266,12 +261,10 @@ echo -e "  • commitlint.config.js + lefthook.yml + .markdownlint.json (Convent
 _n() { find "$@" -type f 2>/dev/null | wc -l | tr -d ' '; }
 N_AGENTS=$(_n "$TARGET/.claude/agents" -name '*.md')
 N_SKILLS=$(find "$TARGET/.claude/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
-N_CMDS=$(_n "$TARGET/.claude/commands" -name '*.md')
 N_HOOKS=$(_n "$TARGET/.claude/hooks" -name '*.sh')
 N_STEPS=$(_n "$TARGET/scripts/scan-secu.d" -name 'step-*.sh')
 echo -e "  • ${N_AGENTS} sub-agents (.claude/agents/ — mode --stack=${STACK})"
 echo -e "  • ${N_SKILLS} skills (.claude/skills/)"
-echo -e "  • ${N_CMDS} commands (.claude/commands/)"
 echo -e "  • ${N_HOOKS} hooks (.claude/hooks/)"
 echo -e "  • scripts/ : scan-secu.sh + scan-secu.d/ (${N_STEPS} modules) + check-file-sizes.js + generate-sbom.sh + statusline.sh + scan-ai-config.sh + scan-prod-readiness.sh"
 echo -e "  • docs/ : lessons, anti-patterns, feature-plan-template, ux-audit-prompt, claude-config/, templates/ (scaffold via /ai-config)"
