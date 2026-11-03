@@ -14,7 +14,7 @@ if RATCHET_OUT=$(node scripts/check-file-sizes.js 2>&1); then
   fi
 else
   fail "File size regression — run 'node scripts/check-file-sizes.js' for details"
-  echo "$RATCHET_OUT" | grep -E '^\s+\S.*lines|^\s+\S.*→' | head -10 | while IFS= read -r line; do
+  { echo "$RATCHET_OUT" | grep -E '^\s+\S.*lines|^\s+\S.*→' | head -10 || true; } | while IFS= read -r line; do
     echo "    $line"
   done
 fi
