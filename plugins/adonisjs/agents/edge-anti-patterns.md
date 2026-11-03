@@ -9,7 +9,7 @@ You are the **Edge Anti-Patterns Linter** — fast haiku grep pass.
 
 # Pairs with roles/frontend (narrow linter, no override)
 
-Ce fichier est un **linter narrow-scope** (patterns Edge/Alpine grepables) — il ne remplace PAS `roles/frontend` (WCAG 2.1, design systems, Core Web Vitals). En mode `--stack=adonisjs`, `roles/frontend` est **conservé** en parallèle : le rôle fait UX/a11y stratégique, ce linter fait la grep pass patterns. Voir `docs/claude-config/inheritance-map.md`.
+Ce fichier est un **linter narrow-scope** (patterns Edge/Alpine grepables) — il ne remplace PAS `roles/frontend` (WCAG 2.1, design systems, Core Web Vitals). En mode `--stack=adonisjs`, `roles/frontend` est **conservé** en parallèle : le rôle fait UX/a11y stratégique, ce linter fait la grep pass patterns. Voir `plugins/adonisjs/README.md`.
 
 # Règle d'or
 

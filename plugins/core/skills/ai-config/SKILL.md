@@ -37,7 +37,7 @@ Audit + scaffold de la configuration IA du projet (Claude Code standards). Cible
 | .claude/skills/ (any skill) | `.claude/skills/` | via bootstrap |
 | .claude/commands/ (any command) | `.claude/commands/` | via bootstrap |
 | .claude/hooks/dispatch-expert.sh | `.claude/hooks/dispatch-expert.sh` | via bootstrap |
-| scripts/scan-secu.sh | `scripts/scan-secu.sh` | via bootstrap |
+| scan-secu.sh | `scan-secu.sh` | via bootstrap |
 
 ### P2 — Nice-to-have
 
@@ -121,7 +121,7 @@ docs/lessons.md (cookbook)         →  docs/lessons.md
 docs/templates/mcp.json         →  .mcp.json
 ```
 
-Pour les items foundation via bootstrap (`.claude/agents/`, `.claude/skills/`, `.claude/commands/`, `.claude/hooks/`, `scripts/scan-secu.sh`, `settings.json`, `commitlint.config.js`, `lefthook.yml`) :
+Pour les items foundation via bootstrap (`.claude/agents/`, `.claude/skills/`, `.claude/commands/`, `.claude/hooks/`, `scan-secu.sh`, `settings.json`, `commitlint.config.js`, `lefthook.yml`) :
 
 Proposer à l'user :
 > "Foundation cookbook manquante. Lancer le bootstrap ?
@@ -178,5 +178,5 @@ Proposer de relancer `/ai-config` après pour vérifier PARTIAL → COMPLET.
 - Script sous-jacent : `scripts/scan-ai-config.sh`
 - Templates : `docs/templates/*`
 - Bootstrap : `bootstrap-claude.sh` (pour la foundation)
-- Cookbook `docs/claude-config/inheritance-map.md` — mapping roles ↔ stacks (comprendre `--stack=adonisjs|none`)
+- Cookbook `docs/claude-config/stack-adonisjs.md` — mapping roles ↔ stacks (comprendre `--stack=adonisjs|none`)
 - Cookbook `docs/claude-config/experts.md` — catalogue agents

@@ -9,7 +9,7 @@ You are the **Back Architect** du projet (AdonisJS 6 + Lucid + Vine).
 
 # Inherits from roles/architect + roles/backend
 
-Ce fichier est la version **stack-hardened AdonisJS** des rôles génériques `roles/architect` (Evidence-First, MECE, phased migration) et `roles/backend` (API design, résilience, sécurité serveur). Il conserve leur règle d'or (Sources chargées AVANT analyse, STAY IN SCOPE, format standardisé) et **durcit** avec les conventions §14 (300/400/800L limits), Vine validators, helpers `_helpers/`, routes ordering, workflow §8. En mode `--stack=adonisjs`, il **remplace** les deux rôles génériques : ne pas les invoquer en parallèle (redondance). Voir `docs/claude-config/inheritance-map.md`.
+Ce fichier est la version **stack-hardened AdonisJS** des rôles génériques `roles/architect` (Evidence-First, MECE, phased migration) et `roles/backend` (API design, résilience, sécurité serveur). Il conserve leur règle d'or (Sources chargées AVANT analyse, STAY IN SCOPE, format standardisé) et **durcit** avec les conventions §14 (300/400/800L limits), Vine validators, helpers `_helpers/`, routes ordering, workflow §8. En mode `--stack=adonisjs`, il **remplace** les deux rôles génériques : ne pas les invoquer en parallèle (redondance). Voir `plugins/adonisjs/README.md`.
 
 # Règle d'or — non négociable
 

@@ -125,10 +125,6 @@ case "$rel" in
       app/services/*|app/models/*)
         echo "[hook:hint] data-access-reviewer — preload vs load, raw SQL, pool, TTL Redis (couche 2 fast-pass haiku)." >&2 ;;
     esac
-    case "$rel" in
-      *workflow*|*email*|*mail*)
-        echo "[hook:hint] workflow-email — Mustache vs ICU, lifecycle sync/sendLater, WorkflowBinding owner_type (couche 3 domain)." >&2 ;;
-    esac
     # Project-specific domain hints — extension point.
     # Un projet peut créer .claude/hooks/dispatch-expert.local.sh (sourcé si présent)
     # pour ajouter ses propres experts domain (compta / marketplace / public / etc.).

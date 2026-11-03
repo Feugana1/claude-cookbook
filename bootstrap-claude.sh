@@ -10,7 +10,7 @@
 #   --update           : preserve fichiers projet-specific (CLAUDE.md, agents custom, etc.)
 #
 # Sans --stack et en TTY interactif : prompt menu.
-# Voir docs/claude-config/inheritance-map.md pour le mapping override roles ↔ stacks.
+# Voir plugins/adonisjs/README.md pour le mapping override roles ↔ stacks.
 # ============================================================================
 
 set -euo pipefail
@@ -54,7 +54,7 @@ if [ ! -d "$TARGET" ]; then
 fi
 
 # ── Résolution du mode stack ────────────────────────────────────────────────
-# Sources de vérité mapping : docs/claude-config/inheritance-map.md
+# Sources de vérité mapping : plugins/adonisjs/README.md
 # Mode `none`     : tous les roles/ (générique cross-stack)
 # Mode `adonisjs` : roles/ non remplacés + stacks/adonisjs/
 #   Roles conservés : analyzer, frontend, mobile, performance, product-strategist, qa
@@ -104,7 +104,7 @@ mkdir -p "$TARGET/docs/claude-config"
 [ "$STACK" = "adonisjs" ] && mkdir -p "$TARGET/.claude/agents/stacks/adonisjs"
 
 # ── Copier les agents (install sélectif selon $STACK) ──────────────────────
-# Source de vérité mapping : docs/claude-config/inheritance-map.md
+# Source de vérité mapping : plugins/adonisjs/README.md
 if [ "$STACK" = "none" ]; then
   echo -e "${GREEN}[1/6]${NC} Agents (roles/ génériques — mode generic cross-stack)..."
   for f in "$CORE"/agents/*.md; do
@@ -183,18 +183,22 @@ cp "$COOKBOOK_ROOT/docs/anti-patterns.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/feature-plan-template.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/ux-audit-prompt.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/claude-config/experts.md" "$TARGET/docs/claude-config/"
-cp "$COOKBOOK_ROOT/docs/claude-config/inheritance-map.md" "$TARGET/docs/claude-config/"
+if [ "$STACK" = "adonisjs" ]; then cp "$PACK/README.md" "$TARGET/docs/claude-config/stack-adonisjs.md"; fi
 cp "$COOKBOOK_ROOT/docs/claude-config/setup.md" "$TARGET/docs/claude-config/"
 # Templates scaffold /ai-config (copies non-écrasantes, l'user peut cp vers root/docs/ ensuite)
 mkdir -p "$TARGET/docs/templates"
 for t in AGENTS.md PRODUCT.md architecture.md anti-patterns.md mcp.json CLAUDE.md husky-pre-commit.sh scan-secu-weekly.yml .gitleaks.toml; do
   [ -f "$COOKBOOK_ROOT/docs/templates/$t" ] && cp "$COOKBOOK_ROOT/docs/templates/$t" "$TARGET/docs/templates/"
 done
+if [ "$STACK" = "adonisjs" ] && [ -d "$PACK/docs" ]; then
+  cp "$PACK"/docs/*.md "$TARGET/docs/"
+  echo "    + docs du pack adonisjs ($(ls "$PACK"/docs | tr '\n' ' '))"
+fi
 echo "    + docs/lessons.md (Karpathy 4 + leçons)"
 echo "    + docs/anti-patterns.md (catalogue)"
 echo "    + docs/feature-plan-template.md (~200L max)"
 echo "    + docs/ux-audit-prompt.md (6 axes UX)"
-echo "    + docs/claude-config/{experts,inheritance-map,setup}.md"
+echo "    + docs/claude-config/{experts,setup}.md (+ stack-adonisjs.md en mode adonisjs)"
 echo "    + docs/templates/ (CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, mcp.json + husky/scan-secu-weekly/.gitleaks)"
 
 # ── Manifest plugin + settings.json + .mcp.json + config ────────────────────
@@ -288,6 +292,6 @@ echo -e "  9. ${BLUE}Wire CI cron${NC}   : cp docs/templates/scan-secu-weekly.ym
 echo -e "  10. ${BLUE}Wire allowlist${NC} : cp docs/templates/.gitleaks.toml . (edit paths)"
 echo ""
 echo -e "${YELLOW}Doc canonical${NC}   : docs/claude-config/experts.md (catalogue roles/ + stacks/adonisjs/)"
-echo -e "${YELLOW}Inheritance map${NC} : docs/claude-config/inheritance-map.md (mapping override roles ↔ stacks)"
+[ "$STACK" = "adonisjs" ] && echo -e "${YELLOW}Mapping stack${NC}   : docs/claude-config/stack-adonisjs.md (override roles ↔ pack)"
 echo -e "${YELLOW}Discipline${NC}   : docs/lessons.md §1 (Karpathy 4)"
 echo ""

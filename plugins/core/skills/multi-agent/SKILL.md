@@ -1,11 +1,11 @@
 ---
 name: multi-agent
-description: Dispatch parallèle de N experts cookbook sur un même fichier/diff → rapport unifié consolidé. Pattern multi-perspective (architecture + sécurité + data-access + linter en //) OU adversarial (debate 2 experts contradictoires). Use when user says "audit complet ce fichier", "multi-perspective review", "3 experts sur ce diff", "/multi-agent <path> <experts>".
+description: Dispatch parallèle de N experts (agents installés) sur un même fichier/diff → rapport unifié consolidé. Pattern multi-perspective (architecture + sécurité + données + linter en //) OU adversarial (debate 2 experts contradictoires). Use when user says "audit complet ce fichier", "multi-perspective review", "3 experts sur ce diff", "/multi-agent <path> <experts>".
 ---
 
 # /multi-agent — Dispatch parallèle N experts + synthèse
 
-Lance plusieurs experts cookbook **en parallèle** sur le même fichier / diff, puis synthétise leurs findings en un seul rapport dédupliqué et rangé par sévérité.
+Lance plusieurs experts (agents installés) **en parallèle** sur le même fichier / diff, puis synthétise leurs findings en un seul rapport dédupliqué et rangé par sévérité.
 
 Deux modes :
 - **PARALLEL** (défaut) : N experts indépendants, perspectives complémentaires — synthèse union
@@ -15,31 +15,20 @@ Deux modes :
 
 - Audit exhaustif d'un fichier critique (nouveau service metier, controller sensible, migration risquée)
 - Diff PR volumineux touchant plusieurs domaines (back + front + DB + i18n)
-- Décision architecturale contradictoire (ex: `back-architect` propose split A vs `security-multitenant` préfère structure B)
+- Décision architecturale contradictoire (ex: l'architect propose un split A, le reviewer sécurité préfère la structure B)
 - Le user tape `/multi-agent <path> <expert1,expert2,...>` OU `/multi-agent debate <expert1,expert2> <path>`
 
 ## When NOT to invoke
 
 - Fichier trivial (< 100L, pas de logique métier) — utiliser un seul expert cible
 - Bugfix ponctuel — utiliser `/fix-error` ou expert unique
-- Nouvelle feature — utiliser `/feature` (qui dispatch déjà les couches 1-3 en interne)
+- Nouvelle feature — utiliser `/feature` (qui dispatch déjà les experts en interne)
 
-## Experts disponibles (cookbook)
+## Experts disponibles
 
-| Couche | Expert | Model | Scope |
-|---|---|---|---|
-| 0 | `product-strategist` | sonnet | Différenciation produit (features seulement) |
-| 1 | `back-architect` | sonnet | Conventions AdonisJS, tailles, naming, structure |
-| 2 | `security-multitenant` | sonnet | Isolation, IDOR, CSRF, soft-delete, effectiveUserId |
-| 2 | `data-access-reviewer` | haiku | ORM anti-patterns, storage, cache TTL |
-| 2 | `migration-reviewer` | sonnet | Migrations DB (§9 DO/DON'T) |
-| 3 | `workflow-email` | sonnet | Mustache/ICU, sync/sendLater, layout emails |
-| 4 | `edge-anti-patterns` | haiku | Patterns Edge/Alpine grepables |
-| 5 | `code-reviewer` | sonnet | Review PR-style senior orchestrateur |
-| — | `reviewer` | opus | Générique (lisibilité/maintenabilité hors stack) |
-| — | `analyzer` | opus | Root cause investigation |
+Les experts sont **découverts**, pas codés en dur : lister `.claude/agents/**/*.md` et lire le frontmatter (`name`, `description`, `model`). Chaque `description` dit quand l'expert s'applique. Les experts projet-spécifiques installés localement sont dispatchables au même titre que ceux du cookbook.
 
-Les experts projet-specific installés localement (`nf525-accounting`, `shop-marketplace`, `<domain>`, front-architect projet-specific…) sont également dispatchables — le skill lit `.claude/agents/*.md` du projet et propose les experts disponibles.
+Si le projet a un `docs/dispatch-matrix.md` (livré par un pack de stack), il fait foi pour le mapping path → experts.
 
 ## Méthode — mode PARALLEL
 
@@ -58,16 +47,7 @@ fi
 ls .claude/agents/*.md
 ```
 
-Selon le path :
-
-| Path modifié | Experts recommandés (PARALLEL) |
-|---|---|
-| `app/controllers/**/*.ts` | `back-architect` + `security-multitenant` + `data-access-reviewer` |
-| `app/services/**/*.ts` | `back-architect` + `security-multitenant` + `data-access-reviewer` (+ domain expert projet-specific si match) |
-| `app/models/**/*.ts` | `back-architect` + `data-access-reviewer` (+ domain-expert projet si table sensible) |
-| `database/migrations/**/*.ts` | `migration-reviewer` (+ domain-expert projet si table sensible) |
-| `resources/views/**/*.edge` | front-architect projet-specific si présent + `edge-anti-patterns` |
-| Diff cross-domain (back + front + DB) | Tous les experts pertinents en //, `code-reviewer` final |
+Choisir les experts par correspondance entre le path/diff et la `description` de chaque agent installé (ou via `docs/dispatch-matrix.md` s'il existe). Règle de dosage : 2 à 4 experts complémentaires (structure, sécurité, données, linter), un reviewer final si le diff est non trivial. Diff cross-domain : tous les experts pertinents en parallèle.
 
 ### 2. Dispatch parallèle
 
@@ -85,7 +65,7 @@ Une fois tous les experts terminés :
 
 - **Dédup** : même `file:line` mentionné par 2+ experts → 1 seule entrée avec mention `[double-flag: <expert1>, <expert2>]` (renforce priorité)
 - **Ranger par sévérité** : P0 (union tous experts) → P1 → Quick wins → Déjà correct
-- **Cross-refs** : si `security-multitenant` dit "hors scope — invoquer `back-architect`" ET `back-architect` a effectivement flag → linker
+- **Cross-refs** : si un expert dit "hors scope — invoquer X" ET X a effectivement flag → linker
 - **Contradictions** : rare en PARALLEL (chaque expert reste dans son scope). Si contradiction : escalate en DEBATE mode.
 
 ### 4. Format rapport unifié
@@ -138,7 +118,7 @@ Une fois tous les experts terminés :
 1. Fixer P0 (deep-dive expert flag si besoin)
 2. Adresser P1 avant merge
 3. Considérer quick wins si temps
-4. Re-lancer `code-reviewer` (couche 5) après fixes pour final gate
+4. Re-lancer le reviewer final (couche 5) après les fixes
 ```
 
 ## Méthode — mode DEBATE
@@ -201,23 +181,23 @@ Max 2 rounds — au-delà = décision meta (main context tranche).
 ## Anti-patterns refusés
 
 - ❌ **Dispatch séquentiel** en mode PARALLEL — perte gain temps, envoyer tous les Agent en 1 seul message
-- ❌ **Dispatch tous les 10 experts sur un fichier trivial** — coût tokens, bruit
+- ❌ **Dispatcher tous les experts sur un fichier trivial** — coût tokens, bruit
 - ❌ **Dispatch experts hors scope** (ex: `product-strategist` sur bugfix) — refusera de toute façon
 - ❌ **Boucler DEBATE indéfiniment** — max 2 rounds, sinon décision meta
 - ❌ **Skip la consolidation** — un rapport unifié dédupliqué, pas 5 rapports collés
-- ❌ **Omettre code-reviewer (couche 5) final** — même après multi-agent, le final gate avant commit reste `code-reviewer`
+- ❌ **Omettre le reviewer final (couche 5)** — même après multi-agent, le final gate avant commit reste le reviewer du projet
 
 ## Format d'invocation user
 
 ```bash
-# Mode PARALLEL — auto-select experts selon path
-/multi-agent app/services/document_service.ts
+# Mode PARALLEL — experts choisis selon le path
+/multi-agent <path>
 
 # Mode PARALLEL — experts explicites
-/multi-agent app/services/document_service.ts back-architect,security-multitenant,data-access-reviewer
+/multi-agent <path> <expert1,expert2,expert3>
 
 # Mode DEBATE — 2 experts contradictoires
-/multi-agent debate back-architect,security-multitenant app/services/foo.ts
+/multi-agent debate <expert1,expert2> <path>
 
 # Diff staged (pas de path)
 /multi-agent --staged
@@ -225,7 +205,6 @@ Max 2 rounds — au-delà = décision meta (main context tranche).
 
 ## Sources
 
-- Cookbook agents (roles/ + stacks/adonisjs/) : `docs/claude-config/experts.md` §4
-- Cookbook code-reviewer (couche 5 final gate) : `.claude/agents/stacks/adonisjs/code-reviewer.md`
-- Karpathy §2.2 "Sous-agents : déléguer recherche, pas décision" : `docs/lessons.md`
-- Dispatch matrix : `.claude/skills/feature/references/dispatch-matrix.md`
+- Catalogue des agents : `docs/claude-config/experts.md`
+- Karpathy §2.2 « Sous-agents : déléguer recherche, pas décision » : `docs/lessons.md`
+- Mapping path → experts d'une stack : `docs/dispatch-matrix.md` (fourni par le pack, si installé)

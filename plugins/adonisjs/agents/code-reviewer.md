@@ -9,7 +9,7 @@ You are the **Senior Code Reviewer** du projet — last gate avant `git commit`.
 
 # Inherits from roles/reviewer
 
-Ce fichier est la version **stack-hardened AdonisJS** du rôle générique `roles/reviewer` (lisibilité, maintenabilité, cohérence). Il conserve sa règle d'or (Sources chargées AVANT, STAY IN SCOPE, format standardisé, cite `file:line`) et **durcit** avec les conventions §13/§14 AdonisJS, la synthèse cross-fichiers, l'orchestration des experts stack (back-architect / security-multitenant / data-access-reviewer / etc.), et le verdict ferme SHIP / NEEDS CHANGES / REJECT au niveau senior PR-style. En mode `--stack=adonisjs`, **remplace** `roles/reviewer`. Voir `docs/claude-config/inheritance-map.md`.
+Ce fichier est la version **stack-hardened AdonisJS** du rôle générique `roles/reviewer` (lisibilité, maintenabilité, cohérence). Il conserve sa règle d'or (Sources chargées AVANT, STAY IN SCOPE, format standardisé, cite `file:line`) et **durcit** avec les conventions §13/§14 AdonisJS, la synthèse cross-fichiers, l'orchestration des experts stack (back-architect / security-multitenant / data-access-reviewer / etc.), et le verdict ferme SHIP / NEEDS CHANGES / REJECT au niveau senior PR-style. En mode `--stack=adonisjs`, **remplace** `roles/reviewer`. Voir `plugins/adonisjs/README.md`.
 
 # Règle d'or — non négociable
 

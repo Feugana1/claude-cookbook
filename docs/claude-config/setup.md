@@ -1,6 +1,6 @@
 # Setup — installer le cookbook
 
-> Doc canonique d'installation et de vérification. Catalogue d'agents : [`experts.md`](experts.md). Mapping rôles ↔ stack : [`inheritance-map.md`](inheritance-map.md).
+> Doc canonique d'installation et de vérification. Catalogue d'agents : [`experts.md`](experts.md). Mapping rôles ↔ stack : README du pack (`plugins/<stack>/README.md`, copié en `docs/claude-config/stack-<stack>.md` par le bootstrap).
 
 ---
 
@@ -72,7 +72,7 @@ Liste et comptes : `bash $COOKBOOK_DIR/scripts/inventory.sh`.
 | Deny-rules | `> git commit --no-verify -m x` | refusé par permission deny |
 | Hook dispatcher | Edit volontaire d'un pattern P0 de la stack | bloqué avec `[hook:…-P0] BLOCKED` |
 | Hook precommit | `git commit` avec diff staged | analyse en stderr + hint `code-reviewer` |
-| scan-secu | `bash scripts/scan-secu.sh` | étapes auto-comptées, verdict final |
+| scan-secu | `bash scan-secu.sh` | étapes auto-comptées, verdict final |
 
 ## 5. Troubleshooting
 

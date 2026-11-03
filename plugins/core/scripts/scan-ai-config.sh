@@ -89,8 +89,8 @@ check           "docs/lessons.md"                         "P1" "docs/lessons.md"
 check           ".mcp.json (MCP servers config)"          "P1" ".mcp.json"
 check_dir_nonempty ".claude/skills/ (any skill)"         "P1" ".claude/skills"
 check_dir_nonempty ".claude/commands/ (any command)"    "P1" ".claude/commands"
-check           ".claude/hooks/dispatch-expert.sh"       "P1" ".claude/hooks/dispatch-expert.sh"
-check           "scripts/scan-secu.sh"                   "P1" "scripts/scan-secu.sh"
+check_dir_nonempty ".claude/hooks/ (any hook)"           "P1" ".claude/hooks"
+check           "scan-secu.sh"                           "P1" "scan-secu.sh"
 
 # ── P2 (nice) — qualité + governance ───────────────────────────────────────
 check           "docs/feature-plan-template.md"          "P2" "docs/feature-plan-template.md"

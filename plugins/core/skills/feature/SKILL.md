@@ -13,7 +13,7 @@ Pas une ligne de code avant : (1) verdict GO du product-strategist, (2) spec ré
 
 - Avant toute nouvelle feature non triviale (≥ 2 fichiers, ≥ 1 entité)
 - Quand le user dit "ajoute X" / "on doit avoir X" / "et si on faisait X"
-- En remplacement du step 1 du workflow CLAUDE.md §8
+- En amont du workflow de développement du projet (voir son `CLAUDE.md`)
 
 ## When NOT to invoke
 
@@ -33,8 +33,8 @@ Tu identifies un pattern existant chez un concurrent tracké dans `docs/competit
 4. Si **REVOIR** → proposer 2-3 reformulations au user, **ne pas coder**, relancer step 2 après reformulation acceptée
 5. Si **NO-GO** → expliquer pourquoi (concurrents + anti-références), **ne pas coder**, proposer alternatives
 6. **Invoquer `superpowers:writing-plans`** — générer plan d'implémentation détaillé
-7. **Dispatch experts** couches 1-3 selon scope (voir `references/dispatch-matrix.md`)
-8. Implémentation suit CLAUDE.md §8 step 2-6
+7. **Dispatch experts** selon le scope : si `docs/dispatch-matrix.md` existe dans le projet, la suivre ; sinon lister `.claude/agents/**` et choisir ceux dont la `description` correspond aux paths touchés (architect, sécurité, données, linters). Architects et cross-cutting en parallèle, domain en séquentiel.
+8. Implémentation suit le workflow décrit dans le `CLAUDE.md` du projet
 9. **Closure** : entrée `docs/dev-changelog.md` + audit benchmark concurrent si applicable (voir `references/closure-checklist.md`)
 
 ## Process Flow
@@ -46,8 +46,8 @@ digraph feature_flow {
     "Verdict?" [shape=diamond];
     "Créer doc/features/<nom>.md" [shape=box];
     "writing-plans (superpowers)" [shape=box];
-    "Dispatch experts couches 1-3" [shape=box];
-    "Implementation CLAUDE.md §8" [shape=box];
+    "Dispatch experts" [shape=box];
+    "Implementation" [shape=box];
     "Closure dev-changelog + benchmark" [shape=doublecircle];
     "REVOIR: reformuler + relancer" [shape=box];
     "NO-GO: stop, ne pas coder" [shape=doublecircle];
@@ -59,9 +59,9 @@ digraph feature_flow {
     "Verdict?" -> "NO-GO: stop, ne pas coder" [label="NO-GO"];
     "REVOIR: reformuler + relancer" -> "product-strategist (subagent)";
     "Créer doc/features/<nom>.md" -> "writing-plans (superpowers)";
-    "writing-plans (superpowers)" -> "Dispatch experts couches 1-3";
-    "Dispatch experts couches 1-3" -> "Implementation CLAUDE.md §8";
-    "Implementation CLAUDE.md §8" -> "Closure dev-changelog + benchmark";
+    "writing-plans (superpowers)" -> "Dispatch experts";
+    "Dispatch experts" -> "Implementation";
+    "Implementation" -> "Closure dev-changelog + benchmark";
 }
 ```
 
@@ -69,7 +69,7 @@ digraph feature_flow {
 
 | Pensée | Réalité |
 |---|---|
-| "C'est juste un petit ajout" | TOUT add-feature passe la gate. Cf CLAUDE.md §17.6 density gate. |
+| "C'est juste un petit ajout" | TOUT add-feature passe la gate (y compris la density gate UI du projet, si elle existe). |
 | "On a déjà un workflow pour ça" | Vérifie quand même verdict `product-strategist`. |
 | "Le user est pressé, on skip strategic gate" | NO. Gate = 5 min, refonte ratée = 5 jours. |
 | "C'est un copycat évident, ça vaut le coup" | Exactement le signal qu'il FAUT challenger. Cf anti-pattern ci-dessus. |
@@ -88,7 +88,7 @@ digraph feature_flow {
 **Doc créée** : `docs/features/<nom>.md`
 **Plan créé** : `docs/superpowers/plans/<date>-<nom>.md`
 **Experts dispatchés** : <liste>
-**Prochaine étape** : implémenter selon plan + CLAUDE.md §8
+**Prochaine étape** : implémenter selon plan + workflow du projet
 
 [Si REVOIR]
 **Reformulations proposées** :
@@ -103,15 +103,14 @@ digraph feature_flow {
 
 ## References
 
-- `references/dispatch-matrix.md` — quel expert pour quel scope
 - `references/closure-checklist.md` — détails phase 5 closure
 - `references/strategic-gate-examples.md` — verdicts product-strategist réels passés (calibration)
 
 ## Sources
 
-- [`docs/claude-config/experts.md`](../../docs/claude-config/experts.md) — catalogue roles/ + stacks/adonisjs/ (couches 1-5)
+- [`docs/claude-config/experts.md`](../../docs/claude-config/experts.md) — catalogue des agents par couche
 - [`docs/claude-config/setup.md`](../../docs/claude-config/setup.md) §3 — règle de routage cookbook vs superpowers
 - `PRODUCT.md` + `docs/vision.md` — direction produit
-- `docs/competitive-benchmark/` — fiches 13 concurrents
+- `docs/competitive-benchmark/` — fiches concurrents (si présent)
 - `docs/feature-plan-template.md` — template doc feature
-- `CLAUDE.md` §8 (workflow) + §17 (discipline agentic)
+- `CLAUDE.md` du projet (workflow, discipline agentic)

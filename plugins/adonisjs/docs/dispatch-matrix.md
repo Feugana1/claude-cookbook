@@ -2,7 +2,7 @@
 
 Référence chargée par `SKILL.md` step 7. Décrit quel expert invoquer selon le scope de la feature.
 
-Note : les experts marqués **projet-specific** sont OPTIONNELS. Le cookbook n'installe que les 8 génériques ; un projet peut ajouter les siens dans `.claude/agents/` (nf525-accounting, shop-marketplace, workflow-email, public-experience, subscription-quota, front-curator, etc.). Le skill vérifie `.claude/agents/<name>.md` et n'invoque que ceux qui existent.
+Note : les experts marqués **projet-specific** sont OPTIONNELS. Le pack n'installe que les experts génériques de la stack ; un projet peut ajouter les siens dans `.claude/agents/` (nf525-accounting, shop-marketplace, public-experience, subscription-quota, front-curator, etc.). Le skill vérifie `.claude/agents/<name>.md` et n'invoque que ceux qui existent.
 
 ## Architects (toujours invoqués)
 
@@ -25,7 +25,7 @@ Note : les experts marqués **projet-specific** sont OPTIONNELS. Le cookbook n'i
 |---|---|
 | Documents/invoices/quotes/contracts/credit-notes/expenses (compta) | `nf525-accounting` (ou équivalent) |
 | Shop/marketplace/campaign | `shop-marketplace` (ou équivalent) |
-| Workflows/emails/mail templates | `workflow-email` (fourni par cookbook, générique) |
+| Workflows/emails/mail templates | expert domain du projet — modèle : `docs/templates/example-domain-agent.md` |
 | Routes publiques hors admin, transferts, custom domains | `public-experience` (ou équivalent) |
 | Subscriptions/quotas/plans/dunning/feature flags | `subscription-quota` (ou équivalent) |
 
@@ -47,7 +47,7 @@ Note : les experts marqués **projet-specific** sont OPTIONNELS. Le cookbook n'i
 1. `back-architect` (structure)
 2. `security-multitenant` (effectiveUserId, IDOR)
 3. `data-access-reviewer` (preload, soft-delete)
-4. `workflow-email` (domain, si concerné)
+4. expert domain projet-specific (si concerné)
 5. `code-reviewer` (avant commit)
 
 ### Feature UI nouvelle page admin

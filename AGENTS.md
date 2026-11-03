@@ -9,13 +9,13 @@ Instructions pour un agent Claude Code. Vue d'ensemble : [README.md](README.md).
 1. Cible = cwd ou chemin explicite.
 2. Stack : demander à l'user — projet AdonisJS/Node/TS → `--stack=adonisjs`, sinon `--stack=none`.
 3. `bash $COOKBOOK_DIR/bootstrap-claude.sh <path> --stack=<mode>` (ou plugin : voir setup.md §1).
-4. Confirmer : agents/skills/commands/hooks installés (lire la sortie du script, ne pas recopier de chiffres), `CLAUDE.md` minimal à enrichir, `inheritance-map.md` pour le mapping override.
+4. Confirmer : agents/skills/commands/hooks installés (lire la sortie du script, ne pas recopier de chiffres), `CLAUDE.md` minimal à enrichir, `plugins/adonisjs/README.md` pour le mapping override.
 5. Avant le 1er commit d'une nouvelle feature : `product-strategist` **si** `PRODUCT.md` ou `docs/vision.md` existe. Sinon ne pas l'invoquer (`BLOCKED-SETUP`) et proposer de créer une vision minimale (`docs/templates/PRODUCT.md`).
 
 ## « Audite avec scan-secu »
 
-1. Présence : `ls scripts/scan-secu.sh scripts/scan-secu.d/`. Si absent : copier les **deux** depuis `$COOKBOOK_DIR/scripts/`.
-2. `bash scripts/scan-secu.sh` (le total d'étapes est auto-compté).
+1. Présence : `ls scan-secu.sh scripts/scan-secu.d/`. Si absent : copier `plugins/core/scripts/scan-secu.sh` à la racine du projet et `plugins/core/scripts/scan-secu.d/` vers `scripts/scan-secu.d/` (depuis `$COOKBOOK_DIR`), ou relancer le bootstrap.
+2. `bash scan-secu.sh` (le total d'étapes est auto-compté).
 3. Résumer par tier (T1 BLOCKER / T2 IMPORTANT / T3 ADVISORY) et « Top risks open ». Proposer un fix pour chaque T1 FAIL d'abord.
 
 ## « Ajoute un agent »
@@ -38,6 +38,6 @@ Lire `docs/lessons.md`, appliquer, ajouter le pattern à `docs/anti-patterns.md`
 
 - Agents/hooks/skills **100 % génériques** : rien de spécifique à un projet. Le contenu stack va dans `stacks/<stack>/`.
 - Respecter les limites §14 (controllers ≤ 300 L, services ≤ 400 L, templates ≤ 800 L), exemples inclus.
-- Valider : `bash scripts/scan-secu.sh` reste cohérent ; `bash scripts/inventory.sh` tourne ; `bash -n` sur les scripts modifiés.
+- Valider : `SECU_EXTRA_STEPS_DIRS=plugins/adonisjs/scripts/scan-secu.d bash plugins/core/scripts/scan-secu.sh --diff` reste cohérent ; `bash scripts/inventory.sh` tourne ; `bash -n` sur les scripts modifiés.
 - Remontée depuis un projet : implémenter localement, valider en prod, puis proposer « générique, je copie vers le cookbook ? » avant tout `cp` vers `$COOKBOOK_DIR`.
 - Les memories Claude Code restent par-projet ; un pattern universel peut être copié dans `docs/lessons.md` avec l'accord de l'user.

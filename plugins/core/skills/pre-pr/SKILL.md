@@ -1,6 +1,6 @@
 ---
 name: pre-pr
-description: Séquence de vérifications avant de créer une PR — lint + typecheck + build + check:sizes ratchet + résumé bloquant. À invoquer après dernière modif, avant `git push` ou `gh pr create`. Shift-left du job quality de CI.
+description: Séquence de vérifications avant de créer une PR — lint, typecheck, tests, build, checks du projet (toolchain détectée) + résumé bloquant. À invoquer après dernière modif, avant `git push` ou `gh pr create`. Shift-left du job quality de CI.
 ---
 
 # Skill `/pre-pr`
@@ -15,32 +15,30 @@ Invocation manuelle. Lance la séquence des vérifications locales **avant** de 
 
 ## Méthode
 
-Lancer chaque check **séquentiellement** et stopper au premier fail :
+**Détecter la toolchain** (ne rien supposer) : lire les `scripts` de `package.json` (ou `Makefile`, `pyproject.toml`, `Cargo.toml`, `go.mod`) et le `CLAUDE.md` du projet (section commandes). Construire la séquence à partir de ce qui existe :
 
-1. **Lint** : `npm run lint` (eslint --quiet)
-2. **Typecheck** : `npm run typecheck` (tsc --noEmit)
-3. **Build** : `node ace build --ignore-ts-errors` (Vite + tsc)
-4. **File-size ratchet** : `node scripts/check-file-sizes.js`
+1. **Lint** — script `lint`
+2. **Typecheck** — script `typecheck` / `tsc --noEmit`, `mypy`, `cargo check`…
+3. **Tests** — script `test` (rapide / unitaires seulement si la suite complète est longue)
+4. **Build** — script `build`
+5. **Checks du projet** — tout script de garde additionnel (ex : ratchet de taille de fichiers, `check:*`) documenté dans `CLAUDE.md` ou la CI
+
+Lancer **séquentiellement**, stopper au premier fail. Ne pas inventer un check absent du projet : le signaler « non configuré » et continuer.
 
 Si un check fail :
 - Reporter la sortie (les 20 dernières lignes utiles)
-- Proposer un fix : pour lint/typecheck → corriger les erreurs ; pour build → vérifier les imports/exports ; pour ratchet → splitter le fichier dépassant ou regénérer baseline (`scripts/check-file-sizes.js --baseline` après split légitime)
-- Stopper la séquence (pas la peine de continuer)
+- Proposer un fix ciblé (corriger les erreurs ; vérifier imports/exports pour un build ; splitter un fichier pour un ratchet de taille)
+- Stopper la séquence
 - Verdict : `NOT READY — fix <X> avant retry`
 
 Si tous OK :
 - Verdict : `READY TO PR`
-- Bonus suggestions :
-  - Proposer `/secu` pour scan-secu complet si modifs touchent backend/migrations
-  - Proposer `/ux-review <page>` si modifs touchent `.edge`
-  - Rappeler de mettre à jour `docs/dev-changelog.md` si feature majeure
+- Suggestions : `/secu` si modifs backend/migrations/dépendances ; rappeler de mettre à jour le changelog du projet si feature majeure ; pour un pack de stack avec audit UX (ex : `/ux-review`), le proposer si des templates UI changent
 
 ## Sources de vérité
 
-- `CLAUDE.md` §1 (commandes courantes)
-- `CLAUDE.md` §14 (limites taille + ratchet)
-- `scripts/check-file-sizes.js` (mécanique baseline)
-- `.github/workflows/ci.yml` job `quality` (que ce skill mirroir)
+- `CLAUDE.md` du projet (commandes courantes, limites)
+- La CI du projet (job qualité) : ce skill la mirroir en local
 
 ## Format de sortie
 
@@ -50,7 +48,7 @@ Si tous OK :
 [✓] Lint        — OK
 [✓] Typecheck   — OK
 [✗] Build       — FAIL : <extrait erreur>
-[ ] Ratchet     — skipped (séquence arrêtée)
+[ ] Tests       — skipped (séquence arrêtée)
 
 **Verdict** : NOT READY
 
@@ -62,4 +60,4 @@ Si tous OK :
 
 ## Règle d'or
 
-Sans complaisance — si un check fail, on stoppe. Pas de "lint warning OK", pas de "ratchet à voir après". Tous les checks doivent passer pour valider la PR. Si une exception est légitime (rare), elle s'enregistre dans la baseline (`--baseline` après split réel) ou via `// eslint-disable-next-line` documenté.
+Sans complaisance — si un check fail, on stoppe. Pas de "lint warning OK", pas de "ratchet à voir après". Tous les checks doivent passer pour valider la PR. Une exception légitime (rare) s'enregistre de façon explicite et documentée dans le projet (baseline, `eslint-disable-next-line` justifié).

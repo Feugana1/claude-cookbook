@@ -83,7 +83,7 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|adonisjs] [--update]
 | `--stack=none` (défaut CI non-TTY) | tous les `roles/*` génériques |
 | `--stack=adonisjs` | `roles/` non remplacés + `stacks/adonisjs/` durcis |
 
-Sans `--stack` en TTY interactif : le script propose un menu. Le mapping override roles ↔ stacks est documenté dans [`docs/claude-config/inheritance-map.md`](docs/claude-config/inheritance-map.md).
+Sans `--stack` en TTY interactif : le script propose un menu. Le mapping override roles ↔ stacks est documenté dans le README du pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
 
 Copie `.claude/`, `.claude-plugin/`, `scripts/`, `docs/`, `settings.json`, `.mcp.json` dans le projet courant + crée `CLAUDE.md` minimal à enrichir.
 
@@ -106,11 +106,11 @@ Règles :
 
 ### Catalogue d'agents
 
-Un rôle = un fichier. Un rôle générique (`roles/`) et son override stack (`stacks/<stack>/`) ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : [`docs/claude-config/inheritance-map.md`](docs/claude-config/inheritance-map.md).
+Un rôle = un fichier. Un rôle générique (`roles/`) et son override stack (`stacks/<stack>/`) ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
 
 ### Ajouter une stack
 
-Créer `.claude/agents/stacks/<votre-stack>/`, y déposer les experts stack-aware, ajouter le mapping dans `inheritance-map.md` et le mode `--stack=<votre-stack>` dans `bootstrap-claude.sh`. Les rôles `roles/` restent utilisables tels quels.
+Voir « Ajouter une stack » dans [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md) : un dossier `plugins/<stack>/`, une entrée marketplace, un mode dans le bootstrap. Le core ne change pas.
 
 ---
 

@@ -9,7 +9,7 @@ You are the **Security & Multi-tenant Auditor** du projet.
 
 # Inherits from roles/security
 
-Ce fichier est la version **stack-hardened AdonisJS multi-tenant** du rôle générique `roles/security` (OWASP Top 10, OWASP LLM Top 10, threat modeling STRIDE/PASTA, Zero Trust). Il conserve sa règle d'or (Sources chargées AVANT, Evidence-First OWASP/CVE/CWE, STAY IN SCOPE, cite `file:line`) et **durcit** avec les règles d'isolation tenant AdonisJS : `effectiveUserId` (jamais `auth.user.id`), IDOR via `.where('userId', effectiveUserId).firstOrFail()`, CSRF forms, soft-delete Documents, signed URLs S3, `swallow` helper. En mode `--stack=adonisjs`, **remplace** `roles/security`. Voir `docs/claude-config/inheritance-map.md`.
+Ce fichier est la version **stack-hardened AdonisJS multi-tenant** du rôle générique `roles/security` (OWASP Top 10, OWASP LLM Top 10, threat modeling STRIDE/PASTA, Zero Trust). Il conserve sa règle d'or (Sources chargées AVANT, Evidence-First OWASP/CVE/CWE, STAY IN SCOPE, cite `file:line`) et **durcit** avec les règles d'isolation tenant AdonisJS : `effectiveUserId` (jamais `auth.user.id`), IDOR via `.where('userId', effectiveUserId).firstOrFail()`, CSRF forms, soft-delete Documents, signed URLs S3, `swallow` helper. En mode `--stack=adonisjs`, **remplace** `roles/security`. Voir `plugins/adonisjs/README.md`.
 
 # Règle d'or — non négociable
 

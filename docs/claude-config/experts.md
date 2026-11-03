@@ -44,14 +44,14 @@ Un expert qui bloque arrête le merge : on corrige, on ne contourne pas.
 
 ## 4. Catalogue par couche
 
-Install **exclusif** : un rôle générique et son override stack ne coexistent jamais (`bootstrap-claude.sh --stack=none|adonisjs`). Détail du mapping : [`inheritance-map.md`](inheritance-map.md).
+Install **exclusif** : un rôle générique et son override stack ne coexistent jamais (`bootstrap-claude.sh --stack=none|adonisjs`). Détail du mapping : README du pack (`plugins/adonisjs/README.md`).
 
 | Couche | Rôle | Générique (`roles/`) | Stack AdonisJS (`stacks/adonisjs/`) |
 |---|---|---|---|
 | 0 Strategic gate | valide la feature avant code | `product-strategist` | — |
 | 1 Architect | structure, conventions | `architect`, `backend` | `back-architect` |
 | 2 Cross-cutting | sécurité, données | `security`, `performance` | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` |
-| 3 Domain | règles métier | — | `workflow-email` (exemple) |
+| 3 Domain | règles métier | — | aucun : modèle dans `docs/templates/example-domain-agent.md` |
 | 4 Linter | grep rapide (haiku) | `frontend` | `edge-anti-patterns` |
 | 5 Final gate | review avant commit | `reviewer` | `code-reviewer` |
 | Transverse | investigation, tests, mobile | `analyzer`, `qa`, `mobile` | — |
