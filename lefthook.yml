@@ -19,7 +19,7 @@ pre-commit:
   commands:
     scan-secu-diff:
       # Scan sécu delta sur staged files (~3s).
-      # Cf .claude/hooks/precommit-check.sh pour version Claude-triggered.
+      # Cf plugins/core/hooks/precommit-check.sh pour version Claude-triggered.
       run: |
         if [ -f scan-secu.sh ]; then
           SECU_DIFF_STAGED=1 bash scan-secu.sh --diff

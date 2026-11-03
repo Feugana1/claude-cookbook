@@ -17,7 +17,7 @@
 
 1. **Vérifie diff** : `git diff --cached` (si staged) sinon `git diff`
 2. **Match path → expert** :
-   - Fichier back → invoquer expert `back-architect` (mode stack) OU `backend` + `architect` (mode none)
+   - Fichier back → invoquer expert `back-architect` (mode stack) OU `architect` (mode none)
    - Sécurité tenant → `security-multitenant` OU `security`
    - Templates UI → `edge-anti-patterns` (Adonis) OU `frontend`
    - Migrations DB → `migration-reviewer`
@@ -27,7 +27,7 @@
 
 ## Quand un user te demande "audit sécurité"
 
-1. Lance `bash scripts/scan-secu.sh --full` (2-3 min, 41 étapes tier OWASP)
+1. Lance `bash scan-secu.sh --full` (2-3 min, étapes tier OWASP)
 2. Parse output tier T1/T2/T3
 3. Résume "Top risks open" avec P0 en premier
 4. Invoquer `security-multitenant` (Adonis) ou `security` (générique) pour deep-dive P0
@@ -51,7 +51,7 @@
 ## Quand un user te demande "bootstrap le cookbook"
 
 1. Vérifier stack cible → `--stack=adonisjs` ou `--stack=none`
-2. Lancer `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=<mode>`
+2. Lancer `bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=<mode>`
 3. Confirmer install : agents count, skills, commands, hooks, scripts, settings
 
 ---
@@ -82,6 +82,6 @@ Ajouter aussi les hints dispatch dans `.claude/hooks/dispatch-expert.local.sh` (
 ## Références
 
 - Cookbook `docs/claude-config/experts.md` — catalogue complet agents
-- Cookbook `docs/claude-config/inheritance-map.md` — mapping roles ↔ stacks
+- Cookbook `docs/claude-config/stack-adonisjs.md` — mapping roles ↔ stacks
 - CLAUDE.md — règles projet (stack, naming, conventions, limits)
 - PRODUCT.md — vision produit (utilisée par `product-strategist`)

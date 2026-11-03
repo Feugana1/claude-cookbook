@@ -1,7 +1,7 @@
 // Conventional Commits enforcement — aligné avec skill `/commit` du cookbook.
 // Wire via lefthook.yml (commit-msg hook).
 //
-// Types autorisés cf .claude/commands/commit.md :
+// Types autorisés cf plugins/core/skills/commit/SKILL.md :
 //   feat, fix, refactor, perf, docs, test, chore, style, ci, build
 //
 // Subject rules :

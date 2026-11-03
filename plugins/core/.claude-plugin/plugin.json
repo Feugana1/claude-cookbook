@@ -1,0 +1,15 @@
+{
+  "name": "cookbook-core",
+  "version": "0.2.0",
+  "description": "Kit Claude Code générique : rôles d'agents, skills, hooks, scan sécurité tiered OWASP, prod-readiness.",
+  "author": {
+    "name": "Lionel FOTSO"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "security-scan",
+    "code-review",
+    "orchestration"
+  ]
+}

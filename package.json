@@ -1,12 +1,11 @@
 {
   "name": "claude-cookbook",
-  "version": "0.2.0",
-  "description": "Cookbook Claude Code stack AdonisJS/Node/TS — 10 agents, 5 skills, 10 commands, 3 hooks, scan-secu 41 étapes tier OWASP",
+  "description": "Kit Claude Code : agents, skills, hooks, scan sécurité tiered OWASP (core générique + packs de stack)",
   "type": "module",
   "private": true,
   "scripts": {
     "prepare": "lefthook install",
-    "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore .claude/skills/**/references"
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore plugins/**/skills/**/references"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
