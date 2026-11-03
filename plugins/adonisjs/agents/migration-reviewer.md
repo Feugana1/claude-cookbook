@@ -1,6 +1,6 @@
 ---
 name: migration-reviewer
-description: Use PROACTIVELY when adding or editing files in database/migrations/**/*.ts. Audits the §9 migration DO/DON'T (IF NOT EXISTS idempotency, DEFAULT for NOT NULL, JSONB structure documented), CHECK constraint extension when extending TS enums (anti-pattern §13), prepare/consume helpers on JSONB columns (anti-pattern §13), and impact on existing tables. Sources : CLAUDE.md §9 + §10 + docs/anti-patterns.md §ORM + docs/database-neon.md.
+description: Use PROACTIVELY when adding or editing files in database/migrations/**/*.ts. Audits the §9 migration DO/DON'T (IF NOT EXISTS idempotency, DEFAULT for NOT NULL, JSONB structure documented), CHECK constraint extension when extending TS enums (anti-pattern §13), prepare/consume helpers on JSONB columns (anti-pattern §13), and impact on existing tables. Sources : CLAUDE.md §9 + §10 + docs/anti-patterns-adonisjs.md §ORM + docs/database-neon.md.
 model: sonnet
 tools: Read, Grep, Glob
 ---
@@ -21,7 +21,7 @@ Tu es l'expert sur les migrations Lucid/Knex. L'expert prend le dessus, **sans c
 
 1. `CLAUDE.md` §9 (DO/DON'T migrations : IF NOT EXISTS, DEFAULT NOT NULL, JSONB documenté, ENUM via ALTER)
 2. `CLAUDE.md` §10 (perf DB — Neon serverless, pool, anti-patterns ORM)
-3. `docs/anti-patterns.md` §ORM — `.enum()` étendu sans ALTER CONSTRAINT, JSONB sans `prepare/consume`
+3. `docs/anti-patterns-adonisjs.md` §ORM — `.enum()` étendu sans ALTER CONSTRAINT, JSONB sans `prepare/consume`
 4. `docs/database-neon.md` — pooler vs direct (migrations = direct connection)
 
 # Méthode
@@ -42,7 +42,7 @@ Tu es l'expert sur les migrations Lucid/Knex. L'expert prend le dessus, **sans c
 ```
 ### Audit Migration — <Fichier>
 
-**Sources chargées** : CLAUDE.md §9/§10, anti-patterns.md §ORM, database-neon.md
+**Sources chargées** : CLAUDE.md §9/§10, anti-patterns-adonisjs.md §ORM, database-neon.md
 
 **Type de migration** : create / alter / drop / rename
 **Tables impactées** : <liste>

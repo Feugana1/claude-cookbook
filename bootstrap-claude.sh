@@ -187,7 +187,7 @@ if [ "$STACK" = "adonisjs" ]; then cp "$PACK/README.md" "$TARGET/docs/claude-con
 cp "$COOKBOOK_ROOT/docs/claude-config/setup.md" "$TARGET/docs/claude-config/"
 # Templates scaffold /ai-config (copies non-écrasantes, l'user peut cp vers root/docs/ ensuite)
 mkdir -p "$TARGET/docs/templates"
-for t in AGENTS.md PRODUCT.md architecture.md anti-patterns.md mcp.json CLAUDE.md husky-pre-commit.sh scan-secu-weekly.yml .gitleaks.toml; do
+for t in AGENTS.md PRODUCT.md architecture.md mcp.json example-domain-agent.md CLAUDE.md husky-pre-commit.sh scan-secu-weekly.yml .gitleaks.toml; do
   [ -f "$COOKBOOK_ROOT/docs/templates/$t" ] && cp "$COOKBOOK_ROOT/docs/templates/$t" "$TARGET/docs/templates/"
 done
 if [ "$STACK" = "adonisjs" ] && [ -d "$PACK/docs" ]; then
@@ -195,11 +195,11 @@ if [ "$STACK" = "adonisjs" ] && [ -d "$PACK/docs" ]; then
   echo "    + docs du pack adonisjs ($(ls "$PACK"/docs | tr '\n' ' '))"
 fi
 echo "    + docs/lessons.md (Karpathy 4 + leçons)"
-echo "    + docs/anti-patterns.md (catalogue)"
+echo "    + docs/anti-patterns.md (générique ; catalogue stack fourni par le pack)"
 echo "    + docs/feature-plan-template.md (~200L max)"
 echo "    + docs/ux-audit-prompt.md (6 axes UX)"
 echo "    + docs/claude-config/{experts,setup}.md (+ stack-adonisjs.md en mode adonisjs)"
-echo "    + docs/templates/ (CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, mcp.json + husky/scan-secu-weekly/.gitleaks)"
+echo "    + docs/templates/ (CLAUDE, AGENTS, PRODUCT, architecture, mcp.json, example-domain-agent + husky/scan-secu-weekly/.gitleaks)"
 
 # ── Manifest plugin + settings.json + .mcp.json + config ────────────────────
 echo -e "${GREEN}[6/6]${NC} settings.json + MCP + Conventional Commits config..."

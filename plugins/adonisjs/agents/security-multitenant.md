@@ -1,6 +1,6 @@
 ---
 name: security-multitenant
-description: Extends roles/security, hardened for AdonisJS multi-tenant isolation. Use PROACTIVELY when editing app/controllers/**, app/services/**, app/middleware/**, or adding routes to start/routes.ts. Audits the multi-tenant isolation rules : effectiveUserId in every business query (never auth.user.id), IDOR prevention via `.where('userId', effectiveUserId).firstOrFail()`, CSRF on forms, soft-delete on Documents, signed URLs for S3, public branding loader, swallow helper. Sources canonical : docs/security-multitenant.md + docs/anti-patterns.md §Sécurité + scan-secu.sh 22A-F. Replaces roles/security when mode=adonisjs.
+description: Extends roles/security, hardened for AdonisJS multi-tenant isolation. Use PROACTIVELY when editing app/controllers/**, app/services/**, app/middleware/**, or adding routes to start/routes.ts. Audits the multi-tenant isolation rules : effectiveUserId in every business query (never auth.user.id), IDOR prevention via `.where('userId', effectiveUserId).firstOrFail()`, CSRF on forms, soft-delete on Documents, signed URLs for S3, public branding loader, swallow helper. Sources canonical : docs/security-multitenant.md + docs/anti-patterns-adonisjs.md §Sécurité + scan-secu.sh 22A-F. Replaces roles/security when mode=adonisjs.
 model: sonnet
 tools: Read, Grep, Bash
 ---
@@ -24,7 +24,7 @@ L'expert prend le dessus sur son scope (sécurité applicative + isolation multi
 # Sources de vérité (à Read AVANT d'auditer)
 
 1. `docs/security-multitenant.md` — OWASP + ANSSI + middleware (auth/team/editor/admin/subscription/quota/antivirus), `effectiveUserId`, IDOR via `.firstOrFail()`, CSP, webhooks, CSRF
-2. `docs/anti-patterns.md` §Sécurité — P0 effectiveUserId, drive.use, soft-delete, swallow
+2. `docs/anti-patterns-adonisjs.md` §Sécurité — P0 effectiveUserId, drive.use, soft-delete, swallow
 3. `scan-secu.sh` étapes 22A-F (sweep statique du projet) :
    - **22A** OG meta canonical helper sur controllers publics (projet définit son canonical)
    - **22B** drive direct interdit hors le module storage seam du projet
@@ -55,7 +55,7 @@ L'expert prend le dessus sur son scope (sécurité applicative + isolation multi
 ```
 ### Audit Sécurité Multi-Tenant — <Fichier ou Feature>
 
-**Sources chargées** : security-multitenant.md, anti-patterns.md §Sécurité, scan-secu.sh §22A-F, CLAUDE.md §11/§12/§13
+**Sources chargées** : security-multitenant.md, anti-patterns-adonisjs.md §Sécurité, scan-secu.sh §22A-F, CLAUDE.md §11/§12/§13
 
 **P0 (bloquer — exit 2 du hook)** :
 - `path:line` — `<pattern grepé>` — règle violée → solution canonique

@@ -1,6 +1,6 @@
 ---
 name: edge-anti-patterns
-description: Pairs with roles/frontend (does NOT replace). Use PROACTIVELY as fast linter (haiku) when ANY .edge file is modified. Single-pass grep against the 16 P0/P1 anti-patterns of CLAUDE.md §13 + docs/anti-patterns.md §Edge/Alpine. Outputs only findings — silent if none. Cheap to run in parallel after any other expert.
+description: Pairs with roles/frontend (does NOT replace). Use PROACTIVELY as fast linter (haiku) when ANY .edge file is modified. Single-pass grep against the 16 P0/P1 anti-patterns of CLAUDE.md §13 + docs/anti-patterns-adonisjs.md §Edge/Alpine. Outputs only findings — silent if none. Cheap to run in parallel after any other expert.
 model: haiku
 tools: Read, Grep
 ---
@@ -24,7 +24,7 @@ L'expert prend le dessus sur son scope (patterns grepables Edge/Alpine), **sans 
 # Sources (Read AVANT)
 
 1. `CLAUDE.md` §13 — 16 anti-patterns P0/P1
-2. `docs/anti-patterns.md` §Edge/Alpine
+2. `docs/anti-patterns-adonisjs.md` §Edge/Alpine
 
 # Patterns à grep — séquence fixe
 
@@ -68,7 +68,7 @@ L'expert prend le dessus sur son scope (patterns grepables Edge/Alpine), **sans 
 ```
 ### Audit Edge Anti-Patterns — <Fichier>
 
-**Sources chargées** : CLAUDE.md §13, anti-patterns.md §Edge/Alpine
+**Sources chargées** : CLAUDE.md §13, anti-patterns-adonisjs.md §Edge/Alpine
 
 **Patterns testés** : 23 (cf table)
 

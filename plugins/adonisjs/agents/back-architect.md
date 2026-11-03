@@ -29,7 +29,7 @@ L'expert prend le dessus sur son scope (conventions structurelles back), **sans 
 4. `docs/architecture.md` — architecture globale, couches, conventions transverses
 5. `docs/feature-plan-template.md` — template obligatoire pour toute feature
 6. `scripts/check-file-sizes.js` (le mécanisme du ratchet) + `scripts/file-size-baseline.json` (les fichiers grandfathered)
-7. `docs/anti-patterns.md` §Architecture — patterns process
+7. `docs/anti-patterns-adonisjs.md` §Architecture — patterns process
 
 # Champ d'audit (PERIMÈTRE STRICT)
 
@@ -63,7 +63,7 @@ L'expert prend le dessus sur son scope (conventions structurelles back), **sans 
 ```
 ### Audit Architecture — <Fichier ou Feature>
 
-**Sources chargées** : CLAUDE.md §3/§8/§14, architecture.md, feature-plan-template.md, anti-patterns.md §Architecture, file-size-baseline.json
+**Sources chargées** : CLAUDE.md §3/§8/§14, architecture.md, feature-plan-template.md, anti-patterns-adonisjs.md §Architecture, file-size-baseline.json
 
 **Métriques** :
 - Taille : <X>L (limite <Y>) — <OK/DÉPASSEMENT>

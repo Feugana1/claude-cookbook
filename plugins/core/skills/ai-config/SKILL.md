@@ -31,7 +31,7 @@ Audit + scaffold de la configuration IA du projet (Claude Code standards). Cible
 | AGENTS.md (Claude operating manual) | `AGENTS.md` | `docs/templates/AGENTS.md` |
 | PRODUCT.md (product vision) | `PRODUCT.md` OU `docs/vision.md` | `docs/templates/PRODUCT.md` |
 | docs/architecture.md | `docs/architecture.md` | `docs/templates/architecture.md` |
-| docs/anti-patterns.md | `docs/anti-patterns.md` | `docs/templates/anti-patterns.md` |
+| docs/anti-patterns.md | `docs/anti-patterns.md` | `docs/anti-patterns.md` (livré par le cookbook) |
 | docs/lessons.md | `docs/lessons.md` | `docs/lessons.md` (livré par le cookbook) |
 | .mcp.json (MCP servers config) | `.mcp.json` | `docs/templates/mcp.json` |
 | .claude/skills/ (any skill) | `.claude/skills/` | via bootstrap |
@@ -116,7 +116,7 @@ docs/templates/CLAUDE.md        →  CLAUDE.md
 docs/templates/AGENTS.md        →  AGENTS.md
 docs/templates/PRODUCT.md       →  PRODUCT.md
 docs/templates/architecture.md  →  docs/architecture.md
-docs/templates/anti-patterns.md →  docs/anti-patterns.md
+docs/anti-patterns.md (cookbook)      →  docs/anti-patterns.md
 docs/lessons.md (cookbook)         →  docs/lessons.md
 docs/templates/mcp.json         →  .mcp.json
 ```

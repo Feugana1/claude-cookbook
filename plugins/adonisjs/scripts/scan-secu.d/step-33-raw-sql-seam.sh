@@ -9,7 +9,7 @@
 # Cette etape pousse a router chaque `db.rawQuery` via un seam dedie
 # (par convention : `app/services/tenant_raw.ts` exportant `tenantRaw` +
 # `systemRaw`). Voir myproject commit history + le pattern documente dans
-# `docs/anti-patterns.md` §"Raw SQL seam".
+# `docs/anti-patterns-adonisjs.md` §"Raw SQL seam".
 #
 # Configuration:
 #   - SEAM_FILE     : chemin du module seam (default: app/services/tenant_raw.ts)

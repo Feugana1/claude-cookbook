@@ -4,7 +4,7 @@
 # Lucid auto-convertit `.where('userId', ...)` → `user_id` MAIS PAS
 # `.where('table.userId', ...)` (le préfixe `table.` casse la naming-strategy).
 # Résultat : crash runtime `column "table.userId" does not exist` non détecté
-# au build TS. Cf docs/anti-patterns.md §"Base de données & ORM".
+# au build TS. Cf docs/anti-patterns-adonisjs.md §"Base de données & ORM".
 step 32 "Lucid ORM — table prefix camelCase columns" 2 "A09 Logging+Quality"
 
 if [ ! -d "app" ]; then

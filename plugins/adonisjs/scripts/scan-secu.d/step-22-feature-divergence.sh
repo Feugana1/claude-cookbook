@@ -3,7 +3,7 @@
 # ── 22. Feature duplication & convention divergence ────────────────────────
 # Detecte les "N facons differentes de faire la meme chose" : pour chaque
 # convention canonique du projet, grep les alternatives interdites. Source de
-# verite = CLAUDE.md §13 + docs/anti-patterns.md.
+# verite = CLAUDE.md §13 + docs/anti-patterns-adonisjs.md.
 #
 # Ajout d'une nouvelle convention :
 #   1. Definir le canonical (ex: `buildPublicShareMeta`)
@@ -138,7 +138,7 @@ fi
 
 # ── F. fire-and-forget promises : canonical = swallow() helper ──────────────
 # Audit 2026-04-15 a corrige 81 sites — la regex catch les .catch(() => {})
-# avec arg vide ou un seul ident, body vide. Voir docs/anti-patterns.md.
+# avec arg vide ou un seul ident, body vide. Voir docs/anti-patterns-adonisjs.md.
 FAF_RAW=$(grep -rnE "\.catch\(\(?[a-z_]*\)? *=> *\{\}\)" app/controllers/ app/services/ --include="*.ts" 2>/dev/null \
   | grep -v "//.*canonical-skip:swallow" || true)
 if [ -n "$FAF_RAW" ]; then

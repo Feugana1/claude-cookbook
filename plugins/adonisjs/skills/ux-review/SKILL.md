@@ -6,7 +6,7 @@ tools: Read, Glob, Grep, Bash
 
 # UX Review — cookbook générique
 
-Audit a page against the 6 axes from `docs/ux-audit-prompt.md` + UI density gates from `docs/anti-patterns.md` + le principe central du projet (PRODUCT.md ou équivalent). Output: actionable P0/P1/Quick wins.
+Audit a page against the 6 axes from `docs/ux-audit-prompt.md` + UI density gates from `docs/anti-patterns-adonisjs.md` + le principe central du projet (PRODUCT.md ou équivalent). Output: actionable P0/P1/Quick wins.
 
 ## When to invoke
 
@@ -38,7 +38,7 @@ grep -oE "t\\('[a-zA-Z._]+'\\)" <page>
 Read in parallel:
 - `docs/ux-audit-prompt.md` (the 6 axes)
 - `docs/design-system.md` (button/card/typography patterns)
-- `docs/anti-patterns.md` (especially "UI Density" + "Design System" sections)
+- `docs/anti-patterns-adonisjs.md` (especially "UI Density" + "Design System" sections)
 - `PRODUCT.md` (brand personality + design principles + anti-references)
 - `CLAUDE.md` §7 (design system) + §13 (anti-patterns) + §17 (workflow)
 - The page + all its partials + the controller that renders it

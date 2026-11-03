@@ -36,7 +36,7 @@ L'expert prend le dessus sur la review code, **sans complaisance**. Tu DOIS :
 - `CLAUDE.md` §13 (anti-patterns) + §14 (architecture limites)
 
 **Lire selon scope identifié** :
-- `docs/anti-patterns.md` (catalogue exhaustif)
+- `docs/anti-patterns-adonisjs.md` (catalogue exhaustif)
 - `docs/security-multitenant.md` si scope back metier
 - `docs/design-system.md` si scope front
 - `docs/accounting.md` si scope compta

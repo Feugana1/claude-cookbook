@@ -44,7 +44,7 @@ case "$rel" in
       | grep -v 'type="application/json"' \
       | grep -v "type='application/json'" \
       | grep -q .; then
-      echo "[hook:edge-P0] BLOCKED — '{{{ JSON.stringify }}}' hors <script type=\"application/json\"> dans $rel. Cf CLAUDE.md §13 + anti-patterns.md. Invoke 'edge-anti-patterns' subagent." >&2
+      echo "[hook:edge-P0] BLOCKED — '{{{ JSON.stringify }}}' hors <script type=\"application/json\"> dans $rel. Cf CLAUDE.md §13 + anti-patterns-adonisjs.md. Invoke 'edge-anti-patterns' subagent." >&2
       exit 2
     fi
     if grep -nE '@(click|input|blur|change|dragover|drop)[^"]*=' "$file" >/dev/null 2>&1; then
