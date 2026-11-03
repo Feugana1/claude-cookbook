@@ -1,0 +1,30 @@
+# Fichiers du cookbook retirés. Le bootstrap les supprime des projets cibles
+# (après sauvegarde dans .claude/.cookbook-backup/) s'ils existent encore.
+# Chemins relatifs à la racine du projet. Ajouter une ligne à chaque retrait.
+
+# agents fusionnés (backend -> architect, mobile -> frontend)
+.claude/agents/roles/backend.md
+.claude/agents/roles/mobile.md
+.claude/agents/stacks/adonisjs/workflow-email.md
+
+# commands devenues skills ou supprimées
+.claude/commands/analyze-dependencies.md
+.claude/commands/analyze-performance.md
+.claude/commands/check-fact.md
+.claude/commands/commit.md
+.claude/commands/explain-code.md
+.claude/commands/fix-error.md
+.claude/commands/plan.md
+.claude/commands/pr-create.md
+.claude/commands/pr-fix.md
+.claude/commands/pr-review.md
+.claude/commands/refactor.md
+.claude/commands/semantic-commit.md
+.claude/commands/tech-debt.md
+
+# hooks et docs retirés
+.claude/hooks/preserve-file-permissions.sh
+docs/claude-config/README.md
+docs/claude-config/skills.md
+docs/claude-config/superpowers-integration.md
+docs/claude-config/inheritance-map.md

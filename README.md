@@ -71,7 +71,7 @@ Le plugin fournit agents, skills et hooks (`hooks/hooks.json`). Il ne livre pas 
 Depuis le dossier de ton nouveau projet :
 
 ```bash
-bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|adonisjs] [--update]
+bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|<pack>] [--update] [--dry-run] [--with-git-tooling]
 ```
 
 **Choix stack (exclusif — zero redondance)** :
@@ -81,17 +81,21 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|adonisjs] [--update]
 | `--stack=none` (défaut CI non-TTY) | tous les `roles/*` génériques |
 | `--stack=adonisjs` | `roles/` non remplacés + `stacks/adonisjs/` durcis |
 
-Sans `--stack` en TTY interactif : le script propose un menu. Le mapping override roles ↔ stacks est documenté dans le README du pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
+Les stacks disponibles sont les dossiers `plugins/*/` qui contiennent un `pack.conf`. Sans `--stack` en TTY : menu généré depuis ces packs ; hors TTY : `none`. Le mapping override roles ↔ stacks est documenté dans le README du pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
 
-Copie `.claude/` (agents, skills, hooks, `settings.json`), `scripts/`, `docs/`, `.mcp.json` dans le projet courant + crée `CLAUDE.md` minimal à enrichir.
+Installe `.claude/` (agents, skills, hooks, `settings.json`), `scripts/`, `docs/`, `.mcp.json` + un `CLAUDE.md` minimal à enrichir. L'outillage git (commitlint, lefthook, markdownlint) est opt-in : `--with-git-tooling`.
 
 ### Mise à jour dans un projet existant
 
 ```bash
+bash $COOKBOOK_DIR/bootstrap-claude.sh . --update --dry-run   # voir ce qui changerait
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --update
 ```
 
-Mode update : écrase uniquement les fichiers du cookbook, ne touche pas aux fichiers spécifiques projet (`CLAUDE.md`, agents custom, hooks override, etc.).
+- **Fichiers gérés** (agents, skills, hooks, scripts, docs de référence) : mis à jour ; l'ancienne version est sauvegardée dans `.claude/.cookbook-backup/<horodatage>/`.
+- **Fichiers du projet** (`CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `docs/lessons.md`, `docs/anti-patterns.md`, docs du pack) : **jamais écrasés** ; le script signale ceux qui diffèrent de la version cookbook.
+- **Fichiers retirés du cookbook** (`plugins/core/retired.txt`) et fichiers d'un pack non retenu : sauvegardés puis supprimés (changement de stack propre).
+- Tes agents, skills et commands maison ne sont jamais touchés.
 
 ---
 

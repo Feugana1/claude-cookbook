@@ -37,11 +37,13 @@ git clone <cookbook-repo> "$COOKBOOK_DIR"
 cd <mon-projet>
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=none       # cross-stack universel
+# options : --dry-run (aperçu) · --with-git-tooling (commitlint + lefthook + markdownlint)
 ```
 
 - Sans `--stack` en TTY : menu interactif. En CI non-TTY : défaut `none`.
 - Copie `.claude/`, `scripts/`, `docs/` + crée un `CLAUDE.md` minimal à enrichir.
-- `--update` : met à jour sans toucher `CLAUDE.md`.
+- `--update` : re-synchronise. Fichiers gérés mis à jour avec sauvegarde dans `.claude/.cookbook-backup/` ; `CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `docs/lessons.md`, `docs/anti-patterns.md` jamais écrasés.
+- Changer de stack avec `--update --stack=<autre>` retire proprement les fichiers de l'ancien pack (sauvegardés).
 
 ## 2. Ce que le cookbook installe
 
