@@ -24,6 +24,7 @@ NC='\033[0m'
 
 # Localise la racine du cookbook (= dossier du script)
 COOKBOOK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CORE="$COOKBOOK_ROOT/plugins/core"          # générique, toujours installé
 
 if [ $# -lt 1 ]; then
   echo -e "${RED}Usage: bash bootstrap-claude.sh <path-to-project> [--stack=none|adonisjs] [--update]${NC}"
@@ -54,8 +55,8 @@ fi
 
 # ── Résolution du mode stack ────────────────────────────────────────────────
 # Sources de vérité mapping : docs/claude-config/inheritance-map.md
-# Mode `none`     : 10 roles/ (générique cross-stack)
-# Mode `adonisjs` : 6 roles/ (kept) + 7 stacks/adonisjs/ (installs)
+# Mode `none`     : tous les roles/ (générique cross-stack)
+# Mode `adonisjs` : roles/ non remplacés + stacks/adonisjs/
 #   Roles conservés : analyzer, frontend, mobile, performance, product-strategist, qa
 #   Roles remplacés : architect, backend (→ back-architect) ; reviewer (→ code-reviewer) ;
 #                     security (→ security-multitenant)
@@ -83,6 +84,8 @@ case "$STACK" in
   *) echo -e "${RED}Stack invalide : $STACK (attendu : none|adonisjs)${NC}"; exit 1 ;;
 esac
 
+PACK="$COOKBOOK_ROOT/plugins/$STACK"
+
 echo -e "${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo -e "${BOLD}  Claude Cookbook → Bootstrap${NC}"
 echo -e "${BOLD}═══════════════════════════════════════════════════════════════${NC}"
@@ -98,28 +101,27 @@ mkdir -p "$TARGET/.claude/skills"
 mkdir -p "$TARGET/.claude/hooks"
 mkdir -p "$TARGET/scripts"
 mkdir -p "$TARGET/docs/claude-config"
-mkdir -p "$TARGET/.claude-plugin"
 [ "$STACK" = "adonisjs" ] && mkdir -p "$TARGET/.claude/agents/stacks/adonisjs"
 
 # ── Copier les agents (install sélectif selon $STACK) ──────────────────────
 # Source de vérité mapping : docs/claude-config/inheritance-map.md
 if [ "$STACK" = "none" ]; then
-  echo -e "${GREEN}[1/6]${NC} Agents (10 roles/ génériques opus — mode generic cross-stack)..."
-  for f in "$COOKBOOK_ROOT"/.claude/agents/roles/*.md; do
+  echo -e "${GREEN}[1/6]${NC} Agents (roles/ génériques — mode generic cross-stack)..."
+  for f in "$CORE"/agents/*.md; do
     cp "$f" "$TARGET/.claude/agents/roles/"
     echo "    + roles/$(basename "$f")"
   done
 else
-  # Mode adonisjs : 6 roles/ conservés + 7 stacks/adonisjs/ (les 4 roles remplacés — architect/backend/reviewer/security — ne sont PAS copiés)
-  echo -e "${GREEN}[1/6]${NC} Agents (6 roles/ conservés + 7 stacks/adonisjs/ = 13 agents, mode adonisjs)..."
+  # Mode adonisjs : roles/ conservés + stacks/adonisjs/ (les 4 roles remplacés — architect/backend/reviewer/security — ne sont PAS copiés)
+  echo -e "${GREEN}[1/6]${NC} Agents (roles/ non remplacés + stacks/adonisjs/, mode adonisjs)..."
   for name in "${ROLES_ADONISJS_KEPT[@]}"; do
-    src="$COOKBOOK_ROOT/.claude/agents/roles/${name}.md"
+    src="$CORE/agents/${name}.md"
     if [ -f "$src" ]; then
       cp "$src" "$TARGET/.claude/agents/roles/"
       echo "    + roles/${name}.md"
     fi
   done
-  for f in "$COOKBOOK_ROOT"/.claude/agents/stacks/adonisjs/*.md; do
+  for f in "$PACK"/agents/*.md; do
     cp "$f" "$TARGET/.claude/agents/stacks/adonisjs/"
     echo "    + stacks/adonisjs/$(basename "$f")"
   done
@@ -129,46 +131,50 @@ fi
 # ── Copier les skills + commands ──────────────────────────────────
 # NB strip trailing slash sinon macOS BSD cp copie le CONTENU au lieu du dossier
 echo -e "${GREEN}[2/6]${NC} Skills + commands..."
-for dir in "$COOKBOOK_ROOT"/.claude/skills/*/; do
+SKILL_DIRS=("$CORE"/skills/*/)
+[ "$STACK" = "adonisjs" ] && SKILL_DIRS+=("$PACK"/skills/*/)
+for dir in "${SKILL_DIRS[@]}"; do
   skillname=$(basename "$dir")
   cp -r "${dir%/}" "$TARGET/.claude/skills/"
   echo "    + skill /$skillname"
 done
 mkdir -p "$TARGET/.claude/commands"
-for f in "$COOKBOOK_ROOT"/.claude/commands/*.md; do
+for f in "$CORE"/commands/*.md; do
   cp "$f" "$TARGET/.claude/commands/"
   echo "    + command /$(basename "$f" .md)"
 done
 
-# ── Copier les hooks (3) ────────────────────────────────────────────────────
-echo -e "${GREEN}[3/6]${NC} Hooks (3 : dispatch-expert + precommit-check + preserve-file-permissions)..."
-cp "$COOKBOOK_ROOT/.claude/hooks/dispatch-expert.sh" "$TARGET/.claude/hooks/"
-cp "$COOKBOOK_ROOT/.claude/hooks/precommit-check.sh" "$TARGET/.claude/hooks/"
-cp "$COOKBOOK_ROOT/.claude/hooks/preserve-file-permissions.sh" "$TARGET/.claude/hooks/"
+# ── Copier les hooks ────────────────────────────────────────────────────────
+echo -e "${GREEN}[3/6]${NC} Hooks..."
+for f in "$CORE"/hooks/*.sh; do
+  cp "$f" "$TARGET/.claude/hooks/"
+  echo "    + $(basename "$f")"
+done
+if [ "$STACK" = "adonisjs" ]; then
+  for f in "$PACK"/hooks/*.sh; do
+    cp "$f" "$TARGET/.claude/hooks/"
+    echo "    + $(basename "$f") (pack adonisjs)"
+  done
+fi
 chmod +x "$TARGET/.claude/hooks/"*.sh
-echo "    + dispatch-expert.sh (chmod +x)"
-echo "    + precommit-check.sh (chmod +x)"
-echo "    + preserve-file-permissions.sh (chmod +x)"
 
 # ── Copier les scripts qualité ──────────────────────────────────────────────
 echo -e "${GREEN}[4/6]${NC} Scripts qualité..."
-cp "$COOKBOOK_ROOT/scripts/scan-secu.sh" "$TARGET/scan-secu.sh"
+cp "$CORE/scripts/scan-secu.sh" "$TARGET/scan-secu.sh"
 chmod +x "$TARGET/scan-secu.sh"
 mkdir -p "$TARGET/scripts/scan-secu.d"
-cp "$COOKBOOK_ROOT/scripts/scan-secu.d/"*.sh "$TARGET/scripts/scan-secu.d/"
-cp "$COOKBOOK_ROOT/scripts/check-file-sizes.js" "$TARGET/scripts/"
-cp "$COOKBOOK_ROOT/scripts/generate-sbom.sh" "$TARGET/scripts/"
-cp "$COOKBOOK_ROOT/scripts/statusline.sh" "$TARGET/scripts/"
-cp "$COOKBOOK_ROOT/scripts/scan-ai-config.sh" "$TARGET/scripts/"
-cp "$COOKBOOK_ROOT/scripts/scan-prod-readiness.sh" "$TARGET/scripts/"
-chmod +x "$TARGET/scripts/generate-sbom.sh" "$TARGET/scripts/statusline.sh" "$TARGET/scripts/scan-ai-config.sh" "$TARGET/scripts/scan-prod-readiness.sh"
-echo "    + scan-secu.sh (root, chmod +x) — 41 steps tier OWASP T1/T2/T3"
-echo "    + scripts/scan-secu.d/ — 41 step modules"
-echo "    + scripts/check-file-sizes.js — ratchet §14 CI"
-echo "    + scripts/generate-sbom.sh (chmod +x) — CycloneDX SBOM"
-echo "    + scripts/statusline.sh (chmod +x) — model + \$/jour + %tokens"
-echo "    + scripts/scan-ai-config.sh (chmod +x) — 18 standards Claude Code / gap analysis"
-echo "    + scripts/scan-prod-readiness.sh (chmod +x) — signals discovery / capabilities V0"
+cp "$CORE"/scripts/scan-secu.d/*.sh "$TARGET/scripts/scan-secu.d/"
+echo "    + scan-secu.sh (root) + scripts/scan-secu.d/ (steps génériques)"
+if [ "$STACK" = "adonisjs" ]; then
+  cp "$PACK"/scripts/scan-secu.d/*.sh "$TARGET/scripts/scan-secu.d/"
+  cp "$PACK/scripts/check-file-sizes.js" "$TARGET/scripts/"
+  echo "    + steps scan-secu du pack adonisjs + scripts/check-file-sizes.js"
+fi
+for f in generate-sbom.sh statusline.sh scan-ai-config.sh scan-prod-readiness.sh; do
+  cp "$CORE/scripts/$f" "$TARGET/scripts/"
+  chmod +x "$TARGET/scripts/$f"
+  echo "    + scripts/$f"
+done
 
 # ── Copier la doc ───────────────────────────────────────────────────────────
 echo -e "${GREEN}[5/6]${NC} Docs Claude..."
@@ -192,10 +198,7 @@ echo "    + docs/claude-config/{experts,inheritance-map,setup}.md"
 echo "    + docs/templates/ (CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, mcp.json + husky/scan-secu-weekly/.gitleaks)"
 
 # ── Manifest plugin + settings.json + .mcp.json + config ────────────────────
-echo -e "${GREEN}[6/6]${NC} Plugin manifest + settings.json + MCP + Conventional Commits config..."
-cp "$COOKBOOK_ROOT/.claude-plugin/plugin.json" "$TARGET/.claude-plugin/"
-cp "$COOKBOOK_ROOT/.claude-plugin/marketplace.json" "$TARGET/.claude-plugin/"
-echo "    + .claude-plugin/plugin.json + marketplace.json"
+echo -e "${GREEN}[6/6]${NC} settings.json + MCP + Conventional Commits config..."
 
 # settings.json : ne pas écraser si présent
 if [ ! -f "$TARGET/settings.json" ]; then
@@ -253,7 +256,6 @@ echo -e "  ${GREEN}${BOLD}✓ Bootstrap terminé${NC}"
 echo -e "${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${BOLD}Installé dans ${TARGET}${NC} :"
-echo -e "  • .claude-plugin/{plugin,marketplace}.json (plugin natif Claude Code)"
 echo -e "  • settings.json (permissions deny + hooks wire + env + statusLine — copié si absent)"
 echo -e "  • .mcp.json (Context7 + sequential-thinking + fetch + github — copié si absent)"
 echo -e "  • commitlint.config.js + lefthook.yml + .markdownlint.json (Conventional Commits + linting)"

@@ -22,7 +22,8 @@ Optionnels pour `scan-secu.sh` complet : `trivy`, `gitleaks`, `jscpd`, `license-
 
 ```bash
 /plugin marketplace add <owner>/claude-cookbook
-/plugin install cookbook@claude-cookbook
+/plugin install cookbook-core@claude-cookbook
+/plugin install cookbook-adonisjs@claude-cookbook   # optionnel : pack AdonisJS
 ```
 
 Un plugin fournit agents, skills et hooks. Il **ne livre pas** les `permissions` ni les `hooks` d'un `settings.json` : seules les clés `agent` et `subagentStatusLine` d'un `settings.json` de plugin sont appliquées. Pour les deny-rules, utiliser la voie B ou copier le bloc `permissions` dans le `settings.json` du projet.

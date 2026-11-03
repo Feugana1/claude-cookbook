@@ -92,15 +92,36 @@ tier_banner() {
 
 # ── Resolve script dir + step modules ───────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-STEPS_DIR="$SCRIPT_DIR/scan-secu.d"
+# Steps core : à côté du script (cookbook, ou scripts/ cible) ou, si le script
+# est copié à la racine d'un projet, dans scripts/scan-secu.d.
+if [ -d "$SCRIPT_DIR/scan-secu.d" ]; then
+  STEPS_DIR="$SCRIPT_DIR/scan-secu.d"
+else
+  STEPS_DIR="$SCRIPT_DIR/scripts/scan-secu.d"
+fi
 if [ ! -d "$STEPS_DIR" ]; then
-  echo -e "${RED}ERROR: $STEPS_DIR missing — cookbook scan-secu.d/ directory not found.${NC}" >&2
+  echo -e "${RED}ERROR: scan-secu.d/ introuvable (cherché dans $SCRIPT_DIR et $SCRIPT_DIR/scripts).${NC}" >&2
   exit 2
 fi
 
-# TOTAL is the count of step files — adding a new step file under
-# scan-secu.d/ auto-bumps it without touching this orchestrator.
-TOTAL=$(find "$STEPS_DIR" -maxdepth 1 -name 'step-*.sh' -type f 2>/dev/null | wc -l | tr -d ' \r')
+# Steps additionnels (packs de stack) : SECU_EXTRA_STEPS_DIRS="dir1:dir2".
+# Après bootstrap, les steps du pack sont déjà fusionnés dans STEPS_DIR.
+# Tous les steps sont exécutés triés par nom de fichier, quel que soit leur dossier.
+STEP_FILES=$(
+  {
+    find "$STEPS_DIR" -maxdepth 1 -name 'step-*.sh' -type f
+    IFS=':' read -r -a _extra_dirs <<< "${SECU_EXTRA_STEPS_DIRS:-}"
+    for d in "${_extra_dirs[@]:-}"; do
+      if [ -n "$d" ] && [ -d "$d" ]; then
+        find "$d" -maxdepth 1 -name 'step-*.sh' -type f
+      fi
+    done
+  } | awk -F/ '{print $NF "\t" $0}' | sort | cut -f2-
+)
+
+# TOTAL = nombre de steps trouvés : ajouter un fichier step-*.sh l'incrémente
+# sans toucher cet orchestrateur.
+TOTAL=$(printf '%s\n' "$STEP_FILES" | grep -c . || true)
 
 # ─── CLI mode: --full (default) | --diff [<base>] ─────────────────────────
 # --diff : skip global-scope steps (build/typecheck/npm audit/Trivy/SBOM…) and
@@ -173,7 +194,9 @@ echo -e "${BOLD}============================================${NC}"
 # ── Run all steps in numeric order ──────────────────────────────────────────
 # Each step file is sourced (not exec'd) so it sees the helpers + state.
 # shellcheck disable=SC1090
-for step_file in "$STEPS_DIR"/step-*.sh; do
+STEP_ARR=()
+while IFS= read -r _f; do [ -n "$_f" ] && STEP_ARR+=("$_f"); done <<< "$STEP_FILES"
+for step_file in "${STEP_ARR[@]}"; do
   [ -f "$step_file" ] || continue
   source "$step_file"
 done

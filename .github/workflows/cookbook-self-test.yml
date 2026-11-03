@@ -68,7 +68,7 @@ jobs:
       - name: Validate each agent has name/description/tools frontmatter
         run: |
           fail=0
-          for f in $(find .claude/agents -name '*.md' -type f); do
+          for f in $(find plugins/*/agents -name '*.md' -type f); do
             [ -f "$f" ] || continue
             # Extract frontmatter (between --- markers)
             frontmatter=$(awk '/^---$/{c++; if(c==2)exit; next} c==1' "$f")
@@ -108,7 +108,7 @@ jobs:
       - name: Validate each skill has name/description
         run: |
           fail=0
-          for f in .claude/skills/*/SKILL.md; do
+          for f in plugins/*/skills/*/SKILL.md; do
             [ -f "$f" ] || continue
             frontmatter=$(awk '/^---$/{c++; if(c==2)exit; next} c==1' "$f")
             if [ -z "$frontmatter" ]; then
@@ -140,7 +140,7 @@ jobs:
           # Cookbook n'a pas d'app back → beaucoup de SKIP + quelques FAIL attendus.
           # Ce job vérifie que le script tourne jusqu'au verdict sans crash silencieux.
           set +e
-          bash scripts/scan-secu.sh --diff 2>&1 | tee /tmp/scan-out.log
+          SECU_EXTRA_STEPS_DIRS=plugins/adonisjs/scripts/scan-secu.d bash plugins/core/scripts/scan-secu.sh --diff 2>&1 | tee /tmp/scan-out.log
           exit_code=$?
           set -e
 

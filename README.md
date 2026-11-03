@@ -19,58 +19,39 @@ bash scripts/inventory.sh --json   # machine-readable
 
 ## Structure
 
+Un marketplace, deux plugins : un **core** générique et des **packs de stack** optionnels.
+
 ```
-.claude-plugin/
-├── marketplace.json    manifest marketplace (1 plugin déclaré : cookbook)
-└── plugin.json         manifest plugin (source unique de la version)
+.claude-plugin/marketplace.json      déclare cookbook-core + cookbook-adonisjs
 
-.claude/
-├── agents/
-│   ├── roles/          rôles génériques opus (1 fichier par use case, miroir wasabeef)
-│   │                   analyzer, architect, backend, frontend, mobile, performance,
-│   │                   product-strategist, qa, reviewer, security
-│   └── stacks/
-│       └── adonisjs/   experts stack-aware (couches 1-5, sonnet/haiku)
-│                       back-architect, code-reviewer, data-access-reviewer,
-│                       edge-anti-patterns, migration-reviewer, security-multitenant,
-│                       workflow-email
-├── skills/             skills (/feature, /pre-pr, /secu, /ux-review, /multi-agent, /ai-config, /prod-readiness)
-├── commands/           productivity commands (/commit, /pr-*, /refactor, /explain-code, /tech-debt, ...)
-└── hooks/              hooks (dispatch-expert + precommit-check + preserve-file-permissions)
+plugins/
+├── core/                            générique, aucune mention de stack
+│   ├── .claude-plugin/plugin.json   source unique de la version
+│   ├── agents/                      rôles génériques (1 fichier par use case)
+│   ├── skills/                      /feature /pre-pr /secu /ai-config /prod-readiness /multi-agent
+│   ├── commands/                    commands productivité (/commit, /pr-*, …)
+│   ├── hooks/                       precommit-check, preserve-file-permissions
+│   └── scripts/                     scan-secu.sh + scan-secu.d/ (steps génériques),
+│                                    scan-ai-config, scan-prod-readiness, sbom, statusline
+└── adonisjs/                        pack optionnel, dépend de cookbook-core
+    ├── .claude-plugin/plugin.json
+    ├── agents/                      experts stack-aware (couches 1-5)
+    ├── skills/                      /ux-review (Edge)
+    ├── hooks/                       dispatch-expert (patterns P0 Adonis)
+    └── scripts/                     steps scan-secu Edge/Lucid/Adonis, check-file-sizes.js
 
-settings.json           permissions deny larges + hooks wire + env + statusLine
-.mcp.json               MCP servers template (Context7 + sequential-thinking + fetch + github)
-commitlint.config.js    Conventional Commits enforcement
-lefthook.yml            git hooks orchestrator (commit-msg + pre-commit)
-.markdownlint.json      markdown style consistent
-package.json            devDeps + scripts
-
-scripts/
-├── scan-secu.sh        orchestrator ~220L (helpers + counters + verdict + --diff mode)
-│                       Modes : --full (pre-push, 2-3min) | --diff [<base>] (pre-commit, ~3s)
-│                       SECU_DIFF_STAGED=1 pour scan git diff --cached (pre-commit hook)
-├── scan-secu.d/        stateless step modules sourced in order (tier OWASP T1/T2/T3)
-│                       Drop a `step-NN-<slug>.sh` → TOTAL auto-bumps
-├── check-file-sizes.js ratchet CI tailles fichiers (controllers/services/templates)
-├── generate-sbom.sh    CycloneDX 1.6 SBOM front + back
-└── statusline.sh       statusline model + $/jour (ccusage) + %tokens
-
-docs/templates/
-├── .gitleaks.toml           allowlist test fixtures + local dev + historical commits
-├── husky-pre-commit.sh      wire scan-secu --diff en pre-commit (~3s)
-└── scan-secu-weekly.yml     cron GH Actions lundi 06:00 UTC + issue auto Tier-1
-
-docs/
-├── lessons.md              Karpathy 4 disciplines + leçons process (template générique)
-├── anti-patterns.md        Catalogue exhaustif anti-patterns Edge/Alpine/AdonisJS/ORM/sécu
-├── feature-plan-template.md Template unifié spec + plan + completeness (~200L max)
-│                            Inclut §1b EARS notation + §3b threat model T1-T18
-├── ux-audit-prompt.md      6 axes audit UX (User-first, PLG, DS, restraint cognitif…)
-└── claude-config/          Catalogue agents (experts.md), mapping rôles↔stack, setup (install + vérif)
-
-.github/workflows/
-└── cookbook-self-test.yml  CI cookbook lui-même (bash-lint, JSON/YAML valid, frontmatter, scan-secu no-crash, leak-check)
+bootstrap-claude.sh                  fallback : copie core (+ pack) dans un projet
+scripts/inventory.sh                 comptes générés depuis le filesystem
+docs/                                lessons, anti-patterns, templates, claude-config/
+settings.json  .mcp.json             templates de config (copiés par le bootstrap)
+commitlint.config.js  lefthook.yml  .markdownlint.json   outillage du cookbook
 ```
+
+Le layout **installé** dans un projet cible reste `.claude/{agents,skills,commands,hooks}`, `scripts/` et `scan-secu.sh`.
+
+Ajouter une stack = créer `plugins/<stack>/` (mêmes sous-dossiers que `adonisjs`) + une entrée dans `marketplace.json`. Aucune modification du core.
+
+**Plugin vs bootstrap** : installer `cookbook-core` + `cookbook-adonisjs` en plugin donne *tous* les agents, y compris les rôles génériques que le pack durcit (`architect` et `back-architect` coexistent). Seul `bootstrap-claude.sh --stack=adonisjs` retire les rôles remplacés (zéro redondance).
 
 ---
 
@@ -81,7 +62,8 @@ docs/
 ```bash
 # Depuis n'importe où :
 /plugin marketplace add <owner>/claude-cookbook
-/plugin install cookbook@claude-cookbook
+/plugin install cookbook-core@claude-cookbook
+/plugin install cookbook-adonisjs@claude-cookbook   # optionnel : pack AdonisJS
 ```
 
 Le plugin fournit agents, skills et hooks. Les `permissions` d'un `settings.json` de plugin ne sont pas appliquées : voir [`setup.md`](docs/claude-config/setup.md).

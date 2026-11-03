@@ -8,31 +8,47 @@ cd "$ROOT"
 
 count() { find "$@" -type f 2>/dev/null | wc -l | tr -d ' '; }
 
-ROLES=$(count .claude/agents/roles -name '*.md')
-STACK_AGENTS=$(count .claude/agents/stacks -name '*.md')
-SKILLS=$(find .claude/skills -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
-COMMANDS=$(count .claude/commands -name '*.md')
-HOOKS=$(count .claude/hooks -name '*.sh')
-SECU_STEPS=$(count scripts/scan-secu.d -name 'step-*.sh')
-CAPABILITIES=$(count .claude/skills/prod-readiness/capabilities -name '*.yaml')
+CORE=plugins/core
+PACKS=$(find plugins -mindepth 1 -maxdepth 1 -type d ! -name core 2>/dev/null | sort)
+
+ROLES=$(count $CORE/agents -name '*.md')
+SKILLS=$(find $CORE/skills -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+COMMANDS=$(count $CORE/commands -name '*.md')
+HOOKS=$(count $CORE/hooks -name '*.sh')
+SECU_STEPS=$(count $CORE/scripts/scan-secu.d -name 'step-*.sh')
+CAPABILITIES=$(count $CORE/skills/prod-readiness/capabilities -name '*.yaml')
 TEMPLATES=$(count docs/templates)
-VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' .claude-plugin/plugin.json | head -1)
+VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' $CORE/.claude-plugin/plugin.json | head -1)
+
+pack_json=""
+pack_txt=""
+for p in $PACKS; do
+  n=$(basename "$p")
+  a=$(count "$p/agents" -name '*.md')
+  sk=$(find "$p/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+  h=$(count "$p/hooks" -name '*.sh')
+  st=$(count "$p/scripts/scan-secu.d" -name 'step-*.sh')
+  pack_json="${pack_json:+$pack_json,}\"$n\":{\"agents\":$a,\"skills\":$sk,\"hooks\":$h,\"scan_secu_steps\":$st}"
+  pack_txt="${pack_txt}  pack ${n}: agents ${a} · skills ${sk} · hooks ${h} · scan-secu steps ${st}   ${p}/"$'\n'
+done
 
 if [ "${1:-}" = "--json" ]; then
-  printf '{"version":"%s","roles":%s,"stack_agents":%s,"skills":%s,"commands":%s,"hooks":%s,"scan_secu_steps":%s,"prod_readiness_capabilities":%s,"templates":%s}\n' \
-    "$VERSION" "$ROLES" "$STACK_AGENTS" "$SKILLS" "$COMMANDS" "$HOOKS" "$SECU_STEPS" "$CAPABILITIES" "$TEMPLATES"
+  printf '{"version":"%s","core":{"agents":%s,"skills":%s,"commands":%s,"hooks":%s,"scan_secu_steps":%s,"prod_readiness_capabilities":%s},"packs":{%s},"templates":%s}\n' \
+    "$VERSION" "$ROLES" "$SKILLS" "$COMMANDS" "$HOOKS" "$SECU_STEPS" "$CAPABILITIES" "$pack_json" "$TEMPLATES"
   exit 0
 fi
 
-cat <<EOF
+cat <<TXT
 claude-cookbook v${VERSION}
 
-  roles (generic agents)      ${ROLES}   .claude/agents/roles/
-  stack agents                ${STACK_AGENTS}   .claude/agents/stacks/
-  skills                      ${SKILLS}   .claude/skills/
-  commands                    ${COMMANDS}   .claude/commands/
-  hooks                       ${HOOKS}   .claude/hooks/
-  scan-secu steps             ${SECU_STEPS}   scripts/scan-secu.d/
-  prod-readiness capabilities ${CAPABILITIES}   .claude/skills/prod-readiness/capabilities/
-  templates                   ${TEMPLATES}   docs/templates/
-EOF
+core  (${CORE}/)
+  agents                      ${ROLES}
+  skills                      ${SKILLS}
+  commands                    ${COMMANDS}
+  hooks                       ${HOOKS}
+  scan-secu steps             ${SECU_STEPS}
+  prod-readiness capabilities ${CAPABILITIES}
+
+${pack_txt}
+templates                     ${TEMPLATES}   docs/templates/
+TXT

@@ -1,0 +1,16 @@
+{
+  "name": "cookbook-adonisjs",
+  "description": "Pack stack AdonisJS/Node/TS pour cookbook-core : experts stack-aware, hooks dispatcher, steps scan-secu Edge/Lucid, audit UX.",
+  "author": {
+    "name": "Lionel FOTSO"
+  },
+  "license": "MIT",
+  "keywords": [
+    "adonisjs",
+    "typescript",
+    "multi-tenant"
+  ],
+  "dependencies": [
+    "cookbook-core"
+  ]
+}
