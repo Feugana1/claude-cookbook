@@ -2,10 +2,10 @@
 # ============================================================================
 # statusline.sh — Claude Code statusline (model + $/day + %tokens)
 #
-# Wire dans settings.json :
+# Wire dans .claude/settings.json :
 #   "statusLine": {
 #     "type": "command",
-#     "command": "${CLAUDE_PLUGIN_ROOT}/scripts/statusline.sh",
+#     "command": "\"$CLAUDE_PROJECT_DIR/scripts/statusline.sh\"",
 #     "refreshInterval": 30
 #   }
 #

@@ -29,7 +29,7 @@ plugins/
 │   ├── .claude-plugin/plugin.json   source unique de la version
 │   ├── agents/                      rôles génériques (1 fichier par use case)
 │   ├── skills/                      /feature /pre-pr /secu /commit /pr /refactor /multi-agent /ai-config /prod-readiness
-│   ├── hooks/                       precommit-check, preserve-file-permissions
+│   ├── hooks/                       precommit-check
 │   └── scripts/                     scan-secu.sh + scan-secu.d/ (steps génériques),
 │                                    scan-ai-config, scan-prod-readiness, sbom, statusline
 └── adonisjs/                        pack optionnel, dépend de cookbook-core
@@ -42,7 +42,6 @@ plugins/
 bootstrap-claude.sh                  fallback : copie core (+ pack) dans un projet
 scripts/inventory.sh                 comptes générés depuis le filesystem
 docs/                                lessons, anti-patterns, templates, claude-config/
-settings.json  .mcp.json             templates de config (copiés par le bootstrap)
 commitlint.config.js  lefthook.yml  .markdownlint.json   outillage du cookbook
 ```
 
@@ -65,7 +64,7 @@ Ajouter une stack = créer `plugins/<stack>/` (mêmes sous-dossiers que `adonisj
 /plugin install cookbook-adonisjs@claude-cookbook   # optionnel : pack AdonisJS
 ```
 
-Le plugin fournit agents, skills et hooks. Les `permissions` d'un `settings.json` de plugin ne sont pas appliquées : voir [`setup.md`](docs/claude-config/setup.md).
+Le plugin fournit agents, skills et hooks (`hooks/hooks.json`). Il ne livre pas de règles `permissions` (un `settings.json` de plugin n'applique que `agent` et `subagentStatusLine`) : voir [`setup.md`](docs/claude-config/setup.md).
 
 ### Voie B — Bootstrap script (fallback)
 
@@ -84,7 +83,7 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|adonisjs] [--update]
 
 Sans `--stack` en TTY interactif : le script propose un menu. Le mapping override roles ↔ stacks est documenté dans le README du pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
 
-Copie `.claude/`, `.claude-plugin/`, `scripts/`, `docs/`, `settings.json`, `.mcp.json` dans le projet courant + crée `CLAUDE.md` minimal à enrichir.
+Copie `.claude/` (agents, skills, hooks, `settings.json`), `scripts/`, `docs/`, `.mcp.json` dans le projet courant + crée `CLAUDE.md` minimal à enrichir.
 
 ### Mise à jour dans un projet existant
 

@@ -199,19 +199,27 @@ echo "    + docs/templates/ (CLAUDE, AGENTS, PRODUCT, architecture, mcp.json, ex
 # ── Manifest plugin + settings.json + .mcp.json + config ────────────────────
 echo -e "${GREEN}[6/6]${NC} settings.json + MCP + Conventional Commits config..."
 
-# settings.json : ne pas écraser si présent
-if [ ! -f "$TARGET/settings.json" ]; then
-  cp "$COOKBOOK_ROOT/settings.json" "$TARGET/settings.json"
-  echo "    + settings.json (permissions deny + hooks wire + env + statusLine)"
-  echo -e "    ${YELLOW}NOTE${NC}: hooks wire via \${CLAUDE_PLUGIN_ROOT} — restart Claude Code pour les activer."
+# .claude/settings.json (settings de projet) : ne pas écraser si présent.
+# Baseline deny + hook pré-commit ; en mode adonisjs, fusion du fragment de hooks du pack (jq).
+mkdir -p "$TARGET/.claude"
+if [ ! -f "$TARGET/.claude/settings.json" ]; then
+  if [ "$STACK" = "adonisjs" ] && [ -f "$PACK/settings.hooks.json" ] && command -v jq >/dev/null 2>&1; then
+    jq -s '.[0] * .[1]' "$COOKBOOK_ROOT/docs/templates/settings.json" "$PACK/settings.hooks.json" > "$TARGET/.claude/settings.json"
+    echo "    + .claude/settings.json (deny + hooks pré-commit et dispatcher du pack)"
+  else
+    cp "$COOKBOOK_ROOT/docs/templates/settings.json" "$TARGET/.claude/settings.json"
+    echo "    + .claude/settings.json (deny + hook pré-commit)"
+    [ "$STACK" = "adonisjs" ] && echo -e "    ${YELLOW}NOTE${NC}: jq absent — ajouter à la main le hook du dispatcher (voir plugins/adonisjs/settings.hooks.json)."
+  fi
+  echo -e "    ${YELLOW}NOTE${NC}: redémarrer Claude Code pour activer les hooks."
 else
-  echo -e "    ${YELLOW}settings.json déjà présent — préservé (fusionner manuellement si nécessaire).${NC}"
+  echo -e "    ${YELLOW}.claude/settings.json déjà présent — préservé (fusionner à la main : docs/templates/settings.json).${NC}"
 fi
 
 # .mcp.json : idem, ne pas écraser
 if [ ! -f "$TARGET/.mcp.json" ]; then
-  cp "$COOKBOOK_ROOT/.mcp.json" "$TARGET/.mcp.json"
-  echo "    + .mcp.json (Context7 + sequential-thinking + fetch + github)"
+  cp "$COOKBOOK_ROOT/docs/templates/mcp.json" "$TARGET/.mcp.json"
+  echo "    + .mcp.json (Context7)"
 else
   echo -e "    ${YELLOW}.mcp.json déjà présent — préservé (fusionner manuellement si nécessaire).${NC}"
 fi
@@ -255,8 +263,8 @@ echo -e "  ${GREEN}${BOLD}✓ Bootstrap terminé${NC}"
 echo -e "${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${BOLD}Installé dans ${TARGET}${NC} :"
-echo -e "  • settings.json (permissions deny + hooks wire + env + statusLine — copié si absent)"
-echo -e "  • .mcp.json (Context7 + sequential-thinking + fetch + github — copié si absent)"
+echo -e "  • .claude/settings.json (permissions deny + hooks + env + statusLine — copié si absent)"
+echo -e "  • .mcp.json (Context7 — copié si absent)"
 echo -e "  • commitlint.config.js + lefthook.yml + .markdownlint.json (Conventional Commits + linting)"
 _n() { find "$@" -type f 2>/dev/null | wc -l | tr -d ' '; }
 N_AGENTS=$(_n "$TARGET/.claude/agents" -name '*.md')

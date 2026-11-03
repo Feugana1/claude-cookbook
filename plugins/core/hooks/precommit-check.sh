@@ -1,109 +1,96 @@
 #!/usr/bin/env bash
 # Claude Code hook — PreToolUse Bash
 #
-# Intercepte les appels Bash. Si la commande contient `git commit` (hors
-# annulation, --amend interactif, etc.), lance des checks rapides avant
-# d'autoriser le commit :
-#   - npm run typecheck (tsc --noEmit)
-#   - node scripts/check-file-sizes.js (ratchet baseline)
+# Avant un vrai `git commit`, lance des checks rapides et bloque (exit 2) si l'un échoue :
+#   1. typecheck, si des .ts/.tsx sont concernés et que le projet a un script
+#      `typecheck` / `type-check` (npm, pnpm, yarn ou bun détecté par lockfile)
+#   2. ratchet de taille de fichiers, si `scripts/check-file-sizes.js` existe
+# Puis suggère (stderr, exit 0) la review du reviewer final pour un diff non trivial.
 #
-# Source de vérité : CLAUDE.md §1 (commandes courantes), §14 (limites taille),
-# scan-secu.sh étape 19 (file size ratchet).
-#
-# Comportement :
-#   - exit 2 (BLOCK) si typecheck ou check:sizes fail → message en stderr
-#   - exit 0 (PASS) sinon
-#
-# Bypass volontaire : impossible via le hook (volontaire). Si vraiment
-# nécessaire, retirer temporairement l'entrée hooks dans settings.json.
+# Aucun check n'est inventé : sans script correspondant, l'étape est sautée.
+# Bypass volontaire impossible depuis le hook ; pour le désactiver, retirer son
+# entrée de hooks.json (plugin) ou de .claude/settings.json (bootstrap).
 
 set -euo pipefail
 
+if ! command -v jq >/dev/null 2>&1; then
+  echo "[hook:precommit] jq introuvable : checks pré-commit désactivés. Installer jq." >&2
+  exit 0
+fi
+
 input=$(cat 2>/dev/null || echo '{}')
-tool=$(echo "$input" | jq -r '.tool_name // empty' 2>/dev/null || echo "")
-[ "$tool" = "Bash" ] || exit 0
+[ "$(printf '%s' "$input" | jq -r '.tool_name // empty')" = "Bash" ] || exit 0
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
 
-cmd=$(echo "$input" | jq -r '.tool_input.command // empty' 2>/dev/null || echo "")
+# Un vrai `git commit` : en début de commande ou après ; && || | ( , avec options
+# globales éventuelles (-C dir, -c k=v). Exclut `git commit-tree`, --dry-run, --help.
+re='(^|[;&|(][[:space:]]*)git([[:space:]]+(-C[[:space:]]+[^[:space:]]+|-c[[:space:]]+[^[:space:]]+|--no-pager))*[[:space:]]+commit([[:space:]]|$)'
+[[ $cmd =~ $re ]] || exit 0
+case "$cmd" in *--dry-run*|*--help*) exit 0 ;; esac
 
-# Filtre : ne déclencher QUE sur git commit "vraiment commit"
-case "$cmd" in
-  *git\ commit*)
-    # Exclure les variantes qui ne créent pas réellement de commit
-    case "$cmd" in
-      *--dry-run*|*--help*|*-h\ *|*--show-current-patch*) exit 0 ;;
-    esac
-    ;;
-  *) exit 0 ;;
-esac
+project="${CLAUDE_PROJECT_DIR:-$(printf '%s' "$input" | jq -r '.cwd // empty')}"
+cd "${project:-.}" 2>/dev/null || exit 0
+git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
-# Détecter quels paths sont staged — checks conditionnels
-# Évite faux positifs sur commits doc/config qui ne touchent pas le code
-staged=$(git diff --cached --name-only 2>/dev/null || echo "")
-
-has_ts_or_edge=0
-has_app_or_views=0
-echo "$staged" | while IFS= read -r f; do
-  case "$f" in
-    *.ts) echo "ts"; break ;;
-  esac
-done | grep -q ts && has_ts_or_edge=1 || true
-if echo "$staged" | grep -qE '^(app/|resources/views/)' 2>/dev/null; then
-  has_app_or_views=1
+# Fichiers concernés : l'index ; si la commande stage elle-même (git add, commit -a),
+# inclure aussi les changements suivis non encore stagés.
+files=$(git diff --cached --name-only 2>/dev/null || true)
+if [[ $cmd =~ git[[:space:]]+add ]] || [[ $cmd =~ commit[[:space:]]+(.*[[:space:]])?-[a-zA-Z]*a ]]; then
+  files=$(printf '%s\n%s\n' "$files" "$(git diff --name-only HEAD 2>/dev/null || true)" | sort -u)
 fi
+[ -n "$(printf '%s' "$files" | tr -d '[:space:]')" ] || exit 0
 
-echo "[hook:precommit] Staged paths analysis : ts=$has_ts_or_edge app|views=$has_app_or_views" >&2
+pm=npm
+[ -f pnpm-lock.yaml ] && pm=pnpm
+[ -f yarn.lock ] && pm=yarn
+{ [ -f bun.lockb ] || [ -f bun.lock ]; } && pm=bun
 
-# 1. Typecheck — conditionnel sur la présence de .ts staged
-if [ "$has_ts_or_edge" = "1" ] || echo "$staged" | grep -qE '\.(ts|tsx)$' 2>/dev/null; then
-  # Guard: skip if node_modules is absent (remote execution env without full install)
-  if [ ! -f node_modules/.bin/tsc ]; then
-    echo "[hook:precommit] Typecheck skipped — node_modules not installed (remote env). Run locally before merge." >&2
+has_script() { [ -f package.json ] && jq -e --arg s "$1" '.scripts[$s] // empty' package.json >/dev/null 2>&1; }
+
+# 1. Typecheck
+if printf '%s\n' "$files" | grep -qE '\.(ts|tsx)$'; then
+  script=""
+  has_script typecheck && script=typecheck
+  [ -z "$script" ] && has_script type-check && script=type-check
+  if [ -z "$script" ]; then
+    echo "[hook:precommit] Typecheck sauté : pas de script 'typecheck' dans package.json." >&2
+  elif [ ! -d node_modules ]; then
+    echo "[hook:precommit] Typecheck sauté : node_modules absent (installer les dépendances)." >&2
   else
-    echo "[hook:precommit] Running typecheck…" >&2
-    if ! npm run --silent typecheck 2>&1 | tail -20 >&2; then
-      echo "[hook:precommit] BLOCKED — typecheck failed. Fix TS errors before commit. Cf CLAUDE.md §1." >&2
+    echo "[hook:precommit] Typecheck ($pm run $script)…" >&2
+    if ! out=$("$pm" run --silent "$script" 2>&1); then
+      printf '%s\n' "$out" | tail -20 >&2
+      echo "[hook:precommit] BLOQUÉ — le typecheck échoue. Corriger les erreurs, re-stager, nouveau commit." >&2
       exit 2
     fi
   fi
-else
-  echo "[hook:precommit] Typecheck skipped (no .ts staged)." >&2
 fi
 
-# 2. File size ratchet — conditionnel sur la présence de fichiers app/* ou resources/views/* staged
-# Évite de bloquer les commits doc/config sur de la dette préexistante non touchée
-if [ "$has_app_or_views" = "1" ]; then
-  if [ -f scripts/check-file-sizes.js ]; then
-    echo "[hook:precommit] Running file-size ratchet…" >&2
-    if ! node scripts/check-file-sizes.js 2>&1 | tail -30 >&2; then
-      echo "[hook:precommit] BLOCKED — file-size ratchet failed. Splitter ou regénérer baseline. Cf CLAUDE.md §14, scan-secu.sh step 19." >&2
-      exit 2
-    fi
+# 2. Ratchet de taille de fichiers (fourni par un pack de stack)
+if [ -f scripts/check-file-sizes.js ] && printf '%s\n' "$files" | grep -qvE '\.(md|txt|json|ya?ml)$'; then
+  echo "[hook:precommit] Ratchet de taille de fichiers…" >&2
+  if ! out=$(node scripts/check-file-sizes.js 2>&1); then
+    printf '%s\n' "$out" | tail -30 >&2
+    echo "[hook:precommit] BLOQUÉ — ratchet de taille en échec. Splitter le fichier ou régénérer la baseline après un split légitime." >&2
+    exit 2
   fi
-else
-  echo "[hook:precommit] File-size ratchet skipped (no app/ or resources/views/ staged)." >&2
 fi
 
-# 3. Suggestion code-reviewer si diff non-trivial
-# Métrique : ≥ 2 fichiers OU ≥ 50 lignes OU touche app|resources/views|database/migrations|start/routes.ts
-nb_files=$(echo "$staged" | grep -c . 2>/dev/null || echo 0)
-nb_lines=$(git diff --cached --shortstat 2>/dev/null | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo 0)
-nb_lines=${nb_lines:-0}
-nb_lines_del=$(git diff --cached --shortstat 2>/dev/null | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+' || echo 0)
-nb_lines_del=${nb_lines_del:-0}
-total_lines=$((nb_lines + nb_lines_del))
+# 3. Suggestion de review pour un diff non trivial
+nb_files=$(printf '%s\n' "$files" | grep -c . || true)
+shortstat=$(git diff --cached --shortstat 2>/dev/null || true)
+ins=$(printf '%s' "$shortstat" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || true)
+del=$(printf '%s' "$shortstat" | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+' || true)
+total=$(( ${ins:-0} + ${del:-0} ))
 
-is_significant=0
-if [ "$nb_files" -ge 2 ] || [ "$total_lines" -ge 50 ] || [ "$has_app_or_views" = "1" ]; then
-  is_significant=1
-fi
-# Touche migrations/routes/middleware ?
-if echo "$staged" | grep -qE '^(database/migrations/|start/routes\.ts|app/middleware/)' 2>/dev/null; then
-  is_significant=1
-fi
+significant=0
+{ [ "$nb_files" -ge 2 ] || [ "$total" -ge 50 ]; } && significant=1
+printf '%s\n' "$files" | grep -qiE '(^|/)(migrations?|routes?|middleware)(/|\.|$)' && significant=1
 
-if [ "$is_significant" = "1" ]; then
-  echo "[hook:precommit] Hint: invoke 'code-reviewer' subagent for senior PR review (diff: $nb_files files, +$nb_lines/-$nb_lines_del lines). Output verdict SHIP / NEEDS CHANGES / REJECT before commit." >&2
+if [ "$significant" = "1" ]; then
+  reviewer="reviewer"
+  [ -n "$(find .claude/agents -name 'code-reviewer.md' 2>/dev/null | head -1)" ] && reviewer="code-reviewer"
+  echo "[hook:precommit] Diff non trivial ($nb_files fichiers, ~$total lignes) : invoquer le subagent '$reviewer' avant de commiter (verdict SHIP / NEEDS CHANGES / REJECT)." >&2
 fi
 
-echo "[hook:precommit] OK — checks passed (or skipped on irrelevant scope)." >&2
 exit 0

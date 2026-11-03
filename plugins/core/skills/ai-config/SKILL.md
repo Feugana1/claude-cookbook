@@ -22,7 +22,7 @@ Audit + scaffold de la configuration IA du projet (Claude Code standards). Cible
 |---|---|---|
 | CLAUDE.md (project instructions) | `CLAUDE.md` | `docs/templates/CLAUDE.md` |
 | .claude/agents/ (any expert) | `.claude/agents/` | via `bootstrap-claude.sh --stack=X` |
-| settings.json (Claude Code config) | `settings.json` OU `.claude/settings.json` | cookbook root `settings.json` |
+| settings.json (Claude Code config) | `.claude/settings.json` (ou `settings.json`) | `docs/templates/settings.json` |
 
 ### P1 — Recommandé
 
