@@ -1,6 +1,6 @@
 # Inheritance map — `roles/` ↔ `stacks/<name>/`
 
-> Source unique du mapping override. Lu par `bootstrap-claude.sh` pour l'install sélectif et par les agents stack pour la cross-ref "je durcis quel rôle".
+> Source unique du mapping override. Doc de référence (prose). `bootstrap-claude.sh` porte sa propre liste `ROLES_*_KEPT` : la garder alignée avec ce fichier.
 
 ## Principe
 
@@ -14,14 +14,14 @@ Puisque Claude Code ne supporte pas d'héritage littéral entre fichiers agents,
 
 | Mode | Agents installés | Total |
 |---|---|---|
-| `--stack=none` (defaut CI) | `roles/*` (10) | 10 |
-| `--stack=adonisjs` | 6 `roles/` + 7 `stacks/adonisjs/` | 13 |
+| `--stack=none` (defaut CI) | tous les `roles/*` | — |
+| `--stack=adonisjs` | `roles/` non remplacés + `stacks/adonisjs/` | — |
 
 Le prompt interactif TTY propose ces 2 modes (extensible : futures stacks `laravel`, `nextjs`, `django`).
 
 ## Mode `--stack=none` (générique cross-stack)
 
-Installe uniquement `.claude/agents/roles/*.md` (10 fichiers) :
+Installe uniquement `.claude/agents/roles/*.md`  :
 
 ```
 analyzer, architect, backend, frontend, mobile,

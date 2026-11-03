@@ -110,7 +110,7 @@ digraph feature_flow {
 ## Sources
 
 - [`docs/claude-config/experts.md`](../../docs/claude-config/experts.md) — catalogue roles/ + stacks/adonisjs/ (couches 1-5)
-- [`docs/claude-config/superpowers-integration.md`](../../docs/claude-config/superpowers-integration.md) — règle d'or routage
+- [`docs/claude-config/setup.md`](../../docs/claude-config/setup.md) §3 — règle de routage cookbook vs superpowers
 - `PRODUCT.md` + `docs/vision.md` — direction produit
 - `docs/competitive-benchmark/` — fiches 13 concurrents
 - `docs/feature-plan-template.md` — template doc feature

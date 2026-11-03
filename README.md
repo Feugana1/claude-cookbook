@@ -66,7 +66,7 @@ docs/
 ├── feature-plan-template.md Template unifié spec + plan + completeness (~200L max)
 │                            Inclut §1b EARS notation + §3b threat model T1-T18
 ├── ux-audit-prompt.md      6 axes audit UX (User-first, PLG, DS, restraint cognitif…)
-└── claude-config/          Catalogue agents (roles/ + stacks/adonisjs/), setup cross-poste, superpowers integration
+└── claude-config/          Catalogue agents (experts.md), mapping rôles↔stack, setup (install + vérif)
 
 .github/workflows/
 └── cookbook-self-test.yml  CI cookbook lui-même (bash-lint, JSON/YAML valid, frontmatter, scan-secu no-crash, leak-check)
@@ -84,7 +84,7 @@ docs/
 /plugin install cookbook@claude-cookbook
 ```
 
-Wire automatique : hooks + permissions + agents + skills + commands + MCP + statusline.
+Le plugin fournit agents, skills et hooks. Les `permissions` d'un `settings.json` de plugin ne sont pas appliquées : voir [`setup.md`](docs/claude-config/setup.md).
 
 ### Voie B — Bootstrap script (fallback)
 
@@ -122,44 +122,13 @@ Règles :
 2. **Générique OU stack, jamais les deux** pour un même use case (bootstrap install exclusif)
 3. **Stack durcit rôle** : quand un fichier `stacks/adonisjs/X` remplace un `roles/Y`, il hérite conceptuellement de son scope (règle d'or, format sortie) puis durcit avec les conventions stack
 
-### 1. Roles génériques opus — 10 personas (mode `--stack=none`)
+### Catalogue d'agents
 
-Un rôle = un use case. Utilisables partout, quel que soit le framework.
-
-| Rôle | Use case | Model |
-|---|---|---|
-| `analyzer` | Root cause 5 Whys + hypothèses ranked | opus |
-| `architect` | Conception Evidence-First + MECE + phased migration | opus |
-| `backend` | API RESTful/GraphQL, microservices, cloud-native | opus |
-| `frontend` | WCAG 2.1, design systems, Core Web Vitals | opus |
-| `mobile` | iOS HIG + Android Material, cross-platform, offline-first | opus |
-| `performance` | Core Web Vitals + RAIL + profilage ROI-driven | opus |
-| `product-strategist` | Strategic gate différenciation feature (couche 0) | sonnet |
-| `qa` | Test pyramid + coverage + TDD + automation | opus |
-| `reviewer` | Générique code review lisibilité/maintenabilité | opus |
-| `security` | OWASP Top 10 + OWASP LLM + threat modeling STRIDE | opus |
-
-### 2. Stack AdonisJS — 7 experts stack-aware (mode `--stack=adonisjs`)
-
-Experts qui **héritent** des rôles génériques équivalents et **durcissent** avec les conventions §14 (300/400/800L limits), multi-tenant Adonis, ORM Lucid, etc.
-
-```
-Couche 1 ARCHITECT       : back-architect             ← remplace roles/architect + roles/backend
-Couche 2 CROSS-CUTTING   : security-multitenant       ← remplace roles/security
-                           data-access-reviewer (haiku) — pur ajout (aucun rôle équivalent)
-                           migration-reviewer          — pur ajout
-Couche 3 DOMAIN          : workflow-email              — pur ajout
-Couche 4 LINTER          : edge-anti-patterns (haiku)  — PAIR avec roles/frontend (linter narrow)
-Couche 5 FINAL GATE      : code-reviewer              ← remplace roles/reviewer     ← avant git commit
-```
-
-**En mode `adonisjs`** : `roles/architect`, `roles/backend`, `roles/security`, `roles/reviewer` **ne sont PAS installés** (leur override stack prend le relais). Conservés : `analyzer`, `frontend`, `mobile`, `performance`, `product-strategist`, `qa` (aucun override AdonisJS).
-
-Mapping complet : [`docs/claude-config/inheritance-map.md`](docs/claude-config/inheritance-map.md).
+Un rôle = un fichier. Un rôle générique (`roles/`) et son override stack (`stacks/<stack>/`) ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : [`docs/claude-config/inheritance-map.md`](docs/claude-config/inheritance-map.md).
 
 ### Ajouter une stack
 
-Créer `.claude/agents/stacks/<votre-stack>/` (ex : `laravel/`, `nextjs/`, `django/`), déposer les experts stack-aware, ajouter le mapping dans `inheritance-map.md`, ajouter le mode `--stack=<votre-stack>` dans `bootstrap-claude.sh`. Les rôles génériques `roles/` restent utilisables tels quels.
+Créer `.claude/agents/stacks/<votre-stack>/`, y déposer les experts stack-aware, ajouter le mapping dans `inheritance-map.md` et le mode `--stack=<votre-stack>` dans `bootstrap-claude.sh`. Les rôles `roles/` restent utilisables tels quels.
 
 ---
 

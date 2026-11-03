@@ -1,239 +1,84 @@
-# Claude Code — setup cross-poste (cookbook)
+# Setup — installer le cookbook
 
-> Procédure pour installer le cookbook Claude Code sur une nouvelle machine ou un nouveau projet.
-
----
-
-## 0. Pré-requis machine
-
-| Outil | Version min | Vérif |
-|---|---|---|
-| Node.js | 20+ | `node -v` |
-| npm | 10+ | `npm -v` |
-| git | 2.40+ | `git --version` |
-| Claude Code CLI | dernière | `claude --version` (install : https://docs.claude.com/claude-code) |
-| `jq` | 1.6+ | `jq --version` (utilisé par hooks) |
-| `bash` | 4+ ou zsh | (macOS shipped) |
-
-Optionnels (pour `scan-secu.sh` complet) : `trivy`, `gitleaks`, `jscpd`, `license-checker`. Le script skip gracieusement si absent.
+> Doc canonique d'installation et de vérification. Catalogue d'agents : [`experts.md`](experts.md). Mapping rôles ↔ stack : [`inheritance-map.md`](inheritance-map.md).
 
 ---
 
-## 1. Installation du cookbook
+## 0. Pré-requis
 
-### Voie A — Plugin natif Claude Code (recommandé)
+| Outil | Vérif |
+|---|---|
+| Node.js 20+, npm 10+ | `node -v` |
+| git 2.40+ | `git --version` |
+| Claude Code CLI | `claude --version` |
+| `jq` (utilisé par les hooks) | `jq --version` |
+| bash 4+ ou zsh | — |
+
+Optionnels pour `scan-secu.sh` complet : `trivy`, `gitleaks`, `jscpd`, `license-checker` (le script skip si absent).
+
+## 1. Installation
+
+### Voie A — Plugin Claude Code
 
 ```bash
-# Depuis n'importe quel dossier ou projet :
 /plugin marketplace add <owner>/claude-cookbook
 /plugin install cookbook@claude-cookbook
 ```
 
-Le plugin déploie automatiquement : agents, skills, hooks, settings (permissions + wire hooks), MCP config (P1).
+Un plugin fournit agents, skills et hooks. Il **ne livre pas** les `permissions` ni les `hooks` d'un `settings.json` : seules les clés `agent` et `subagentStatusLine` d'un `settings.json` de plugin sont appliquées. Pour les deny-rules, utiliser la voie B ou copier le bloc `permissions` dans le `settings.json` du projet.
 
-### Voie B — Bootstrap script (fallback)
+### Voie B — Bootstrap script
 
 ```bash
-# 1. Cloner le cookbook
 export COOKBOOK_DIR=<chemin-du-clone>   # là où tu clones le cookbook
 git clone <cookbook-repo> "$COOKBOOK_DIR"
 
-# 2. Depuis le dossier de ton projet — choisir la stack (exclusif)
 cd <mon-projet>
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS
-# ou
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=none       # cross-stack universel
 ```
 
-Sans `--stack` en TTY : le script propose un menu interactif. En CI non-TTY : défaut `none`.
+- Sans `--stack` en TTY : menu interactif. En CI non-TTY : défaut `none`.
+- Copie `.claude/`, `scripts/`, `docs/` + crée un `CLAUDE.md` minimal à enrichir.
+- `--update` : met à jour sans toucher `CLAUDE.md`.
 
-Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir. Mapping override roles ↔ stacks : [`inheritance-map.md`](inheritance-map.md).
+## 2. Ce que le cookbook installe
 
-Mode update : `bash $COOKBOOK_DIR/bootstrap-claude.sh . --update` (préserve les fichiers spécifiques projet).
+Liste et comptes : `bash $COOKBOOK_DIR/scripts/inventory.sh`.
 
----
-
-## 2. Claude Code — login
-
-```bash
-claude login
-# crée ~/.claude/.credentials.json (token API, JAMAIS commit)
-```
-
----
-
-## 3. Configuration projet installée par le cookbook
-
-Après install (Voie A ou B) :
-
-```
-.claude/
-├── agents/                       ← install exclusif selon --stack=none|adonisjs
-│   ├── roles/                    ← mode `none` : 10 rôles / mode `adonisjs` : 6 rôles conservés
-│   │                                (analyzer, frontend, mobile, performance,
-│   │                                product-strategist, qa)
-│   └── stacks/adonisjs/          ← mode `adonisjs` : 7 experts stack-aware (couches 1-5)
-│                                    dont 3 override roles/ (back-architect, code-reviewer,
-│                                    security-multitenant) + 4 purs ajouts (data-access-reviewer,
-│                                    edge-anti-patterns, migration-reviewer, workflow-email)
-├── skills/                       ← /feature /ux-review /secu /pre-pr /multi-agent
-└── hooks/                        ← dispatch-expert.sh + precommit-check.sh
-
-settings.json         ← permissions deny + hooks wire (racine cookbook, sourcé au load)
-scripts/              ← scan-secu.sh + 41 étapes + check-file-sizes.js + generate-sbom.sh
-docs/                 ← lessons.md + anti-patterns.md + feature-plan-template.md + ux-audit-prompt.md + claude-config/
-```
-
-Extension projet-specific (à ajouter localement, non versionnés dans cookbook) :
-- Agents domain (`nf525-accounting`, `shop-marketplace`, `workflow-email` custom, `public-experience`, etc.)
-- Docs domain (`docs/architecture.md`, `docs/design-system.md`, `docs/database-neon.md`, `docs/storage-s3.md`, `docs/security-multitenant.md`)
-- Vision produit (`PRODUCT.md`, `docs/vision.md`, `docs/competitive-benchmark/*.md`, `docs/roadmap.md`)
-- Hook extension `.claude/hooks/dispatch-expert.local.sh` (sourcé si présent — pour hints domain-specific)
-
----
-
-## 4. Configuration user (`~/.claude/`)
-
-Ces fichiers sont **propres à chaque machine** et ne sont jamais commités dans le projet.
-
-### 4.1 `~/.claude/settings.json`
-
-Préférences user cross-projet (verbosité, modèle par défaut, etc.). Optionnel — chaque user tient le sien.
-
-### 4.2 `~/.claude/CLAUDE.md`
-
-Préférences user cross-projet (langue, style commit, niveau verbosité). Optionnel.
-
-### 4.3 Plugins marketplace
-
-```bash
-# Lister les plugins installés
-/plugin list
-
-# Recommandés en complément du cookbook :
-# - superpowers@claude-plugins-official (skills discipline session — brainstorming, writing-plans, systematic-debugging, etc.)
-```
-
-Le cookbook référence `superpowers` pour la discipline de session — cf [`superpowers-integration.md`](superpowers-integration.md).
-
----
-
-## 5. Vérification post-install
-
-### 5.1 CLAUDE.md projet chargé (si projet a un CLAUDE.md)
-
-```bash
-claude
-# Dans la session :
-> Quelle est la règle §14 ?
-# Doit citer les limites de taille (controllers 300, services 400, templates 800)
-```
-
-### 5.2 Subagents listés
-
-```bash
-> List the agents available to you
-```
-
-Doit lister les **17 subagents cookbook** :
-
-**Stack AdonisJS (7 experts en 5 couches)** — `.claude/agents/stacks/adonisjs/` :
-
-| Couche | Agent | Model |
-|---|---|---|
-| 1 Architect | `back-architect` | sonnet |
-| 2 Cross-cutting | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` | sonnet/haiku |
-| 3 Domain | `workflow-email` | sonnet |
-| 4 Linter | `edge-anti-patterns` | haiku |
-| 5 Final gate | `code-reviewer` | sonnet |
-
-**Rôles génériques opus (10 personas cross-stack)** — `.claude/agents/roles/` :
-
-| Agent | Rôle |
+| Famille | Emplacement |
 |---|---|
-| `analyzer` | Root cause 5 Whys |
-| `architect` | Conception Evidence-First + MECE |
-| `backend` | API RESTful/GraphQL, microservices |
-| `frontend` | WCAG 2.1, Core Web Vitals |
-| `mobile` | iOS HIG + Android Material |
-| `performance` | Profilage + optim ROI-driven |
-| `product-strategist` | Strategic gate différenciation feature (couche 0) |
-| `qa` | Test pyramid + coverage |
-| `reviewer` | Générique code review (hors stack) |
-| `security` | OWASP Top 10 + OWASP LLM |
+| Agents (roles génériques + stack) | `.claude/agents/` |
+| Skills | `.claude/skills/` |
+| Commands | `.claude/commands/` |
+| Hooks | `.claude/hooks/` |
+| Scan sécurité, prod-readiness, SBOM, statusline | `scripts/` |
+| Templates (CLAUDE, AGENTS, PRODUCT…) | `docs/templates/` |
 
-Si le projet a ajouté des agents projet-specific, ils apparaissent en plus.
+**À fournir par chaque projet** (jamais dans le cookbook) : `PRODUCT.md` / `docs/vision.md`, docs domain (architecture, design-system, DB, storage…), agents domain, secrets, `settings.local.json`.
 
-### 5.3 Skills listés
+## 3. Compléments recommandés
 
-```bash
-# Dans une session Claude, taper /
-```
+- **Built-in Claude Code** à connaître : `/init`, `/simplify`, `/code-review`, `/security-review`, `/fewer-permission-prompts`, `/loop`, `/schedule`.
+- **`superpowers@claude-plugins-official`** (discipline de session : brainstorming, writing-plans, systematic-debugging, TDD…). **Règle de routage : le skill cookbook, projet-aware, prime sur l'équivalent superpowers générique** (ex : `/feature` plutôt que `brainstorming` + `writing-plans`, `code-reviewer` plutôt que `requesting-code-review`). Ne jamais enchaîner les deux « par sécurité ». Ordre canonique : process amont → expert cookbook → process aval.
 
-Doit lister `/feature`, `/ux-review`, `/secu`, `/pre-pr` parmi les skills disponibles.
+## 4. Vérification post-install
 
-### 5.4 Hook dispatcher actif (PostToolUse Edit/Write)
+| Check | Comment | Attendu |
+|---|---|---|
+| Agents | `> List the agents available to you` | agents du mode choisi |
+| Skills | taper `/` | skills du cookbook listés |
+| Deny-rules | `> git commit --no-verify -m x` | refusé par permission deny |
+| Hook dispatcher | Edit volontaire d'un pattern P0 de la stack | bloqué avec `[hook:…-P0] BLOCKED` |
+| Hook precommit | `git commit` avec diff staged | analyse en stderr + hint `code-reviewer` |
+| scan-secu | `bash scripts/scan-secu.sh` | étapes auto-comptées, verdict final |
 
-```bash
-# Dans une session Claude, demander un edit P0 volontaire :
-> Edit app/services/test_dispatcher.ts pour ajouter `auth.user.id` quelque part
-# Doit être BLOQUÉ par le hook avec message :
-# "[hook:sec-P0] BLOCKED — 'auth.user.id' dans app/services/test_dispatcher.ts —
-# utiliser 'effectiveUserId' (middleware team). Invoke 'security-multitenant' subagent."
-```
-
-### 5.5 Hook precommit actif (PreToolUse Bash)
-
-```bash
-# Après avoir staged un diff non-trivial :
-> git commit -m "test"
-# Doit afficher en stderr :
-# "[hook:precommit] Staged paths analysis : ts=... app|views=..."
-# "[hook:precommit] Running typecheck…"  (si .ts staged)
-# "[hook:precommit] Hint: invoke 'code-reviewer' subagent for senior PR review..."
-```
-
-### 5.6 Permissions deny actives
-
-```bash
-> git commit --no-verify -m "test"
-# Doit être REFUSÉ : permission deny "Bash(git commit *--no-verify*)"
-```
-
-### 5.7 scan-secu.sh fonctionnel
-
-```bash
-bash scan-secu.sh
-# Doit dérouler les 41 étapes (nombre auto-compté depuis scan-secu.d/),
-# terminer par "READY TO PUSH" / "BLOCKED" / "NEEDS REVIEW" / "SHIP WITH DEBT"
-```
-
-### 5.8 Skills opérationnels
-
-```bash
-> /ux-review pages/<un-écran>
-# Doit charger ux-audit-prompt.md et auditer
-
-> /feature <nouvelle-idée>
-# Doit invoquer brainstorming + product-strategist (si sources produit projet présentes)
-
-> /secu
-# Doit lancer bash scan-secu.sh et résumer FAIL/WARN avec fix proposé
-
-> /pre-pr
-# Doit séquencer lint → typecheck → build → ratchet
-```
-
----
-
-## 6. Troubleshooting
+## 5. Troubleshooting
 
 | Symptôme | Cause probable | Fix |
 |---|---|---|
-| Subagent listé mais jamais auto-invoqué | Description-trigger trop vague | Renforcer le `description` frontmatter avec patterns paths précis + verbes "Use PROACTIVELY when…" |
-| Hook bloque légitimement mais on veut bypass | Action OK ponctuellement | `// canonical-skip:<rule>:<reason>` dans le diff (convention scan-secu.sh §22) — pas `--no-verify` |
-| Skill `/ux-review` introuvable | `.claude/skills/` pas installé | Voir §1 install ou vérifier `ls .claude/skills/ux-review/SKILL.md` |
-| Permissions explosées (`settings.local.json` grossit) | Accumulation one-shot perl/sed | Lancer skill built-in `fewer-permission-prompts` pour audit + nettoyage |
-| `claude login` refuse | Token expiré | Re-`claude login` |
-| `product-strategist` renvoie `BLOCKED-SETUP` | Le projet n'a pas de `PRODUCT.md` ou de `docs/vision.md` | Créer une vision produit minimale avant d'invoquer le skill `/feature` |
-| `code-reviewer` ne trouve pas `docs/security-multitenant.md` | Doc non versionnée dans le projet | Créer les docs domain projet-specific référencées par les experts (voir README §"Ce que le cookbook n'installe pas") |
+| Subagent jamais auto-invoqué | `description` trop vague | verbes actifs + paths précis |
+| Hook bloque légitimement | action OK ponctuellement | convention `// canonical-skip:<rule>:<reason>` dans le diff, jamais `--no-verify` |
+| `settings.local.json` grossit | accumulation one-shot | skill `fewer-permission-prompts` |
+| `product-strategist` rend `BLOCKED-SETUP` | pas de `PRODUCT.md` / `docs/vision.md` | créer une vision minimale (`docs/templates/PRODUCT.md`) |
+| Un expert cite un doc absent (`docs/security-multitenant.md`…) | doc domain non fournie | créer le doc projet ou retirer la référence |

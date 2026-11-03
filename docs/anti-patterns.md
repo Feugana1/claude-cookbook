@@ -239,11 +239,11 @@ Si une réponse demande > 60s → P0.
 - Friction utilisateur (Claude pose 2 fois les mêmes questions)
 - Risque d'incohérence si les 2 outils proposent des verdicts contradictoires
 
-**Solution** : appliquer la **règle d'or routage** définie dans [`docs/claude-config/superpowers-integration.md`](claude-config/superpowers-integration.md) §3 :
+**Solution** : appliquer la **règle d'or routage** définie dans [`docs/claude-config/setup.md`](claude-config/setup.md) §3 :
 
 > Si un skill projet existe pour le contexte, il PRIME sur l'équivalent superpowers générique. Les skills superpowers s'invoquent uniquement quand aucun skill projet ne couvre le contexte (gap pur).
 
-**Détection en review** : si un commit ou une session mentionne 2 skills couvrant le même axe, c'est un anti-pattern. Voir matrice §4 de `superpowers-integration.md` pour les correspondances exhaustives.
+**Détection en review** : si un commit ou une session mentionne 2 skills couvrant le même axe, c'est un anti-pattern. Voir `setup.md` §3 pour des exemples de correspondance.
 
 ---
 

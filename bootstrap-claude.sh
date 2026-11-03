@@ -176,23 +176,20 @@ cp "$COOKBOOK_ROOT/docs/lessons.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/anti-patterns.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/feature-plan-template.md" "$TARGET/docs/"
 cp "$COOKBOOK_ROOT/docs/ux-audit-prompt.md" "$TARGET/docs/"
-cp "$COOKBOOK_ROOT/docs/claude-config/README.md" "$TARGET/docs/claude-config/"
 cp "$COOKBOOK_ROOT/docs/claude-config/experts.md" "$TARGET/docs/claude-config/"
 cp "$COOKBOOK_ROOT/docs/claude-config/inheritance-map.md" "$TARGET/docs/claude-config/"
 cp "$COOKBOOK_ROOT/docs/claude-config/setup.md" "$TARGET/docs/claude-config/"
-cp "$COOKBOOK_ROOT/docs/claude-config/skills.md" "$TARGET/docs/claude-config/"
-cp "$COOKBOOK_ROOT/docs/claude-config/superpowers-integration.md" "$TARGET/docs/claude-config/"
 # Templates scaffold /ai-config (copies non-écrasantes, l'user peut cp vers root/docs/ ensuite)
 mkdir -p "$TARGET/docs/templates"
-for t in AGENTS.md PRODUCT.md architecture.md anti-patterns.md lessons.md mcp.json CLAUDE.md husky-pre-commit.sh scan-secu-weekly.yml .gitleaks.toml; do
+for t in AGENTS.md PRODUCT.md architecture.md anti-patterns.md mcp.json CLAUDE.md husky-pre-commit.sh scan-secu-weekly.yml .gitleaks.toml; do
   [ -f "$COOKBOOK_ROOT/docs/templates/$t" ] && cp "$COOKBOOK_ROOT/docs/templates/$t" "$TARGET/docs/templates/"
 done
 echo "    + docs/lessons.md (Karpathy 4 + leçons)"
 echo "    + docs/anti-patterns.md (catalogue)"
 echo "    + docs/feature-plan-template.md (~200L max)"
 echo "    + docs/ux-audit-prompt.md (6 axes UX)"
-echo "    + docs/claude-config/{README,experts,inheritance-map,setup,skills,superpowers-integration}.md"
-echo "    + docs/templates/ (10 templates : CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, lessons, mcp.json + husky/scan-secu-weekly/.gitleaks)"
+echo "    + docs/claude-config/{experts,inheritance-map,setup}.md"
+echo "    + docs/templates/ (CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, mcp.json + husky/scan-secu-weekly/.gitleaks)"
 
 # ── Manifest plugin + settings.json + .mcp.json + config ────────────────────
 echo -e "${GREEN}[6/6]${NC} Plugin manifest + settings.json + MCP + Conventional Commits config..."

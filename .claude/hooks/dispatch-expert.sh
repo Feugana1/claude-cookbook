@@ -8,7 +8,7 @@
 #   - exit 0 sinon (PASS silencieux)
 #
 # Source de vérité : docs/claude-config/experts.md
-# Conventions de scope : docs/claude-config/experts.md §5 (mapping path→expert)
+# Conventions de scope : ce fichier est la source du mapping path→expert (voir docs/claude-config/experts.md pour les couches)
 #
 # Note : les "hints" stderr sont lus par Claude qui les traite comme system
 # messages. Le hook ne lance PAS de subagent directement (anti-pattern CC).
