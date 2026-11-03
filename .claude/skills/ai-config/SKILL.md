@@ -125,7 +125,7 @@ Pour les items foundation via bootstrap (`.claude/agents/`, `.claude/skills/`, `
 
 Proposer à l'user :
 > "Foundation cookbook manquante. Lancer le bootstrap ?
-> `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=<adonisjs|none>`"
+> `bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=<adonisjs|none>`"
 
 Ne pas lancer bootstrap automatiquement — c'est une action à confirmer par l'user (stack choice).
 

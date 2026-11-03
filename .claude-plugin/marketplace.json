@@ -4,15 +4,13 @@
     "name": "Lionel FOTSO"
   },
   "metadata": {
-    "description": "Cookbook Claude Code stack AdonisJS/Node/TS — 17 sub-agents (10 roles/ génériques opus + 7 stacks/adonisjs/ couches 1-5), 7 skills, 3 hooks P0 déterministes, scan-secu 41 étapes tier OWASP + scan-prod-readiness capabilities V0.",
-    "version": "0.2.0"
+    "description": "Kit Claude Code : agents, skills, hooks, scan sécurité tiered OWASP, prod-readiness."
   },
   "plugins": [
     {
       "name": "cookbook",
       "source": ".",
-      "description": "Sub-agents, skills, hooks, scripts qualité pour projets AdonisJS/Node/TS. Distribuable via /plugin install ou bootstrap-claude.sh.",
-      "version": "0.2.0",
+      "description": "Sub-agents, skills, hooks et scripts qualité. Distribuable via /plugin install ou bootstrap-claude.sh.",
       "license": "MIT",
       "keywords": [
         "adonisjs",

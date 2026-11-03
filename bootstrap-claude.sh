@@ -5,8 +5,8 @@
 # Usage:
 #   bash bootstrap-claude.sh <path-to-project> [--stack=none|adonisjs] [--update]
 #
-#   --stack=none       (defaut CI non-TTY) : installe roles/ uniquement (10 agents)
-#   --stack=adonisjs   : installe 6 roles/ + 7 stacks/adonisjs/ (13 agents, sans redondance)
+#   --stack=none       (defaut CI non-TTY) : installe tous les roles/ génériques
+#   --stack=adonisjs   : installe les roles/ non remplacés + stacks/adonisjs/ (sans redondance)
 #   --update           : preserve fichiers projet-specific (CLAUDE.md, agents custom, etc.)
 #
 # Sans --stack et en TTY interactif : prompt menu.
@@ -65,8 +65,8 @@ if [ -z "$STACK" ]; then
   if [ -t 0 ] && [ -t 1 ]; then
     echo ""
     echo -e "${BOLD}Choisir la stack cible :${NC}"
-    echo "  1) none      — 10 rôles génériques opus (cross-stack universel)"
-    echo "  2) adonisjs  — 6 rôles génériques + 7 experts stack AdonisJS durcis (13 agents, zero redondance)"
+    echo "  1) none      — rôles génériques (cross-stack universel)"
+    echo "  2) adonisjs  — rôles génériques non remplacés + experts stack AdonisJS durcis (zero redondance)"
     echo ""
     read -r -p "Ton choix [1/2] (defaut 1) : " choice
     case "${choice:-1}" in
@@ -126,9 +126,9 @@ else
   echo -e "    ${YELLOW}Roles remplacés (non copiés) : architect, backend (→ back-architect), reviewer (→ code-reviewer), security (→ security-multitenant)${NC}"
 fi
 
-# ── Copier les skills (5) + commands (13) ──────────────────────────────────
+# ── Copier les skills + commands ──────────────────────────────────
 # NB strip trailing slash sinon macOS BSD cp copie le CONTENU au lieu du dossier
-echo -e "${GREEN}[2/6]${NC} Skills (5) + commands (13)..."
+echo -e "${GREEN}[2/6]${NC} Skills + commands..."
 for dir in "$COOKBOOK_ROOT"/.claude/skills/*/; do
   skillname=$(basename "$dir")
   cp -r "${dir%/}" "$TARGET/.claude/skills/"
@@ -198,7 +198,7 @@ echo "    + docs/templates/ (10 templates : CLAUDE, AGENTS, PRODUCT, architectur
 echo -e "${GREEN}[6/6]${NC} Plugin manifest + settings.json + MCP + Conventional Commits config..."
 cp "$COOKBOOK_ROOT/.claude-plugin/plugin.json" "$TARGET/.claude-plugin/"
 cp "$COOKBOOK_ROOT/.claude-plugin/marketplace.json" "$TARGET/.claude-plugin/"
-echo "    + .claude-plugin/plugin.json + marketplace.json (v0.2.0)"
+echo "    + .claude-plugin/plugin.json + marketplace.json"
 
 # settings.json : ne pas écraser si présent
 if [ ! -f "$TARGET/settings.json" ]; then
@@ -256,17 +256,22 @@ echo -e "  ${GREEN}${BOLD}✓ Bootstrap terminé${NC}"
 echo -e "${BOLD}═══════════════════════════════════════════════════════════════${NC}"
 echo ""
 echo -e "${BOLD}Installé dans ${TARGET}${NC} :"
-echo -e "  • .claude-plugin/{plugin,marketplace}.json (v0.2.0 — plugin natif Claude Code)"
+echo -e "  • .claude-plugin/{plugin,marketplace}.json (plugin natif Claude Code)"
 echo -e "  • settings.json (permissions deny + hooks wire + env + statusLine — copié si absent)"
 echo -e "  • .mcp.json (Context7 + sequential-thinking + fetch + github — copié si absent)"
 echo -e "  • commitlint.config.js + lefthook.yml + .markdownlint.json (Conventional Commits + linting)"
-echo -e "  $([ "$STACK" = "adonisjs" ] && echo "• 13 sub-agents — 6 roles/ conservés + 7 stacks/adonisjs/ (mode --stack=adonisjs, zero redondance)" || echo "• 10 sub-agents — 10 roles/ génériques opus (mode --stack=none, cross-stack)")"
-echo -e "  • 7 skills (.claude/skills/feature, pre-pr, secu, ux-review, multi-agent, ai-config, prod-readiness)"
-echo -e "  • 13 commands (.claude/commands/ : commit, semantic-commit, pr-*, plan, refactor, fix-error, explain-code, analyze-*, check-fact, tech-debt)"
-echo -e "  • 3 hooks (.claude/hooks/dispatch-expert + precommit-check + preserve-file-permissions)"
-echo -e "  • 7 scripts (scan-secu.sh + scan-secu.d/ 41 modules + check-file-sizes.js + generate-sbom.sh + statusline.sh + scan-ai-config.sh + scan-prod-readiness.sh)"
-echo -e "  • 9 docs (lessons, anti-patterns, feature-plan-template, ux-audit-prompt + claude-config/)"
-echo -e "  • 10 templates (docs/templates/{CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, lessons, mcp.json, husky-pre-commit, scan-secu-weekly.yml, .gitleaks.toml} — scaffold via /ai-config)"
+_n() { find "$@" -type f 2>/dev/null | wc -l | tr -d ' '; }
+N_AGENTS=$(_n "$TARGET/.claude/agents" -name '*.md')
+N_SKILLS=$(find "$TARGET/.claude/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+N_CMDS=$(_n "$TARGET/.claude/commands" -name '*.md')
+N_HOOKS=$(_n "$TARGET/.claude/hooks" -name '*.sh')
+N_STEPS=$(_n "$TARGET/scripts/scan-secu.d" -name 'step-*.sh')
+echo -e "  • ${N_AGENTS} sub-agents (.claude/agents/ — mode --stack=${STACK})"
+echo -e "  • ${N_SKILLS} skills (.claude/skills/)"
+echo -e "  • ${N_CMDS} commands (.claude/commands/)"
+echo -e "  • ${N_HOOKS} hooks (.claude/hooks/)"
+echo -e "  • scripts/ : scan-secu.sh + scan-secu.d/ (${N_STEPS} modules) + check-file-sizes.js + generate-sbom.sh + statusline.sh + scan-ai-config.sh + scan-prod-readiness.sh"
+echo -e "  • docs/ : lessons, anti-patterns, feature-plan-template, ux-audit-prompt, claude-config/, templates/ (scaffold via /ai-config)"
 if [ "$UPDATE_MODE" = false ]; then
   echo -e "  • CLAUDE.md (template — §5 Domain Model Glossary à remplir)"
 fi
@@ -275,7 +280,7 @@ echo -e "${BOLD}Next steps${NC} :"
 echo -e "  1. ${BLUE}Éditer${NC} CLAUDE.md §5 Domain Model Glossary — lister PRIMARY_MODELS du projet"
 echo -e "  2. ${BLUE}Éditer${NC} CLAUDE.md §1 Stack + §2 Conventions + §3 i18n"
 echo -e "  3. ${BLUE}Export${NC} PRIMARY_MODELS_RE dans scripts/scan-secu.env (cf §5)"
-echo -e "  4. ${BLUE}Ajouter${NC} agents domain-specific dans .claude/agents/stacks/<votre-stack>/ (les 7 fournis ciblent AdonisJS)"
+echo -e "  4. ${BLUE}Ajouter${NC} agents domain-specific dans .claude/agents/stacks/<votre-stack>/ (ceux de stacks/adonisjs/ ciblent AdonisJS)"
 echo -e "  5. ${BLUE}Première feature${NC} : invoquer subagent product-strategist via Agent tool"
 echo -e "  6. ${BLUE}Avant commit${NC} : code-reviewer"
 echo -e "  7. ${BLUE}Avant push${NC} : bash scan-secu.sh --full"

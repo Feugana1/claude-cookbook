@@ -85,9 +85,10 @@ Le plugin auto-wire hooks + permissions + fournit agents/skills.
 ### Voie B — Bootstrap script (fallback)
 
 ```bash
-git clone <cookbook-repo> ~/dev/claude-cookbook
+export COOKBOOK_DIR=<chemin-du-clone>   # là où tu clones le cookbook
+git clone <cookbook-repo> "$COOKBOOK_DIR"
 cd <mon-projet>
-bash ~/dev/claude-cookbook/bootstrap-claude.sh .
+bash $COOKBOOK_DIR/bootstrap-claude.sh .
 ```
 
 Copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible.

@@ -2,26 +2,18 @@
 
 Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents en 2 dossiers (`roles/` génériques opus + `stacks/adonisjs/` couches 1-5), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
 
-**Statut** : v0.2.0 — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
+**Statut** : version dans `.claude-plugin/plugin.json` — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
 
 ---
 
 ## Inventory
 
-| Composant | Count | Path |
-|---|---|---|
-| **Roles génériques opus** (cross-stack, 1 fichier par use case) | **10** | `.claude/agents/roles/*.md` |
-| **Sub-agents stack AdonisJS** (couches 1-5, sonnet/haiku) | **7** | `.claude/agents/stacks/adonisjs/*.md` |
-| **Skills** (invocation humaine explicite) | **7** | `.claude/skills/*/SKILL.md` |
-| **Commands** (slash commands) | **13** | `.claude/commands/*.md` |
-| **Hooks** (déclenchés automatiquement) | **3** | `.claude/hooks/*.sh` |
-| **scan-secu.sh steps** (tier OWASP T1/T2/T3) | **41** | `scripts/scan-secu.d/step-*.sh` |
-| **scan-ai-config.sh standards** (P0/P1/P2 gap analysis) | **18** | `scripts/scan-ai-config.sh` |
-| **prod-readiness capabilities V0** (security / reliability / observability / delivery / data) | **32** | `.claude/skills/prod-readiness/capabilities/*.yaml` |
-| **Templates scaffold** (CLAUDE, AGENTS, PRODUCT, architecture, anti-patterns, lessons, mcp.json + wire) | **10** | `docs/templates/*` |
-| **Config** (permissions + MCP + statusline + commitlint + lefthook + markdownlint) | **6** | racine |
+Comptes générés depuis le filesystem (jamais écrits à la main) :
 
-Total : **~50 fichiers**, ~7000 lignes de méthodologie distillée.
+```bash
+bash scripts/inventory.sh          # tableau
+bash scripts/inventory.sh --json   # machine-readable
+```
 
 ---
 
@@ -30,21 +22,21 @@ Total : **~50 fichiers**, ~7000 lignes de méthodologie distillée.
 ```
 .claude-plugin/
 ├── marketplace.json    manifest marketplace (1 plugin déclaré : cookbook)
-└── plugin.json         manifest plugin cookbook v0.2.0
+└── plugin.json         manifest plugin (source unique de la version)
 
 .claude/
 ├── agents/
-│   ├── roles/          10 rôles génériques opus (1 fichier par use case, miroir wasabeef)
+│   ├── roles/          rôles génériques opus (1 fichier par use case, miroir wasabeef)
 │   │                   analyzer, architect, backend, frontend, mobile, performance,
 │   │                   product-strategist, qa, reviewer, security
 │   └── stacks/
-│       └── adonisjs/   7 experts stack-aware (couches 1-5, sonnet/haiku)
+│       └── adonisjs/   experts stack-aware (couches 1-5, sonnet/haiku)
 │                       back-architect, code-reviewer, data-access-reviewer,
 │                       edge-anti-patterns, migration-reviewer, security-multitenant,
 │                       workflow-email
-├── skills/             5 slash commands (/feature, /pre-pr, /secu, /ux-review, /multi-agent)
-├── commands/           13 productivity commands (/commit, /pr-*, /refactor, /explain-code, /tech-debt, ...)
-└── hooks/              3 hooks (dispatch-expert + precommit-check + preserve-file-permissions)
+├── skills/             skills (/feature, /pre-pr, /secu, /ux-review, /multi-agent, /ai-config, /prod-readiness)
+├── commands/           productivity commands (/commit, /pr-*, /refactor, /explain-code, /tech-debt, ...)
+└── hooks/              hooks (dispatch-expert + precommit-check + preserve-file-permissions)
 
 settings.json           permissions deny larges + hooks wire + env + statusLine
 .mcp.json               MCP servers template (Context7 + sequential-thinking + fetch + github)
@@ -57,7 +49,7 @@ scripts/
 ├── scan-secu.sh        orchestrator ~220L (helpers + counters + verdict + --diff mode)
 │                       Modes : --full (pre-push, 2-3min) | --diff [<base>] (pre-commit, ~3s)
 │                       SECU_DIFF_STAGED=1 pour scan git diff --cached (pre-commit hook)
-├── scan-secu.d/        41 stateless step modules sourced in order (tier OWASP T1/T2/T3)
+├── scan-secu.d/        stateless step modules sourced in order (tier OWASP T1/T2/T3)
 │                       Drop a `step-NN-<slug>.sh` → TOTAL auto-bumps
 ├── check-file-sizes.js ratchet CI tailles fichiers (controllers/services/templates)
 ├── generate-sbom.sh    CycloneDX 1.6 SBOM front + back
@@ -99,15 +91,15 @@ Wire automatique : hooks + permissions + agents + skills + commands + MCP + stat
 Depuis le dossier de ton nouveau projet :
 
 ```bash
-bash ~/dev/claude-cookbook/bootstrap-claude.sh . [--stack=none|adonisjs] [--update]
+bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|adonisjs] [--update]
 ```
 
 **Choix stack (exclusif — zero redondance)** :
 
-| Mode | Install | Total agents |
-|---|---|---|
-| `--stack=none` (défaut CI non-TTY) | `roles/*` (10 génériques opus) | 10 |
-| `--stack=adonisjs` | 6 `roles/` conservés + 7 `stacks/adonisjs/` durcis | 13 |
+| Mode | Install |
+|---|---|
+| `--stack=none` (défaut CI non-TTY) | tous les `roles/*` génériques |
+| `--stack=adonisjs` | `roles/` non remplacés + `stacks/adonisjs/` durcis |
 
 Sans `--stack` en TTY interactif : le script propose un menu. Le mapping override roles ↔ stacks est documenté dans [`docs/claude-config/inheritance-map.md`](docs/claude-config/inheritance-map.md).
 
@@ -116,7 +108,7 @@ Copie `.claude/`, `.claude-plugin/`, `scripts/`, `docs/`, `settings.json`, `.mcp
 ### Mise à jour dans un projet existant
 
 ```bash
-bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update
+bash $COOKBOOK_DIR/bootstrap-claude.sh . --update
 ```
 
 Mode update : écrase uniquement les fichiers du cookbook, ne touche pas aux fichiers spécifiques projet (`CLAUDE.md`, agents custom, hooks override, etc.).

@@ -35,20 +35,21 @@ Le plugin déploie automatiquement : agents, skills, hooks, settings (permission
 
 ```bash
 # 1. Cloner le cookbook
-git clone <cookbook-repo> ~/dev/claude-cookbook
+export COOKBOOK_DIR=<chemin-du-clone>   # là où tu clones le cookbook
+git clone <cookbook-repo> "$COOKBOOK_DIR"
 
 # 2. Depuis le dossier de ton projet — choisir la stack (exclusif)
 cd <mon-projet>
-bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS (13 agents)
+bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS
 # ou
-bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=none       # cross-stack universel (10 roles/)
+bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=none       # cross-stack universel
 ```
 
 Sans `--stack` en TTY : le script propose un menu interactif. En CI non-TTY : défaut `none`.
 
 Le script copie `.claude/`, `scripts/`, `docs/`, `settings.json` dans le projet cible + crée `CLAUDE.md` minimal à enrichir. Mapping override roles ↔ stacks : [`inheritance-map.md`](inheritance-map.md).
 
-Mode update : `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --update` (préserve les fichiers spécifiques projet).
+Mode update : `bash $COOKBOOK_DIR/bootstrap-claude.sh . --update` (préserve les fichiers spécifiques projet).
 
 ---
 

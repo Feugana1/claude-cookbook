@@ -51,7 +51,7 @@
 ## Quand un user te demande "bootstrap le cookbook"
 
 1. Vérifier stack cible → `--stack=adonisjs` ou `--stack=none`
-2. Lancer `bash ~/dev/claude-cookbook/bootstrap-claude.sh . --stack=<mode>`
+2. Lancer `bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=<mode>`
 3. Confirmer install : agents count, skills, commands, hooks, scripts, settings
 
 ---

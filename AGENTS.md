@@ -28,7 +28,7 @@ Wire automatique. Confirmer à l'utilisateur :
 2. **Détermine la stack cible** — demander à l'user :
    - Projet AdonisJS/Node/TS → `--stack=adonisjs` (13 agents : 6 roles/ + 7 stacks/adonisjs/ durcis)
    - Autre stack ou volonté cross-stack → `--stack=none` (10 roles/ génériques)
-3. **Lance** : `bash ~/dev/claude-cookbook/bootstrap-claude.sh <path> --stack=<mode>`
+3. **Lance** : `bash $COOKBOOK_DIR/bootstrap-claude.sh <path> --stack=<mode>`
 4. **Confirme à l'utilisateur** :
    - Mode `none` : 10 agents installés dans `.claude/agents/roles/`
    - Mode `adonisjs` : 13 agents (6 roles/ conservés + 7 stacks/adonisjs/ durcis, aucune redondance)
@@ -45,8 +45,8 @@ Wire automatique. Confirmer à l'utilisateur :
 1. Vérifie présence : `ls scan-secu.sh scan-secu.d/` à la racine
 2. Si absent : copier les **deux** (orchestrator + modules step) depuis le cookbook :
    ```
-   cp ~/dev/claude-cookbook/scripts/scan-secu.sh .
-   cp -r ~/dev/claude-cookbook/scripts/scan-secu.d .
+   cp $COOKBOOK_DIR/scripts/scan-secu.sh .
+   cp -r $COOKBOOK_DIR/scripts/scan-secu.d .
    chmod +x scan-secu.sh
    ```
 3. Lance : `bash scan-secu.sh` — TOTAL est auto-compté depuis le nombre de step files
@@ -96,7 +96,7 @@ Couche 5 — Final gate      : code-reviewer          ← extends roles/reviewer
    - **Stack-specific** → `.claude/agents/stacks/<stack>/<name>.md` (créer le dossier stack si absent)
 4. Frontmatter `name/description/tools/model`. Description **active** ("Use PROACTIVELY when…", "Triggers when user says…") — pas "Specialized in…"
 5. Ajoute au catalogue dans `docs/claude-config/experts.md`
-6. **Si générique (cross-project)** : propose copie vers le cookbook (`cp .claude/agents/roles/<name>.md ~/dev/claude-cookbook/.claude/agents/roles/`)
+6. **Si générique (cross-project)** : propose copie vers le cookbook (`cp .claude/agents/roles/<name>.md $COOKBOOK_DIR/.claude/agents/roles/`)
 7. **Si project-specific** : reste local au projet (ex : agent compta NF525, agent marketplace commission, front-architect projet-specific)
 
 ---
@@ -147,7 +147,7 @@ Quand tu démarres un projet **frais** avec ce cookbook :
 
 Pas de semver strict. Le cookbook évolue par commits granulaires sur son repo dédié. Pour figer une version dans un projet : `bootstrap-claude.sh` copie l'état actuel (pas de "lock file"), ou plugin natif référencé par tag Git. Si tu veux revenir à un état antérieur : `git checkout <sha>` dans le cookbook puis re-bootstrap / re-install plugin.
 
-Le manifest `.claude-plugin/plugin.json` porte une version (`0.2.0` actuellement) mise à jour manuellement sur breaking change.
+Le manifest `.claude-plugin/plugin.json` porte la version (source unique), mise à jour manuellement sur breaking change.
 
 ---
 
@@ -157,7 +157,7 @@ L'utilisateur travaille typiquement dans un projet. Quand une amélioration gén
 
 1. Implémente localement dans le projet
 2. Une fois validé en prod, propose à l'utilisateur : "Cette amélioration est générique, je la copie vers le cookbook ?"
-3. Si OK : `cp <fichier-local> ~/dev/claude-cookbook/<même-chemin>`
+3. Si OK : `cp <fichier-local> $COOKBOOK_DIR/<même-chemin>`
 4. Commit dans le cookbook avec message explicite
 5. Les autres projets de l'utilisateur récupèrent via `bootstrap-claude.sh . --update` ou re-install plugin
 
