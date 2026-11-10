@@ -100,7 +100,7 @@ echo -e "  Stack  : ${YELLOW}${STACK}${NC}"
 echo ""
 
 # ── Primitives d'installation ───────────────────────────────────────────────
-N_ADDED=0; N_UPDATED=0; N_SAME=0; N_KEPT=0; N_RETIRED=0; N_CUSTOM=0
+N_ADDED=0; N_UPDATED=0; N_SAME=0; N_KEPT=0; N_RETIRED=0; N_CUSTOM=0; N_IGNORED=0
 KEPT_DIFF=()
 CUSTOM_KEPT=()
 BACKUP_DIR=""
@@ -142,6 +142,23 @@ keep_custom() { # dst src raison
   N_CUSTOM=$((N_CUSTOM+1))
 }
 
+# ── Liste d'exclusion du projet : chemins que le cookbook ne doit ni ajouter,
+# ni mettre à jour, ni retirer. Un motif par ligne (glob, `*` couvre aussi `/`),
+# `#` pour commenter. Ex. : docs/templates/*
+IGNORE_FILE="$TARGET/.claude/.cookbook-ignore"
+
+skip_ignored() { # dst → vrai (et compté) si le projet exclut ce chemin
+  [ -f "$IGNORE_FILE" ] || return 1
+  local rel p; rel="$(rel_of "$1")"
+  while IFS= read -r p || [ -n "$p" ]; do
+    p="${p%%#*}"; p="${p#"${p%%[![:space:]]*}"}"; p="${p%"${p##*[![:space:]]}"}"
+    [ -n "$p" ] || continue
+    # shellcheck disable=SC2254 # motif glob voulu
+    case "$rel" in $p) N_IGNORED=$((N_IGNORED+1)); return 0 ;; esac
+  done < "$IGNORE_FILE"
+  return 1
+}
+
 backup_file() {
   local rel; rel="$(rel_of "$1")"
   [ -n "$BACKUP_DIR" ] || BACKUP_DIR="$TARGET/.claude/.cookbook-backup/$(date +%Y%m%d-%H%M%S)"
@@ -162,6 +179,7 @@ put_file() { # src dst → put_agent pour .claude/agents/, sinon put_managed
 }
 
 put_managed() { # src dst
+  skip_ignored "$2" && return 0
   local src_sha; src_sha="$(sha_of "$1")"
   if [ -f "$2" ]; then
     if cmp -s "$1" "$2"; then record "$(rel_of "$2")" "$src_sha"; N_SAME=$((N_SAME+1)); return 0; fi
@@ -209,6 +227,7 @@ put_agent() { # src dst
 
 # Fichier du projet : créé s'il manque, jamais écrasé.
 put_owned() { # src dst
+  skip_ignored "$2" && return 0
   if [ -f "$2" ]; then
     N_KEPT=$((N_KEPT+1))
     cmp -s "$1" "$2" || KEPT_DIFF+=("$(rel_of "$2")|$1")
@@ -221,6 +240,7 @@ put_owned() { # src dst
 # cookbook fournie (projet antérieur au manifeste). Sinon conservé (--force pour retirer).
 retire_file() { # chemin absolu dans la cible [source cookbook]
   [ -f "$1" ] || return 0
+  skip_ignored "$1" && return 0
   if [ "$FORCE" = false ] && ! is_pristine "$1" && ! { [ -n "${2:-}" ] && cmp -s "$2" "$1"; }; then
     if [ -n "$(manifest_sha "$(rel_of "$1")")" ]; then keep_custom "$1" "" "retiré du cookbook mais adapté par le projet"
     else keep_custom "$1" "" "retiré du cookbook, sans empreinte cookbook"; fi
@@ -370,7 +390,7 @@ fi
 # ── Récap ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}══ Terminé$([ "$DRY" = true ] && echo ' (dry-run : rien n’a été écrit)') ══${NC}"
-echo "  ajoutés : $N_ADDED · mis à jour : $N_UPDATED · identiques : $N_SAME · retirés : $N_RETIRED · conservés (projet) : $N_KEPT · adaptés conservés : $N_CUSTOM"
+echo "  ajoutés : $N_ADDED · mis à jour : $N_UPDATED · identiques : $N_SAME · retirés : $N_RETIRED · conservés (projet) : $N_KEPT · adaptés conservés : $N_CUSTOM · exclus (.cookbook-ignore) : $N_IGNORED"
 if [ -n "$BACKUP_DIR" ]; then
   echo -e "  sauvegardes : ${BLUE}$(rel_of "$BACKUP_DIR")${NC} (à ajouter au .gitignore)"
 fi

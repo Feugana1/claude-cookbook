@@ -96,6 +96,7 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . --update
 - **Fichiers du projet** (`CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `docs/lessons.md`, `docs/anti-patterns.md`, docs du pack) : **jamais écrasés** ; le script signale ceux qui diffèrent de la version cookbook.
 - **Fichiers retirés du cookbook** (`plugins/core/retired.txt`) et fichiers d'un pack non retenu : sauvegardés puis supprimés (changement de stack propre), sauf s'ils ont été adaptés par le projet.
 - `scripts/scan-secu.d/` n'est installé que si le `scan-secu.sh` du projet charge ces étapes : un `scan-secu.sh` monolithique adapté reste seul.
+- **Chemins refusés par le projet** : listés dans `.claude/.cookbook-ignore` (à commiter), un motif glob par ligne (`*` couvre aussi `/`, `#` commente), ex. `docs/templates/*`. Le bootstrap ne les ajoute, ne les met à jour ni ne les retire, même avec `--force`. Sans cette liste, un fichier supprimé à la main revient au `--update` suivant.
 - Tes agents, skills et commands maison ne sont jamais touchés.
 
 ---

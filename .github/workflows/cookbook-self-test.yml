@@ -79,6 +79,18 @@ jobs:
           bash bootstrap-claude.sh "$d" --stack=adonisjs --update --force > /dev/null
           ! grep -q MY-HOOK "$d/.claude/hooks/dispatch-expert.sh" || { echo "::error::--force did not overwrite"; exit 1; }
 
+      - name: paths in .cookbook-ignore are never added, updated or retired
+        run: |
+          set -euo pipefail
+          d=$(mktemp -d); (cd "$d" && git init -q)
+          mkdir -p "$d/.claude"
+          printf '# refused by the project\ndocs/templates/*\n  scripts/statusline.sh  # graft statusline\n' > "$d/.claude/.cookbook-ignore"
+          bash bootstrap-claude.sh "$d" --stack=adonisjs > /dev/null
+          [ ! -e "$d/docs/templates" ] && [ ! -e "$d/scripts/statusline.sh" ] || { echo "::error::ignored path installed"; exit 1; }
+          echo '# MINE' > "$d/scripts/statusline.sh"
+          bash bootstrap-claude.sh "$d" --stack=adonisjs --update --force > /dev/null
+          grep -qx '# MINE' "$d/scripts/statusline.sh" || { echo "::error::ignored path overwritten by --force"; exit 1; }
+
       - name: monolithic project scan-secu.sh is kept alone
         run: |
           set -euo pipefail
