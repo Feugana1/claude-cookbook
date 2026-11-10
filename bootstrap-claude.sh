@@ -157,6 +157,10 @@ write_new() { # src dst
 
 # Fichier géré par le cookbook : créé, ou mis à jour s'il n'a pas été adapté par
 # le projet. Sinon conservé et signalé (--force pour l'écraser, avec sauvegarde).
+put_file() { # src dst → put_agent pour .claude/agents/, sinon put_managed
+  case "$(rel_of "$2")" in .claude/agents/*) put_agent "$1" "$2" ;; *) put_managed "$1" "$2" ;; esac
+}
+
 put_managed() { # src dst
   local src_sha; src_sha="$(sha_of "$1")"
   if [ -f "$2" ]; then
@@ -173,6 +177,34 @@ put_managed() { # src dst
     write_new "$1" "$2"
   fi
   record "$(rel_of "$2")" "$src_sha"
+}
+
+# Agent : un agent du même `name:` déjà présent ailleurs dans .claude/agents/
+# (projet antérieur aux dossiers roles/ et stacks/, agent métier du projet)
+# l'emporte. Sinon deux agents homonymes se concurrencent et la version générique
+# peut masquer celle du projet. --force installe quand même.
+agent_name() { # fichier .md → valeur du champ name: du frontmatter
+  awk 'NR==1 && $0!="---"{exit} NR>1 && $0=="---"{exit} /^name:/{sub(/^name:[[:space:]]*/,""); gsub(/["'\'']/,""); print; exit}' "$1"
+}
+
+agent_taken_by() { # src dst → chemin relatif de l'agent homonyme existant (vide sinon)
+  local name f; name="$(agent_name "$1")"
+  [ -n "$name" ] && [ -d "$TARGET/.claude/agents" ] || return 0
+  while IFS= read -r f; do
+    [ "$f" != "$2" ] || continue
+    [ "$(agent_name "$f")" = "$name" ] && { rel_of "$f"; return 0; }
+  done < <(find "$TARGET/.claude/agents" -type f -name '*.md' | sort)
+  return 0
+}
+
+put_agent() { # src dst
+  local other; other="$(agent_taken_by "$1" "$2")"
+  if [ -n "$other" ] && [ "$FORCE" = false ]; then
+    echo -e "    ${YELLOW}= $(rel_of "$2") (agent « $(agent_name "$1") » déjà fourni par ${other} : ignoré)${NC}"
+    N_KEPT=$((N_KEPT+1))
+    return 0
+  fi
+  put_managed "$1" "$2"
 }
 
 # Fichier du projet : créé s'il manque, jamais écrasé.
@@ -261,9 +293,9 @@ fi
 
 # ── 2. Core + pack : agents, skills, hooks, scripts ─────────────────────────
 echo -e "${GREEN}[2/5]${NC} Agents, skills, hooks, scripts…"
-while IFS=$'\t' read -r src rel; do put_managed "$src" "$TARGET/$rel"; done < <(emit_map core)
+while IFS=$'\t' read -r src rel; do put_file "$src" "$TARGET/$rel"; done < <(emit_map core)
 if [ -n "$PACK" ]; then
-  while IFS=$'\t' read -r src rel; do put_managed "$src" "$TARGET/$rel"; done < <(emit_map "$STACK")
+  while IFS=$'\t' read -r src rel; do put_file "$src" "$TARGET/$rel"; done < <(emit_map "$STACK")
 fi
 if [ "$DRY" = false ]; then
   chmod +x "$TARGET"/.claude/hooks/*.sh "$TARGET"/scan-secu.sh "$TARGET"/scripts/*.sh 2>/dev/null || true
