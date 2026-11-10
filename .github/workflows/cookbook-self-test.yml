@@ -41,7 +41,7 @@ jobs:
       - name: init each stack, then re-run (must change nothing)
         run: |
           set -euo pipefail
-          for stack in none adonisjs; do
+          for stack in none $(for c in plugins/*/pack.conf; do basename "$(dirname "$c")"; done); do
             d=$(mktemp -d); (cd "$d" && git init -q)
             bash bootstrap-claude.sh "$d" --stack="$stack" > /dev/null
             out=$(bash bootstrap-claude.sh "$d" --stack="$stack" --update)
@@ -56,6 +56,16 @@ jobs:
           bash bootstrap-claude.sh "$d" --stack=none --update > /dev/null
           [ ! -e "$d/.claude/hooks/dispatch-expert.sh" ] || { echo "::error::pack hook not retired"; exit 1; }
           [ -f "$d/.claude/agents/roles/security.md" ] || { echo "::error::replaced role not reinstalled"; exit 1; }
+
+      - name: switching between packs that ship the same hook path updates it in place
+        run: |
+          set -euo pipefail
+          d=$(mktemp -d); (cd "$d" && git init -q)
+          bash bootstrap-claude.sh "$d" --stack=adonisjs > /dev/null
+          out=$(bash bootstrap-claude.sh "$d" --stack=expo --update)
+          cmp -s plugins/expo/hooks/dispatch-expert.sh "$d/.claude/hooks/dispatch-expert.sh" || { echo "::error::shared hook not updated to the new pack"; exit 1; }
+          ! echo "$out" | grep -q 'ATTENTION' || { echo "::error::false stale-hook warning"; echo "$out"; exit 1; }
+          [ ! -e "$d/.claude/agents/roles/architect.md" ] || { echo "::error::replaced role installed"; exit 1; }
 
       - name: user-owned files survive --update
         run: |
@@ -112,7 +122,7 @@ jobs:
           # Le cookbook n'a pas d'app back : des SKIP et des FAIL sont attendus.
           # Le contrôle porte sur l'arrivée au verdict, pas sur le code retour.
           set +e
-          SECU_EXTRA_STEPS_DIRS=plugins/adonisjs/scripts/scan-secu.d \
+          SECU_EXTRA_STEPS_DIRS=$(ls -d plugins/*/scripts/scan-secu.d | grep -v '^plugins/core/' | paste -sd: -) \
             bash plugins/core/scripts/scan-secu.sh --diff 2>&1 | tee "$RUNNER_TEMP/scan-out.log"
           set -e
           grep -qE "READY TO PUSH|BLOCKED|NEEDS REVIEW|SHIP WITH DEBT|No changes to scan" "$RUNNER_TEMP/scan-out.log" \
