@@ -71,7 +71,7 @@ Le plugin fournit agents, skills et hooks (`hooks/hooks.json`). Il ne livre pas 
 Depuis le dossier de ton nouveau projet :
 
 ```bash
-bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|<pack>] [--update] [--dry-run] [--with-git-tooling]
+bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|<pack>] [--update] [--dry-run] [--force] [--with-git-tooling]
 ```
 
 **Choix stack (exclusif — zero redondance)** :
@@ -92,9 +92,10 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . --update --dry-run   # voir ce qui chan
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --update
 ```
 
-- **Fichiers gérés** (agents, skills, hooks, scripts, docs de référence) : mis à jour ; l'ancienne version est sauvegardée dans `.claude/.cookbook-backup/<horodatage>/`.
+- **Fichiers gérés** (agents, skills, hooks, scripts, docs de référence) : mis à jour **seulement s'ils sont restés tels que le cookbook les a installés**. L'empreinte de chaque fichier installé est notée dans `.claude/.cookbook-manifest` (à commiter). Un fichier adapté par le projet, ou présent sans empreinte (installation antérieure au manifeste), est conservé et signalé avec la commande `diff` à lancer ; `--force` l'écrase. Toute version remplacée est sauvegardée dans `.claude/.cookbook-backup/<horodatage>/`.
 - **Fichiers du projet** (`CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `docs/lessons.md`, `docs/anti-patterns.md`, docs du pack) : **jamais écrasés** ; le script signale ceux qui diffèrent de la version cookbook.
-- **Fichiers retirés du cookbook** (`plugins/core/retired.txt`) et fichiers d'un pack non retenu : sauvegardés puis supprimés (changement de stack propre).
+- **Fichiers retirés du cookbook** (`plugins/core/retired.txt`) et fichiers d'un pack non retenu : sauvegardés puis supprimés (changement de stack propre), sauf s'ils ont été adaptés par le projet.
+- `scripts/scan-secu.d/` n'est installé que si le `scan-secu.sh` du projet charge ces étapes : un `scan-secu.sh` monolithique adapté reste seul.
 - Tes agents, skills et commands maison ne sont jamais touchés.
 
 ---

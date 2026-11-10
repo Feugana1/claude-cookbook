@@ -3,21 +3,27 @@
 # bootstrap-claude.sh — installe le cookbook (core + pack de stack) dans un projet
 #
 # Usage :
-#   bash bootstrap-claude.sh <projet> [--stack=<none|pack>] [--update] [--dry-run] [--with-git-tooling]
+#   bash bootstrap-claude.sh <projet> [--stack=<none|pack>] [--update] [--dry-run] [--force] [--with-git-tooling]
 #
 #   --stack=none     rôles génériques seuls (défaut hors TTY)
 #   --stack=<pack>   core + pack ; un pack = dossier plugins/<pack>/ avec un pack.conf
 #   --update         re-synchronise un projet déjà installé
 #   --dry-run        affiche ce qui changerait, n'écrit rien
+#   --force          écrase aussi les fichiers gérés adaptés par le projet (sauvegardés)
 #   --with-git-tooling   installe aussi commitlint.config.js, lefthook.yml, .markdownlint.json
 #
 # Règles d'écrasement :
-#   - fichiers gérés (agents, skills, hooks, scripts, docs de référence) : mis à jour,
-#     l'ancienne version est sauvegardée dans .claude/.cookbook-backup/<horodatage>/
+#   - fichiers gérés (agents, skills, hooks, scripts, docs de référence) : mis à jour
+#     seulement s'ils sont restés tels que le cookbook les a installés. L'empreinte de
+#     chaque fichier installé est notée dans .claude/.cookbook-manifest (à commiter).
+#     Un fichier adapté par le projet, ou présent sans empreinte (projet antérieur au
+#     manifeste), est conservé et signalé ; --force l'écrase. Toute version remplacée
+#     est sauvegardée dans .claude/.cookbook-backup/<horodatage>/
 #   - fichiers du projet (CLAUDE.md, .claude/settings.json, .mcp.json, docs/lessons.md,
 #     docs/anti-patterns.md, docs du pack) : JAMAIS écrasés s'ils existent
 #   - fichiers retirés du cookbook (plugins/core/retired.txt) et fichiers d'un autre
-#     pack : sauvegardés puis supprimés
+#     pack : sauvegardés puis supprimés, sauf s'ils ont été adaptés par le projet
+#   - scripts/scan-secu.d/ n'est installé que si le scan-secu.sh du projet le charge
 # ============================================================================
 
 set -euo pipefail
@@ -35,17 +41,18 @@ done
 PACK_LIST="none${PACKS[0]:+|$(IFS='|'; echo "${PACKS[*]}")}"
 
 usage() {
-  echo -e "${RED}Usage: bash bootstrap-claude.sh <projet> [--stack=${PACK_LIST}] [--update] [--dry-run] [--with-git-tooling]${NC}"
+  echo -e "${RED}Usage: bash bootstrap-claude.sh <projet> [--stack=${PACK_LIST}] [--update] [--dry-run] [--force] [--with-git-tooling]${NC}"
   exit 1
 }
 
 [ $# -ge 1 ] || usage
 TARGET_ARG="$1"; shift
-UPDATE_MODE=false; DRY=false; STACK=""; GIT_TOOLING=false
+UPDATE_MODE=false; DRY=false; FORCE=false; STACK=""; GIT_TOOLING=false
 for arg in "$@"; do
   case "$arg" in
     --update) UPDATE_MODE=true ;;
     --dry-run) DRY=true ;;
+    --force) FORCE=true ;;
     --stack=*) STACK="${arg#--stack=}" ;;
     --with-git-tooling) GIT_TOOLING=true ;;
     *) echo -e "${YELLOW}Argument inconnu ignoré : $arg${NC}" ;;
@@ -93,11 +100,47 @@ echo -e "  Stack  : ${YELLOW}${STACK}${NC}"
 echo ""
 
 # ── Primitives d'installation ───────────────────────────────────────────────
-N_ADDED=0; N_UPDATED=0; N_SAME=0; N_KEPT=0; N_RETIRED=0
+N_ADDED=0; N_UPDATED=0; N_SAME=0; N_KEPT=0; N_RETIRED=0; N_CUSTOM=0
 KEPT_DIFF=()
+CUSTOM_KEPT=()
 BACKUP_DIR=""
 
 rel_of() { echo "${1#"$TARGET"/}"; }
+
+# ── Manifeste : empreinte de chaque fichier tel que le cookbook l'a écrit ───
+# Format : "<chemin relatif>\t<sha256>". Sert à distinguer une copie cookbook
+# intacte (mise à jour sans risque) d'un fichier adapté par le projet (conservé).
+MANIFEST="$TARGET/.claude/.cookbook-manifest"
+MANIFEST_NEW="$(mktemp)"
+trap 'rm -f "$MANIFEST_NEW"' EXIT
+
+if command -v sha256sum >/dev/null 2>&1; then
+  sha_of() { sha256sum "$1" | cut -d' ' -f1; }
+else
+  sha_of() { shasum -a 256 "$1" | cut -d' ' -f1; }
+fi
+
+manifest_sha() { # rel → empreinte notée à la dernière installation (vide si inconnue)
+  [ -f "$MANIFEST" ] || return 0
+  awk -F'\t' -v r="$1" '$1 == r { print $2; exit }' "$MANIFEST"
+}
+
+record() { printf '%s\t%s\n' "$1" "$2" >> "$MANIFEST_NEW"; } # rel sha
+
+# Le fichier cible est-il resté tel que le cookbook l'a installé ?
+is_pristine() { # dst
+  local known; known="$(manifest_sha "$(rel_of "$1")")"
+  [ -n "$known" ] && [ "$known" = "$(sha_of "$1")" ]
+}
+
+keep_custom() { # dst src raison
+  local rel; rel="$(rel_of "$1")"
+  local known; known="$(manifest_sha "$rel")"
+  [ -z "$known" ] || record "$rel" "$known"
+  echo -e "    ${YELLOW}= ${rel} ($3 : conservé)${NC}"
+  CUSTOM_KEPT+=("$rel|$2")
+  N_CUSTOM=$((N_CUSTOM+1))
+}
 
 backup_file() {
   local rel; rel="$(rel_of "$1")"
@@ -112,16 +155,24 @@ write_new() { # src dst
   N_ADDED=$((N_ADDED+1))
 }
 
-# Fichier géré par le cookbook : créé ou mis à jour (sauvegarde si différent).
+# Fichier géré par le cookbook : créé, ou mis à jour s'il n'a pas été adapté par
+# le projet. Sinon conservé et signalé (--force pour l'écraser, avec sauvegarde).
 put_managed() { # src dst
+  local src_sha; src_sha="$(sha_of "$1")"
   if [ -f "$2" ]; then
-    if cmp -s "$1" "$2"; then N_SAME=$((N_SAME+1)); return 0; fi
+    if cmp -s "$1" "$2"; then record "$(rel_of "$2")" "$src_sha"; N_SAME=$((N_SAME+1)); return 0; fi
+    if ! is_pristine "$2" && [ "$FORCE" = false ]; then
+      if [ -n "$(manifest_sha "$(rel_of "$2")")" ]; then keep_custom "$2" "$1" "adapté par le projet"
+      else keep_custom "$2" "$1" "sans empreinte cookbook"; fi
+      return 0
+    fi
     if [ "$DRY" = false ]; then backup_file "$2"; cp -p "$1" "$2"; fi
     echo "    ~ $(rel_of "$2") (mis à jour$([ "$DRY" = false ] && echo ', ancienne version sauvegardée'))"
     N_UPDATED=$((N_UPDATED+1))
   else
     write_new "$1" "$2"
   fi
+  record "$(rel_of "$2")" "$src_sha"
 }
 
 # Fichier du projet : créé s'il manque, jamais écrasé.
@@ -136,6 +187,10 @@ put_owned() { # src dst
 
 retire_file() { # chemin absolu dans la cible
   [ -f "$1" ] || return 0
+  if ! is_pristine "$1" && [ "$FORCE" = false ]; then
+    keep_custom "$1" "" "retiré du cookbook mais adapté par le projet"
+    return 0
+  fi
   if [ "$DRY" = false ]; then
     backup_file "$1"; rm -f "$1"
     local d; d="$(dirname "$1")"
@@ -143,6 +198,13 @@ retire_file() { # chemin absolu dans la cible
   fi
   echo "    - $(rel_of "$1") (retiré$([ "$DRY" = false ] && echo ', sauvegardé'))"
   N_RETIRED=$((N_RETIRED+1))
+}
+
+# Les étapes scripts/scan-secu.d/ ne servent qu'à l'orchestrateur modulaire du
+# cookbook : inutile de les poser à côté d'un scan-secu.sh monolithique conservé.
+scan_secu_modular() {
+  [ ! -f "$TARGET/scan-secu.sh" ] || grep -q 'scan-secu\.d' "$TARGET/scan-secu.sh" \
+    || [ "$FORCE" = true ]
 }
 
 # ── Cartographie source → cible ─────────────────────────────────────────────
@@ -170,6 +232,7 @@ emit_map() {
     while IFS= read -r f; do
       local r="${f#"$root"/scripts/}"
       if [ "$r" = "scan-secu.sh" ]; then printf '%s\t%s\n' "$f" "scan-secu.sh"
+      elif [[ "$r" == scan-secu.d/* ]] && ! scan_secu_modular; then continue
       else printf '%s\t%s\n' "$f" "scripts/$r"; fi
     done < <(find "$root/scripts" -type f ! -name .DS_Store | sort)
   fi
@@ -263,12 +326,25 @@ else
   echo "    (ignoré — ajouter --with-git-tooling pour commitlint + lefthook + markdownlint)"
 fi
 
+# ── Manifeste ───────────────────────────────────────────────────────────────
+if [ "$DRY" = false ]; then
+  mkdir -p "$TARGET/.claude"
+  sort -u "$MANIFEST_NEW" > "$MANIFEST"
+fi
+
 # ── Récap ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}══ Terminé$([ "$DRY" = true ] && echo ' (dry-run : rien n’a été écrit)') ══${NC}"
-echo "  ajoutés : $N_ADDED · mis à jour : $N_UPDATED · identiques : $N_SAME · retirés : $N_RETIRED · conservés (projet) : $N_KEPT"
+echo "  ajoutés : $N_ADDED · mis à jour : $N_UPDATED · identiques : $N_SAME · retirés : $N_RETIRED · conservés (projet) : $N_KEPT · adaptés conservés : $N_CUSTOM"
 if [ -n "$BACKUP_DIR" ]; then
   echo -e "  sauvegardes : ${BLUE}$(rel_of "$BACKUP_DIR")${NC} (à ajouter au .gitignore)"
+fi
+if [ "${#CUSTOM_KEPT[@]}" -gt 0 ]; then
+  echo -e "  ${YELLOW}Fichiers gérés adaptés par le projet, non modifiés (--force pour écraser) :${NC}"
+  for e in "${CUSTOM_KEPT[@]}"; do
+    if [ -n "${e#*|}" ]; then echo "    - ${e%%|*}   (comparer : diff ${e%%|*} ${e#*|})"
+    else echo "    - ${e%%|*}   (retiré du cookbook : supprimer à la main si inutile)"; fi
+  done
 fi
 if [ "${#KEPT_DIFF[@]}" -gt 0 ]; then
   echo -e "  ${YELLOW}Fichiers du projet différents de la version cookbook (non modifiés) :${NC}"

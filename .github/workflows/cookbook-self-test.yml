@@ -84,6 +84,27 @@ jobs:
           bash bootstrap-claude.sh "$d" --stack=none --update > /dev/null
           grep -q MY-LESSON "$d/docs/lessons.md" || { echo "::error::docs/lessons.md was overwritten"; exit 1; }
 
+      - name: project-adapted managed files survive --update, --force overwrites them
+        run: |
+          set -euo pipefail
+          d=$(mktemp -d); (cd "$d" && git init -q)
+          bash bootstrap-claude.sh "$d" --stack=adonisjs > /dev/null
+          echo '# MY-HOOK' >> "$d/.claude/hooks/dispatch-expert.sh"
+          bash bootstrap-claude.sh "$d" --stack=adonisjs --update > /dev/null
+          grep -q MY-HOOK "$d/.claude/hooks/dispatch-expert.sh" || { echo "::error::adapted hook overwritten by --update"; exit 1; }
+          bash bootstrap-claude.sh "$d" --stack=none --update > /dev/null
+          [ -f "$d/.claude/hooks/dispatch-expert.sh" ] || { echo "::error::adapted pack hook deleted on stack switch"; exit 1; }
+          bash bootstrap-claude.sh "$d" --stack=adonisjs --update --force > /dev/null
+          ! grep -q MY-HOOK "$d/.claude/hooks/dispatch-expert.sh" || { echo "::error::--force did not overwrite"; exit 1; }
+
+      - name: monolithic project scan-secu.sh is kept alone
+        run: |
+          set -euo pipefail
+          d=$(mktemp -d); (cd "$d" && git init -q && printf '#!/bin/bash\necho mono\n' > scan-secu.sh)
+          bash bootstrap-claude.sh "$d" --stack=adonisjs > /dev/null
+          grep -q mono "$d/scan-secu.sh" || { echo "::error::project scan-secu.sh overwritten"; exit 1; }
+          [ ! -d "$d/scripts/scan-secu.d" ] || { echo "::error::scan-secu.d installed next to a monolithic scan-secu.sh"; exit 1; }
+
       - name: inventory runs
         run: bash scripts/inventory.sh --json | jq -e .core.agents
 

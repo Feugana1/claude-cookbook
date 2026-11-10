@@ -42,7 +42,7 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=none       # cross-stack univer
 
 - Sans `--stack` en TTY : menu interactif. En CI non-TTY : défaut `none`.
 - Copie `.claude/`, `scripts/`, `docs/` + crée un `CLAUDE.md` minimal à enrichir.
-- `--update` : re-synchronise. Fichiers gérés mis à jour avec sauvegarde dans `.claude/.cookbook-backup/` ; `CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `docs/lessons.md`, `docs/anti-patterns.md` jamais écrasés.
+- `--update` : re-synchronise. Fichiers gérés mis à jour avec sauvegarde dans `.claude/.cookbook-backup/`, seulement s'ils correspondent encore à l'empreinte notée dans `.claude/.cookbook-manifest` ; un fichier adapté par le projet est conservé et signalé (`--force` pour l'écraser) ; `CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, `docs/lessons.md`, `docs/anti-patterns.md` jamais écrasés.
 - Changer de stack avec `--update --stack=<autre>` retire proprement les fichiers de l'ancien pack (sauvegardés).
 
 ## 2. Ce que le cookbook installe
