@@ -301,9 +301,16 @@ while IFS= read -r line; do
   retire_file "$TARGET/$line"
 done < "$CORE/retired.txt"
 
+# Chemins aussi livrés par la stack retenue (ex. .claude/hooks/dispatch-expert.sh) :
+# mis à jour à l'étape 2 au lieu d'être retirés puis réinstallés.
+KEEP_RELS=""
+[ -z "$PACK" ] || KEEP_RELS="$(emit_map "$STACK" | cut -f2)"
 for p in "${PACKS[@]:-}"; do
   [ -n "$p" ] && [ "$p" != "$STACK" ] || continue
-  while IFS=$'\t' read -r src rel; do retire_file "$TARGET/$rel" "$src"; done < <(emit_map "$p")
+  while IFS=$'\t' read -r src rel; do
+    if [ -n "$KEEP_RELS" ] && printf '%s\n' "$KEEP_RELS" | grep -qxF "$rel"; then continue; fi
+    retire_file "$TARGET/$rel" "$src"
+  done < <(emit_map "$p")
   retire_file "$TARGET/docs/claude-config/stack-$p.md" "$COOKBOOK_ROOT/plugins/$p/README.md"
 done
 if [ -n "$REPLACES" ]; then
@@ -363,6 +370,7 @@ if [ -f "$SETTINGS" ]; then
   for p in "${PACKS[@]:-}"; do
     [ -n "$p" ] && [ "$p" != "$STACK" ] && [ -d "$COOKBOOK_ROOT/plugins/$p/hooks" ] || continue
     for h in "$COOKBOOK_ROOT"/plugins/"$p"/hooks/*.sh; do
+      [ -z "$PACK" ] || [ ! -f "$PACK/hooks/$(basename "$h")" ] || continue # même hook livré par la stack retenue
       if grep -q "$(basename "$h")" "$SETTINGS" 2>/dev/null; then
         echo -e "    ${YELLOW}ATTENTION${NC}: .claude/settings.json référence encore le hook $(basename "$h") (pack $p, retiré) : supprimer cette entrée."
       fi
