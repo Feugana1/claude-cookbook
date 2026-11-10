@@ -1,0 +1,18 @@
+{
+  "name": "cookbook-expo",
+  "description": "Pack stack Expo / React Native pour cookbook-core : experts mobile (architecture expo-router, sécurité OWASP MASVS, performance), hook dispatcher P0, steps scan-secu mobiles.",
+  "author": {
+    "name": "Lionel FOTSO"
+  },
+  "license": "MIT",
+  "keywords": [
+    "expo",
+    "react-native",
+    "expo-router",
+    "tanstack-query",
+    "masvs"
+  ],
+  "dependencies": [
+    "cookbook-core"
+  ]
+}
