@@ -56,6 +56,9 @@ elif [ -n "$EXPRESS_ERR_HANDLER" ]; then
   else
     pass "Express error handler avec guard prod"
   fi
+elif [ -f package.json ] && grep -qE '"(expo|react-native)"[[:space:]]*:' package.json; then
+  # Mobile client (Expo / React Native) : no HTTP server, the check belongs to the backend repo.
+  skip "Mobile client app — no HTTP server here; run this step in the backend repo"
 else
   fail "No exception handler found — expected app/exceptions/handler.ts (Adonis), @Catch ExceptionFilter (NestJS), or app.use((err,req,res,next)) (Express)"
 fi

@@ -5,9 +5,13 @@ step 17 "Unpinned npm dependencies (^ or ~ or 'latest')" 3 "Supply chain"
 UNPINNED=$(node -e "
 const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
 const issues = [];
+// Expo projects: 'expo install' writes '~' ranges aligned on the SDK (patch-only);
+// package-lock.json pins the exact versions, so only '^', 'latest' and '*' are flagged.
+const deps = Object.assign({}, pkg.dependencies, pkg.devDependencies);
+const tildeOk = Boolean(deps.expo);
 for (const section of ['dependencies', 'devDependencies', 'overrides']) {
   for (const [name, ver] of Object.entries(pkg[section] || {})) {
-    if (typeof ver === 'string' && (/^[\^~]/.test(ver) || ver === 'latest' || ver === '*')) {
+    if (typeof ver === 'string' && ((tildeOk ? /^\^/ : /^[\^~]/).test(ver) || ver === 'latest' || ver === '*')) {
       issues.push(section + ' / ' + name + ': ' + ver);
     }
   }
