@@ -8,7 +8,7 @@
 ## Stack & mode
 
 - **Stack** : `<remplir : AdonisJS 6 / Next.js 15 / Django 5 / …>`
-- **Mode cookbook** : `<--stack=adonisjs | --stack=none>`
+- **Mode cookbook** : `<--stack=adonisjs | --stack=expo | --stack=none>`
 - **Agents disponibles** : voir `.claude/agents/` (mode adonisjs → 13 agents / mode none → 10 rôles génériques)
 
 ---

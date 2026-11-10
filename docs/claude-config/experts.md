@@ -44,21 +44,21 @@ Un expert qui bloque arrête le merge : on corrige, on ne contourne pas.
 
 ## 4. Catalogue par couche
 
-Install **exclusif** : un rôle générique et son override stack ne coexistent jamais (`bootstrap-claude.sh --stack=none|adonisjs`). Détail du mapping : README du pack (`plugins/adonisjs/README.md`).
+Install **exclusif** : un rôle générique et son override stack ne coexistent jamais (`bootstrap-claude.sh --stack=none|<pack>`). Détail du mapping : README de chaque pack (`plugins/<pack>/README.md`).
 
-| Couche | Rôle | Générique (`roles/`) | Stack AdonisJS (`stacks/adonisjs/`) |
-|---|---|---|---|
-| 0 Strategic gate | valide la feature avant code | `product-strategist` | — |
-| 1 Architect | structure, conventions, API | `architect` | `back-architect` |
-| 2 Cross-cutting | sécurité, données | `security`, `performance` | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` |
-| 3 Domain | règles métier | — | aucun : modèle dans `docs/templates/example-domain-agent.md` |
-| 4 UI / linter | UX web et mobile ; grep rapide (haiku) | `frontend` | `edge-anti-patterns` |
-| 5 Final gate | review avant commit | `reviewer` | `code-reviewer` |
-| Transverse | investigation, tests | `analyzer`, `qa` | — |
+| Couche | Rôle | Générique (`roles/`) | Stack AdonisJS (`stacks/adonisjs/`) | Stack Expo (`stacks/expo/`) |
+|---|---|---|---|---|
+| 0 Strategic gate | valide la feature avant code | `product-strategist` | — | — |
+| 1 Architect | structure, conventions, API | `architect` | `back-architect` | `mobile-architect` |
+| 2 Cross-cutting | sécurité, données | `security`, `performance` | `security-multitenant`, `data-access-reviewer`, `migration-reviewer` | `mobile-security`, `mobile-performance` |
+| 3 Domain | règles métier | — | aucun : modèle dans `docs/templates/example-domain-agent.md` | idem |
+| 4 UI / linter | UX web et mobile ; grep rapide (haiku) | `frontend` | `edge-anti-patterns` | — (`frontend` conservé) |
+| 5 Final gate | review avant commit | `reviewer` | `code-reviewer` | `mobile-code-reviewer` |
+| Transverse | investigation, tests | `analyzer`, `qa` | — | — |
 
 Notes d'usage :
 - `product-strategist` est la gate d'entrée des **nouvelles features** (pas bugfix ni refactor). Sans vision produit (`PRODUCT.md` ou `docs/vision.md`), il rend `BLOCKED-SETUP`.
-- `code-reviewer` / `reviewer` **orchestrent** : ils lancent `scan-secu.sh` et lisent sa sortie, ils ne re-greppent pas.
+- `code-reviewer` / `mobile-code-reviewer` / `reviewer` **orchestrent** : ils lancent `scan-secu.sh` et lisent sa sortie, ils ne re-greppent pas.
 - Les experts domain (compta, marketplace, quotas…) sont **projet-spécifiques** : ils vivent dans le `.claude/agents/` du projet, jamais dans le cookbook.
 
 ## 5. Maintenance
