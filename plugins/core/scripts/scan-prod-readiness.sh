@@ -86,7 +86,7 @@ done
 
 # Dep scanning
 has_file ".github/dependabot.yml" && add_signal security depscan_dependabot "dependabot config"
-f=$(find "$TARGET/.github/workflows" -type f 2>/dev/null -exec grep -l "trivy\|snyk\|npm audit" {} \; 2>/dev/null | head -1 || true)
+f=$(find "$TARGET/.github/workflows" -type f -exec grep -l "trivy\|snyk\|npm audit" {} + 2>/dev/null | head -1 || true)
 [ -n "$f" ] && add_signal security depscan_workflow "workflow: $(basename "$f")"
 
 # Input validation

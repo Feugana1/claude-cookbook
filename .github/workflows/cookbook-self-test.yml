@@ -11,44 +11,26 @@ permissions:
   contents: read
 
 jobs:
-  bash-lint:
-    name: Bash syntax + shellcheck
+  lint:
+    name: shellcheck, JSON, frontmatter, leak-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: bash -n on all .sh
-        run: |
-          fail=0
-          while IFS= read -r -d '' f; do
-            bash -n "$f" 2>&1 || { echo "::error file=$f::bash syntax error"; fail=1; }
-          done < <(find . -name '*.sh' -not -path './.git/*' -print0)
-          exit $fail
-
+      # shellcheck est préinstallé sur ubuntu-latest et signale aussi les erreurs de syntaxe.
       - name: shellcheck (errors only)
-        run: |
-          sudo apt-get install -y shellcheck
-          shellcheck --severity=error --external-sources $(find . -name '*.sh' -not -path './.git/*')
+        run: find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 shellcheck --severity=error --external-sources
 
-  json-validate:
-    name: JSON validity
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: jq empty on all .json
-        run: |
-          fail=0
-          while IFS= read -r -d '' f; do
-            jq empty "$f" 2>&1 || { echo "::error file=$f::invalid JSON"; fail=1; }
-          done < <(find . -name '*.json' -not -path './.git/*' -not -path './node_modules/*' -print0)
-          exit $fail
+      - name: JSON validity
+        run: find . -name '*.json' -not -path './.git/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 jq empty
 
-  frontmatter:
-    name: Agents and skills frontmatter (strict YAML)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: ruby scripts/check-frontmatter.rb
+      - name: agents and skills frontmatter (strict YAML)
+        run: ruby scripts/check-frontmatter.rb
+
+      - name: no project-specific names (patterns in repository variable LEAK_PATTERN)
+        env:
+          LEAK_PATTERN: ${{ vars.LEAK_PATTERN }}
+        run: bash scripts/leak-check.sh
 
   bootstrap-smoke:
     name: bootstrap installs, is idempotent, switches stack
@@ -123,13 +105,3 @@ jobs:
           set -e
           grep -qE "READY TO PUSH|BLOCKED|NEEDS REVIEW|SHIP WITH DEBT|No changes to scan" "$RUNNER_TEMP/scan-out.log" \
             || { echo "::error::scan-secu did not reach a verdict (crashed mid-run?)"; exit 1; }
-
-  leak-check:
-    name: No project-specific names in generic files
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: leak-check (patterns live in the repository variable LEAK_PATTERN, not in the repo)
-        env:
-          LEAK_PATTERN: ${{ vars.LEAK_PATTERN }}
-        run: bash scripts/leak-check.sh

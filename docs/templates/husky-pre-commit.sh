@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 # Copy to .husky/pre-commit (chmod +x) after `npm i -D husky && npx husky init`.
 #
 # Pre-commit — scan-secu delta mode + file-size ratchet.
