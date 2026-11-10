@@ -81,6 +81,9 @@ else
       warn "Caddy security headers gaps:"
       printf '%s' "$GAPS"
     fi
+  elif [ -f package.json ] && grep -qE '"(expo|react-native)"[[:space:]]*:' package.json; then
+    # Mobile client (Expo / React Native) : HTTP response headers are set by the backend.
+    skip "Mobile client app — response headers are set by the backend; run this step there"
   else
     fail "No security headers config found — expected config/shield.ts (Adonis) OR app.use(helmet()) (NestJS) OR infra/caddy/Caddyfile (Caddy gateway)"
   fi

@@ -124,7 +124,7 @@ Pour les items foundation via bootstrap (`.claude/agents/`, `.claude/skills/`, `
 
 Proposer à l'user :
 > "Foundation cookbook manquante. Lancer le bootstrap ?
-> `bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=<adonisjs|none>`"
+> `bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=<none|pack>`" (packs : dossiers `plugins/*/` avec un `pack.conf`)
 
 Ne pas lancer bootstrap automatiquement — c'est une action à confirmer par l'user (stack choice).
 
@@ -177,5 +177,5 @@ Proposer de relancer `/ai-config` après pour vérifier PARTIAL → COMPLET.
 - Script sous-jacent : `scripts/scan-ai-config.sh`
 - Templates : `docs/templates/*`
 - Bootstrap : `bootstrap-claude.sh` (pour la foundation)
-- Cookbook `docs/claude-config/stack-adonisjs.md` — mapping roles ↔ stacks (comprendre `--stack=adonisjs|none`)
+- Cookbook `docs/claude-config/stack-<pack>.md` — mapping roles ↔ stacks (comprendre `--stack=<pack>|none`)
 - Cookbook `docs/claude-config/experts.md` — catalogue agents

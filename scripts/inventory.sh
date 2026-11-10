@@ -6,7 +6,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-count() { find "$@" -type f 2>/dev/null | wc -l | tr -d ' '; }
+# Un dossier absent compte 0 (un pack peut n'avoir ni skills ni hooks) : `|| true` neutralise pipefail.
+count() { find "$@" -type f 2>/dev/null | wc -l | tr -d ' ' || true; }
 
 CORE=plugins/core
 PACKS=$(find plugins -mindepth 1 -maxdepth 1 -type d ! -name core 2>/dev/null | sort)
@@ -24,7 +25,7 @@ pack_txt=""
 for p in $PACKS; do
   n=$(basename "$p")
   a=$(count "$p/agents" -name '*.md')
-  sk=$(find "$p/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')
+  sk=$(find "$p/skills" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ' || true)
   h=$(count "$p/hooks" -name '*.sh')
   st=$(count "$p/scripts/scan-secu.d" -name 'step-*.sh')
   pack_json="${pack_json:+$pack_json,}\"$n\":{\"agents\":$a,\"skills\":$sk,\"hooks\":$h,\"scan_secu_steps\":$st}"

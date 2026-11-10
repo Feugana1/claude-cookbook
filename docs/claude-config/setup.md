@@ -24,6 +24,7 @@ Optionnels pour `scan-secu.sh` complet : `trivy`, `gitleaks`, `jscpd`, `license-
 /plugin marketplace add <owner>/claude-cookbook
 /plugin install cookbook-core@claude-cookbook
 /plugin install cookbook-adonisjs@claude-cookbook   # optionnel : pack AdonisJS
+/plugin install cookbook-expo@claude-cookbook       # optionnel : pack Expo / React Native
 ```
 
 Un plugin fournit agents, skills et hooks. Ses hooks sont déclarés dans `hooks/hooks.json` de chaque plugin. Il **ne livre pas** de règles `permissions` : seules les clés `agent` et `subagentStatusLine` d'un `settings.json` de plugin sont appliquées. Pour les deny-rules, utiliser la voie B ou copier le bloc `permissions` de `docs/templates/settings.json` dans le `.claude/settings.json` du projet.
@@ -36,6 +37,7 @@ git clone <cookbook-repo> "$COOKBOOK_DIR"
 
 cd <mon-projet>
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=adonisjs   # projet AdonisJS/Node/TS
+bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=expo       # app Expo / React Native
 bash $COOKBOOK_DIR/bootstrap-claude.sh . --stack=none       # cross-stack universel
 # options : --dry-run (aperçu) · --with-git-tooling (commitlint + lefthook + markdownlint)
 ```

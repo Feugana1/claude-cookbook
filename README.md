@@ -1,6 +1,6 @@
 # Claude Code Cookbook
 
-Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents en 2 packs (`plugins/core/` génériques + `plugins/adonisjs/` couches 1-5, modèle + effort calibrés par agent), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
+Stack Claude Code générique, avec des packs de stack optionnels : **AdonisJS / Node / TypeScript** et **Expo / React Native**. Sub-agents en packs (`plugins/core/` génériques + un pack de stack qui durcit les couches 1-5, modèle + effort calibrés par agent), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
 
 **Statut** : version dans `.claude-plugin/plugin.json` — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
 
@@ -22,7 +22,7 @@ bash scripts/inventory.sh --json   # machine-readable
 Un marketplace, deux plugins : un **core** générique et des **packs de stack** optionnels.
 
 ```
-.claude-plugin/marketplace.json      déclare cookbook-core + cookbook-adonisjs
+.claude-plugin/marketplace.json      déclare cookbook-core + un plugin par pack de stack
 
 plugins/
 ├── core/                            générique, aucune mention de stack
@@ -38,6 +38,10 @@ plugins/
     ├── skills/                      /ux-review (Edge)
     ├── hooks/                       dispatch-expert (patterns P0 Adonis)
     └── scripts/                     steps scan-secu Edge/Lucid/Adonis, check-file-sizes.js
+└── expo/                            pack optionnel (Expo / React Native), même structure
+    ├── agents/                      experts mobile (architecture, sécurité MASVS, perf, review)
+    ├── hooks/                       dispatch-expert (patterns P0 mobiles)
+    └── scripts/                     steps scan-secu mobiles (stockage, EXPO_PUBLIC_, cleartext…)
 
 bootstrap-claude.sh                  fallback : copie core (+ pack) dans un projet
 scripts/inventory.sh                 comptes générés depuis le filesystem
@@ -62,6 +66,7 @@ Ajouter une stack = créer `plugins/<stack>/` (mêmes sous-dossiers que `adonisj
 /plugin marketplace add <owner>/claude-cookbook
 /plugin install cookbook-core@claude-cookbook
 /plugin install cookbook-adonisjs@claude-cookbook   # optionnel : pack AdonisJS
+/plugin install cookbook-expo@claude-cookbook       # optionnel : pack Expo / React Native
 ```
 
 Le plugin fournit agents, skills et hooks (`hooks/hooks.json`). Il ne livre pas de règles `permissions` (un `settings.json` de plugin n'applique que `agent` et `subagentStatusLine`) : voir [`setup.md`](docs/claude-config/setup.md).
@@ -80,8 +85,9 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|<pack>] [--update] [--dry
 |---|---|
 | `--stack=none` (défaut CI non-TTY) | tous les `roles/*` génériques |
 | `--stack=adonisjs` | `roles/` non remplacés + `stacks/adonisjs/` durcis |
+| `--stack=expo` | `roles/` non remplacés + `stacks/expo/` durcis (app mobile) |
 
-Les stacks disponibles sont les dossiers `plugins/*/` qui contiennent un `pack.conf`. Sans `--stack` en TTY : menu généré depuis ces packs ; hors TTY : `none`. Le mapping override roles ↔ stacks est documenté dans le README du pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
+Les stacks disponibles sont les dossiers `plugins/*/` qui contiennent un `pack.conf`. Sans `--stack` en TTY : menu généré depuis ces packs ; hors TTY : `none`. Le mapping override roles ↔ stacks est documenté dans le README de chaque pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md), [`plugins/expo/README.md`](plugins/expo/README.md).
 
 Installe `.claude/` (agents, skills, hooks, `settings.json`), `scripts/`, `docs/`, `.mcp.json` + un `CLAUDE.md` minimal à enrichir. L'outillage git (commitlint, lefthook, markdownlint) est opt-in : `--with-git-tooling`.
 
@@ -110,11 +116,11 @@ Règles :
 
 ### Catalogue d'agents
 
-Un rôle = un fichier. Un rôle générique (`roles/`) et son override stack (`stacks/<stack>/`) ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md).
+Un rôle = un fichier. Un rôle générique (`roles/`) et son override stack (`stacks/<stack>/`) ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : README de chaque pack ([`adonisjs`](plugins/adonisjs/README.md), [`expo`](plugins/expo/README.md)).
 
 ### Ajouter une stack
 
-Voir « Ajouter une stack » dans [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md) : un dossier `plugins/<stack>/`, une entrée marketplace, un mode dans le bootstrap. Le core ne change pas.
+Voir « Ajouter une stack » dans [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md) : un dossier `plugins/<stack>/` avec son `pack.conf`, une entrée marketplace ; le bootstrap découvre le pack seul. Le core ne change pas.
 
 ---
 

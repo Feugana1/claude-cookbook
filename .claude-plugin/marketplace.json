@@ -18,6 +18,12 @@
       "source": "./plugins/adonisjs",
       "description": "Pack AdonisJS/Node/TS : experts stack-aware, hooks dispatcher, steps scan-secu spécifiques. Requiert cookbook-core.",
       "license": "MIT"
+    },
+    {
+      "name": "cookbook-expo",
+      "source": "./plugins/expo",
+      "description": "Pack Expo / React Native : experts mobile (expo-router, OWASP MASVS, performance), hook dispatcher P0, steps scan-secu mobiles. Requiert cookbook-core.",
+      "license": "MIT"
     }
   ]
 }
