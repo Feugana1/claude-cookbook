@@ -185,10 +185,13 @@ put_owned() { # src dst
   fi
 }
 
-retire_file() { # chemin absolu dans la cible
+# Retiré seulement s'il est intact : identique à son empreinte, ou à la source
+# cookbook fournie (projet antérieur au manifeste). Sinon conservé (--force pour retirer).
+retire_file() { # chemin absolu dans la cible [source cookbook]
   [ -f "$1" ] || return 0
-  if ! is_pristine "$1" && [ "$FORCE" = false ]; then
-    keep_custom "$1" "" "retiré du cookbook mais adapté par le projet"
+  if [ "$FORCE" = false ] && ! is_pristine "$1" && ! { [ -n "${2:-}" ] && cmp -s "$2" "$1"; }; then
+    if [ -n "$(manifest_sha "$(rel_of "$1")")" ]; then keep_custom "$1" "" "retiré du cookbook mais adapté par le projet"
+    else keep_custom "$1" "" "retiré du cookbook, sans empreinte cookbook"; fi
     return 0
   fi
   if [ "$DRY" = false ]; then
@@ -248,11 +251,11 @@ done < "$CORE/retired.txt"
 
 for p in "${PACKS[@]:-}"; do
   [ -n "$p" ] && [ "$p" != "$STACK" ] || continue
-  while IFS=$'\t' read -r _ rel; do retire_file "$TARGET/$rel"; done < <(emit_map "$p")
-  retire_file "$TARGET/docs/claude-config/stack-$p.md"
+  while IFS=$'\t' read -r src rel; do retire_file "$TARGET/$rel" "$src"; done < <(emit_map "$p")
+  retire_file "$TARGET/docs/claude-config/stack-$p.md" "$COOKBOOK_ROOT/plugins/$p/README.md"
 done
 if [ -n "$REPLACES" ]; then
-  for role in $REPLACES; do retire_file "$TARGET/.claude/agents/roles/$role.md"; done
+  for role in $REPLACES; do retire_file "$TARGET/.claude/agents/roles/$role.md" "$CORE/agents/$role.md"; done
 fi
 [ "$N_RETIRED" -gt 0 ] || echo "    (rien à retirer)"
 
