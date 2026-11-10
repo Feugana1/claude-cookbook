@@ -1,7 +1,8 @@
 ---
 name: workflow-email
-description: Use PROACTIVELY when editing app/services/**workflow*, app/services/**email*, app/services/**mail*, resources/views/emails/**, or app/models/workflow*. Audits variable interpolation (Mustache `{{contact.firstname}}` Edge vs ICU `{var}` lang JSON — collision = P0), `mail.send()` sync for lifecycle critique vs `sendLater()` BullMQ for reminders, workflow binding owner_type enum strictness, single-source variable context builder. Sources : project workflow + email rules docs.
+description: "Use PROACTIVELY when editing workflow/email/mail services, resources/views/emails/** or workflow models. Audits Mustache vs ICU variable collision (P0), mail.send sync for lifecycle vs sendLater for reminders, binding owner_type, single variable-context builder."
 model: sonnet
+effort: medium
 tools: Read, Grep, Glob
 ---
 

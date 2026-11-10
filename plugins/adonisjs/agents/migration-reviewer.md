@@ -1,7 +1,8 @@
 ---
 name: migration-reviewer
-description: Use PROACTIVELY when adding or editing files in database/migrations. Audits Lucid/Knex migrations - idempotence (IF NOT EXISTS / hasColumn), DEFAULT on NOT NULL, documented JSONB, ALTER CONSTRAINT when extending an enum, prepare/consume on JSONB model columns, explicit foreign keys, missing indexes, impact on existing tables.
+description: "Use PROACTIVELY when adding or editing database/migrations. Audits Lucid/Knex migrations - idempotence, DEFAULT on NOT NULL, documented JSONB, ALTER CONSTRAINT for enums, prepare/consume, foreign keys, indexes, impact on existing tables."
 model: sonnet
+effort: low
 tools: Read, Grep, Glob
 ---
 

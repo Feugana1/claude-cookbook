@@ -1,7 +1,8 @@
 ---
 name: qa
-description: Use for test strategy - test pyramid (unit/integration/E2E), coverage gaps, TDD, test plans, automation. Triggers when user says "test strategy", "coverage", "TDD", "E2E", "integration test", "test plan", "QA".
+description: "Use for test strategy - test pyramid, coverage gaps, TDD, test plans, automation. Triggers on \"test strategy\", \"coverage\", \"E2E\", \"QA\"."
 model: sonnet
+effort: medium
 tools: Read, Grep, Glob, Bash
 ---
 

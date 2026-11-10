@@ -1,7 +1,8 @@
 ---
 name: back-architect
-description: Use PROACTIVELY when editing AdonisJS backend files - app/controllers, app/services, app/middleware, app/validators, app/models, start/routes.ts. Audits AdonisJS structure and conventions - file size limits (controller 300 / service 400 / template 800 lines), split and _helpers extraction, naming, Vine validators on every POST/PUT, route ordering (specific before wildcards). Outputs P0 / P1 / Quick wins / Déjà correct. Replaces the generic architect in the adonisjs pack.
+description: "Use PROACTIVELY when editing app/controllers|services|middleware|validators|models or start/routes.ts. Audits AdonisJS conventions - size limits 300/400/800L, splits, _helpers extraction, naming, Vine validators, route ordering. Output P0/P1/Quick wins. Replaces generic architect."
 model: sonnet
+effort: medium
 tools: Read, Grep, Glob, Bash
 ---
 

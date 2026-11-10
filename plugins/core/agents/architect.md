@@ -1,7 +1,8 @@
 ---
 name: architect
-description: Use for architecture and backend design decisions that cut across stacks - system design, API contracts (REST/GraphQL), monolith vs microservices, resilience, technology selection, structural refactors. Triggers when user says "architecture", "conception système", "API design", "microservices vs monolithe", "cloud-native", "sélection technologique", "évolutivité", "backend architecture".
-model: sonnet
+description: "Use for cross-stack architecture decisions - system design, API contracts, monolith vs microservices, resilience, technology selection, structural refactors. Triggers on \"architecture\", \"API design\", \"microservices\", \"évolutivité\"."
+model: opus
+effort: medium
 tools: Read, Grep, Glob, Bash, WebSearch
 ---
 

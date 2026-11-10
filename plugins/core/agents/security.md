@@ -1,7 +1,8 @@
 ---
 name: security
-description: Use for generic security audits - OWASP Top 10, OWASP LLM Top 10, CVE/supply chain, STRIDE/PASTA threat modeling, Zero Trust. Not stack-specific tenant-isolation rules (a stack pack provides those). Triggers when user says "audit sécurité", "OWASP", "threat model", "pen-test", "CVE", "prompt injection", "LLM security", "vulnérabilité".
+description: "Use for generic security audits - OWASP Top 10, OWASP LLM Top 10, supply chain/CVE, STRIDE threat modeling. Not tenant isolation (stack packs). Triggers on \"audit sécurité\", \"OWASP\", \"threat model\", \"CVE\", \"prompt injection\"."
 model: opus
+effort: medium
 tools: Read, Grep, Glob, WebSearch
 ---
 

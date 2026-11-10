@@ -12,19 +12,6 @@ when working on this project.
 
 ---
 
-## Table of contents
-
-1. Stack
-2. Naming conventions
-3. i18n
-4. Edge / Alpine (if applicable)
-5. **Domain Model Glossary** ← edit this for your project
-6. Tenant-scope canonical patterns
-7. Migration rules
-8. Anti-patterns (project-specific overlay on top of `docs/anti-patterns.md`)
-
----
-
 ## 1. Stack
 
 | Layer | Choice |
@@ -150,6 +137,18 @@ scan-secu.sh has a migration-reviewer pass — point it at your
 The cookbook ships `docs/anti-patterns.md` with generic patterns.
 Add project-specific anti-patterns here (1 line each, with link to
 the docs/anti-patterns.md detail row when appropriate).
+
+## 9. Token economy
+
+- Subagent for mechanical, scoped-research or parallelizable work; the
+  parent keeps reasoning and synthesis. Cheapest sufficient model:
+  Haiku mechanical, Sonnet exploration, Opus tradeoffs. Each agent
+  declares `model` + `effort` in its frontmatter.
+- Code graph / index tool before grep + Read when the repo has one.
+- PDFs: `pdftotext`, never Read (unless analysing images).
+- Known file: read it directly, no search.
+- Keep this file lean: rules + pointers, details in referenced docs.
+  Agent descriptions short (they load on every turn).
 
 ---
 

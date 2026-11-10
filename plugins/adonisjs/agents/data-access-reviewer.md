@@ -1,6 +1,6 @@
 ---
 name: data-access-reviewer
-description: Use as fast secondary reviewer (haiku) when Edit/Write touches app/services, app/models, or code with Lucid queries, raw SQL, object storage or Redis cache. Grep pass against ORM anti-patterns (preload vs load, save in a loop, raw SQL interpolation, pool settings) and storage/cache anti-patterns (direct drive access, Redis TTL decoupled from signed URL expiry).
+description: "Fast secondary reviewer (haiku) when Edit/Write touches app/services|models, Lucid queries, raw SQL, object storage or Redis. Greps ORM anti-patterns (preload vs load, save loop, SQL interpolation, pool) and storage/cache ones (direct drive, TTL vs signed URL expiry)."
 model: haiku
 tools: Read, Grep
 ---

@@ -1,6 +1,6 @@
 ---
 name: edge-anti-patterns
-description: Use PROACTIVELY as a fast linter (haiku) whenever a .edge template is modified. One grep pass against the Edge/Alpine anti-patterns of docs/anti-patterns-adonisjs.md (Alpine directives in partials, JSON.stringify in x-data, || in @each, Mustache vs ICU in lang files, z-index and style rules). Outputs only findings, silent if none. Pairs with the generic frontend role, does not replace it.
+description: "Use PROACTIVELY as fast linter (haiku) when any .edge file is modified. Single grep pass against Edge/Alpine anti-patterns of docs/anti-patterns-adonisjs.md. Outputs findings only, silent if none. Pairs with frontend, does not replace it."
 model: haiku
 tools: Read, Grep
 ---

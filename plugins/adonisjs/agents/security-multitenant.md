@@ -1,7 +1,8 @@
 ---
 name: security-multitenant
-description: Use PROACTIVELY when editing AdonisJS app/controllers, app/services, app/middleware, or adding routes in start/routes.ts. Audits multi-tenant isolation - effectiveUserId in every business query (never auth.user.id), IDOR prevention via .where('userId', effectiveUserId).firstOrFail(), CSRF on forms, soft-delete, signed URLs, swallow helper. Replaces the generic security role in the adonisjs pack.
+description: "Use PROACTIVELY when editing app/controllers|services|middleware or routes. Audits multi-tenant isolation - effectiveUserId (never auth.user.id), IDOR firstOrFail, CSRF, soft-delete, signed URLs, swallow helper. Replaces generic security role."
 model: sonnet
+effort: high
 tools: Read, Grep, Bash
 ---
 

@@ -1,6 +1,6 @@
 # Claude Code Cookbook
 
-Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents en 2 dossiers (`roles/` génériques opus + `stacks/adonisjs/` couches 1-5), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
+Stack Claude Code générique pour projets **AdonisJS / Node / TypeScript**. Sub-agents en 2 packs (`plugins/core/` génériques + `plugins/adonisjs/` couches 1-5, modèle + effort calibrés par agent), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
 
 **Statut** : version dans `.claude-plugin/plugin.json` — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
 

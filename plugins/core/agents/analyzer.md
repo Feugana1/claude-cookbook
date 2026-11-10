@@ -1,7 +1,8 @@
 ---
 name: analyzer
-description: Use PROACTIVELY for root cause analysis of bugs, incidents and unexpected behavior - 5 Whys, ranked hypotheses, mandatory reproduction before any diagnosis. Triggers when user reports a crash, regression or odd behavior without a clear cause, or says "je comprends pas pourquoi", "bizarre", "ça marchait avant", "cause racine", "root cause".
+description: "Use PROACTIVELY for root cause analysis of bugs, incidents, regressions - 5 Whys, ranked hypotheses, reproduction first. Triggers on \"je comprends pas pourquoi\", \"bizarre\", \"ça marchait avant\", \"root cause\"."
 model: opus
+effort: high
 tools: Read, Grep, Glob, Bash, WebSearch
 ---
 

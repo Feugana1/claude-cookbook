@@ -1,7 +1,8 @@
 ---
 name: performance
-description: Use for performance audits - Core Web Vitals, RAIL, profiling, DB/network/memory bottlenecks, optimizations ranked by measured ROI. Triggers when user says "performance", "lent", "latence", "bottleneck", "optimisation", "profil", "throughput", "mémoire".
+description: "Use for performance audits - Core Web Vitals, profiling, DB/network/memory bottlenecks, fixes ranked by measured ROI. Triggers on \"performance\", \"lent\", \"latence\", \"optimisation\"."
 model: sonnet
+effort: medium
 tools: Read, Grep, Glob, Bash
 ---
 

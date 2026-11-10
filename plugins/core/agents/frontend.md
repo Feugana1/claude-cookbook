@@ -1,7 +1,8 @@
 ---
 name: frontend
-description: Use for UI/UX audits on web and mobile - WCAG 2.1 accessibility, design systems, Core Web Vitals, responsive and mobile-first, iOS HIG / Material / PWA / offline-first. Triggers when user says "UI", "UX", "accessibilité", "WCAG", "responsive", "design system", "composant", "Core Web Vitals", "mobile", "iOS", "Android", "React Native", "Flutter", "PWA", "offline-first".
+description: "Use for UI/UX audits web and mobile - WCAG, design systems, Core Web Vitals, responsive, PWA/offline. Triggers on \"UI\", \"UX\", \"accessibilité\", \"responsive\", \"composant\", \"mobile\"."
 model: sonnet
+effort: medium
 tools: Read, Grep, Glob, WebSearch
 ---
 

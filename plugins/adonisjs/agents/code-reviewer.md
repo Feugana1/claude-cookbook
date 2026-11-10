@@ -1,7 +1,8 @@
 ---
 name: code-reviewer
-description: Use PROACTIVELY immediately BEFORE git commit when staged changes are non-trivial (2+ files, 50+ lines, or touching app/, resources/views/, database/migrations/, start/routes.ts). Senior PR-style review of the staged diff for an AdonisJS project - reads scan-secu output, checks intent and cross-file consistency, delegates deep-dives to stack experts, returns SHIP / NEEDS CHANGES / REJECT. Also triggers on "review my changes", "review staged", "before commit", "PR review", "relis avant push". Replaces the generic reviewer in the adonisjs pack.
+description: "Use PROACTIVELY BEFORE git commit when staged diff is non-trivial (2+ files, 50+ lines, app/, views, migrations, routes). PR-style review using scan-secu output, verdict SHIP / NEEDS CHANGES / REJECT. Triggers on \"review my changes\", \"relis avant push\". Replaces generic reviewer."
 model: sonnet
+effort: high
 tools: Read, Grep, Glob, Bash
 ---
 
