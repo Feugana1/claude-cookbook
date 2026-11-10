@@ -147,6 +147,11 @@ the docs/anti-patterns.md detail row when appropriate).
 - Code graph / index tool before grep + Read when the repo has one.
 - PDFs: `pdftotext`, never Read (unless analysing images).
 - Known file: read it directly, no search.
+- Cache hygiene: pick model + MCP servers at session start; switching
+  `/model` or toggling MCP mid-session rebuilds the cached prefix.
+  `/clear` between unrelated tasks beats compacting earlier. Settings
+  template: 1M context off, autocompact at 60%.
+- Optional: `rtk init -g` compresses shell output; check with `rtk gain`.
 - Keep this file lean: rules + pointers, details in referenced docs.
   Agent descriptions short (they load on every turn).
 
