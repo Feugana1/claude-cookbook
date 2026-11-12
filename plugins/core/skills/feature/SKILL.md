@@ -1,13 +1,15 @@
 ---
 name: feature
-description: "You MUST use this BEFORE any new feature implementation. Orchestrates brainstorming + product-strategist verdict + writing-plans + expert dispatch. If verdict NO-GO, no code is written."
+description: "You MUST use this BEFORE any new feature implementation. Cadrage court + verdict product-strategist + plan d'implémentation + dispatch des experts installés. If verdict NO-GO, no code is written. Triggers on \"ajoute X\", \"on doit avoir X\", \"et si on faisait X\"."
 ---
 
 # /feature — Nouvelle feature (workflow générique)
 
 <HARD-GATE>
-Pas une ligne de code avant : (1) verdict GO du product-strategist, (2) spec rédigée dans `docs/features/<nom>.md`, (3) plan d'implémentation validé via `writing-plans`. Cette gate est non-négociable même si l'utilisateur insiste.
+Pas une ligne de code avant : (1) verdict GO du `product-strategist`, (2) spec rédigée dans `docs/features/<nom>.md`, (3) plan d'implémentation validé par le user. Cette gate est non-négociable même si l'utilisateur insiste.
 </HARD-GATE>
+
+Aucun plugin externe requis : cadrage et plan se font ici, avec les outils natifs de Claude Code.
 
 ## When to invoke
 
@@ -18,7 +20,7 @@ Pas une ligne de code avant : (1) verdict GO du product-strategist, (2) spec ré
 ## When NOT to invoke
 
 - Bugfix (corriger un comportement existant) — action directe
-- Refactor pur (pas de changement UX visible) — utiliser `superpowers:brainstorming` + `writing-plans` directement
+- Refactor pur (pas de changement UX visible) — `/refactor`
 - Tâche technique sans impact user (cleanup deps, rename) — action directe
 
 ## Anti-Pattern: "Ça ressemble à du déjà-vu, c'est OK"
@@ -27,41 +29,45 @@ Tu identifies un pattern existant chez un concurrent tracké dans `docs/competit
 
 ## Checklist (TaskCreate obligatoire pour chaque item)
 
-1. **Invoquer `superpowers:brainstorming`** — collaborative design avec le user (purpose, contraintes, success criteria, 2-3 approches)
-2. **Invoquer subagent `product-strategist`** avec la description issue du brainstorming — verdict strict GO/REVOIR/NO-GO
-3. Si **GO** → créer `docs/features/<nom>.md` depuis `docs/feature-plan-template.md` enrichi des sorties strategic gate (Problème user, Benchmark, Différenciation, Anti-références, Conditions de GO)
-4. Si **REVOIR** → proposer 2-3 reformulations au user, **ne pas coder**, relancer step 2 après reformulation acceptée
-5. Si **NO-GO** → expliquer pourquoi (concurrents + anti-références), **ne pas coder**, proposer alternatives
-6. **Invoquer `superpowers:writing-plans`** — générer plan d'implémentation détaillé
-7. **Dispatch experts** selon le scope : si `docs/dispatch-matrix.md` existe dans le projet, la suivre ; sinon lister `.claude/agents/**` et choisir ceux dont la `description` correspond aux paths touchés (architect, sécurité, données, linters). Architects et cross-cutting en parallèle, domain en séquentiel.
-8. Implémentation suit le workflow décrit dans le `CLAUDE.md` du projet
-9. **Closure** : entrée `docs/dev-changelog.md` + audit benchmark concurrent si applicable (voir `references/closure-checklist.md`)
+1. **Cadrage** (5 lignes max, avec le user) : problème user, contrainte principale, 2 approches candidates, critère de succès. Pas de code, pas d'architecture. Si le user a déjà écrit une spec, la lire et passer à l'étape 2.
+2. **Invoquer subagent `product-strategist`** avec le cadrage — verdict strict GO / REVOIR / NO-GO / BLOCKED-SETUP.
+   - `BLOCKED-SETUP` (pas de `PRODUCT.md` ni `docs/vision.md`) : proposer de créer une vision minimale depuis `docs/templates/PRODUCT.md`, puis relancer.
+3. Si **GO** → créer `docs/features/<nom>.md` depuis `docs/feature-plan-template.md` enrichi des sorties strategic gate (Problème user, Benchmark, Différenciation, Anti-références, Conditions de GO).
+4. Si **REVOIR** → proposer 2-3 reformulations au user, **ne pas coder**, relancer step 2 après reformulation acceptée.
+5. Si **NO-GO** → expliquer pourquoi (concurrents + anti-références), **ne pas coder**, proposer alternatives.
+6. **Plan d'implémentation** : passer en plan mode natif (`EnterPlanMode`). Le plan = §3 Architecture + §5 Lots du doc feature (files map, ordre des lots, commande de vérification par lot). Le user valide le plan ; le doc feature est la seule copie du plan.
+7. **Dispatch experts** selon le scope : si `docs/dispatch-matrix.md` existe dans le projet, la suivre ; sinon lister `.claude/agents/**` et choisir ceux dont la `description` correspond aux paths touchés (architecte, sécurité, données, linters). Architectes et cross-cutting en parallèle, domain en séquentiel. Un expert dit REJECT → corriger le plan, pas contourner.
+8. Implémentation lot par lot selon le workflow du `CLAUDE.md` du projet ; §5 du doc feature mis à jour à chaque commit (status + hash).
+9. **Closure** : voir `references/closure-checklist.md` (journal de livraison, benchmark concurrent, memory, skill/agent récurrent).
 
 ## Process Flow
 
 ```dot
 digraph feature_flow {
-    "brainstorming (superpowers)" [shape=box];
+    "Cadrage (5 lignes)" [shape=box];
     "product-strategist (subagent)" [shape=box];
     "Verdict?" [shape=diamond];
-    "Créer doc/features/<nom>.md" [shape=box];
-    "writing-plans (superpowers)" [shape=box];
+    "Créer docs/features/<nom>.md" [shape=box];
+    "Plan mode natif" [shape=box];
     "Dispatch experts" [shape=box];
     "Implementation" [shape=box];
-    "Closure dev-changelog + benchmark" [shape=doublecircle];
+    "Closure" [shape=doublecircle];
     "REVOIR: reformuler + relancer" [shape=box];
     "NO-GO: stop, ne pas coder" [shape=doublecircle];
+    "BLOCKED-SETUP: créer PRODUCT.md" [shape=box];
 
-    "brainstorming (superpowers)" -> "product-strategist (subagent)";
+    "Cadrage (5 lignes)" -> "product-strategist (subagent)";
     "product-strategist (subagent)" -> "Verdict?";
-    "Verdict?" -> "Créer doc/features/<nom>.md" [label="GO"];
+    "Verdict?" -> "Créer docs/features/<nom>.md" [label="GO"];
     "Verdict?" -> "REVOIR: reformuler + relancer" [label="REVOIR"];
     "Verdict?" -> "NO-GO: stop, ne pas coder" [label="NO-GO"];
+    "Verdict?" -> "BLOCKED-SETUP: créer PRODUCT.md" [label="BLOCKED"];
+    "BLOCKED-SETUP: créer PRODUCT.md" -> "product-strategist (subagent)";
     "REVOIR: reformuler + relancer" -> "product-strategist (subagent)";
-    "Créer doc/features/<nom>.md" -> "writing-plans (superpowers)";
-    "writing-plans (superpowers)" -> "Dispatch experts";
+    "Créer docs/features/<nom>.md" -> "Plan mode natif";
+    "Plan mode natif" -> "Dispatch experts";
     "Dispatch experts" -> "Implementation";
-    "Implementation" -> "Closure dev-changelog + benchmark";
+    "Implementation" -> "Closure";
 }
 ```
 
@@ -80,15 +86,14 @@ digraph feature_flow {
 ```
 ### Feature : <nom>
 
-**Brainstorming** : ✅ design approuvé
-**Strategic Review** : GO différentiant | REVOIR | NO-GO
+**Cadrage** : ✅ validé
+**Strategic Review** : GO différentiant | REVOIR | NO-GO | BLOCKED-SETUP
 
 [Si GO]
 **Différenciation** : <one-liner vs concurrents>
-**Doc créée** : `docs/features/<nom>.md`
-**Plan créé** : `docs/superpowers/plans/<date>-<nom>.md`
+**Doc créée** : `docs/features/<nom>.md` (spec + plan §3/§5)
 **Experts dispatchés** : <liste>
-**Prochaine étape** : implémenter selon plan + workflow du projet
+**Prochaine étape** : lot 1 selon plan + workflow du projet
 
 [Si REVOIR]
 **Reformulations proposées** :
@@ -103,13 +108,13 @@ digraph feature_flow {
 
 ## References
 
-- `references/closure-checklist.md` — détails phase 5 closure
+- `references/closure-checklist.md` — détails phase 9 closure
 - `references/strategic-gate-examples.md` — verdicts product-strategist réels passés (calibration)
 
 ## Sources
 
-- [`docs/claude-config/experts.md`](../../docs/claude-config/experts.md) — catalogue des agents par couche
-- [`docs/claude-config/setup.md`](../../docs/claude-config/setup.md) §3 — règle de routage cookbook vs superpowers
+- `docs/claude-config/experts.md` — catalogue des agents par couche
+- `docs/claude-config/setup.md` §3 — règle de routage cookbook vs plugins génériques
 - `PRODUCT.md` + `docs/vision.md` — direction produit
 - `docs/competitive-benchmark/` — fiches concurrents (si présent)
 - `docs/feature-plan-template.md` — template doc feature

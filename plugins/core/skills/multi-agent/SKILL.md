@@ -21,7 +21,7 @@ Deux modes :
 ## When NOT to invoke
 
 - Fichier trivial (< 100L, pas de logique métier) — utiliser un seul expert cible
-- Bugfix ponctuel — utiliser `/fix-error` ou expert unique
+- Bugfix ponctuel — action directe ou expert unique (`analyzer`)
 - Nouvelle feature — utiliser `/feature` (qui dispatch déjà les experts en interne)
 
 ## Experts disponibles

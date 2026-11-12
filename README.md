@@ -1,8 +1,26 @@
 # Claude Code Cookbook
 
-Stack Claude Code générique, avec des packs de stack optionnels : **AdonisJS / Node / TypeScript** et **Expo / React Native**. Sub-agents en packs (`plugins/core/` génériques + un pack de stack qui durcit les couches 1-5, modèle + effort calibrés par agent), skills, commands, hooks P0 déterministes, scan sécurité tiered OWASP, anti-patterns catalogués, templates prêts à wire.
+Harness Claude Code pour projets **Node / TypeScript** (packs AdonisJS et Expo / React Native inclus). Un **core** générique (agents experts, skills, hook pre-commit, scan sécurité tiered OWASP, prod-readiness, templates) et des **packs de stack** qui durcissent le core.
 
-**Statut** : version dans `.claude-plugin/plugin.json` — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
+**Statut** : version dans `plugins/core/.claude-plugin/plugin.json` — distribuable comme **plugin Claude Code natif** ou via `bootstrap-claude.sh` (fallback).
+
+---
+
+## Flux quotidien
+
+Trois mécanismes, trois déclencheurs. L'humain tape les skills ; les agents et les hooks se déclenchent seuls.
+
+| Moment | Tu tapes | Se déclenche seul |
+| --- | --- | --- |
+| Nouvelle feature | `/feature` | `product-strategist` rend GO / REVOIR / NO-GO ; sans GO, pas de code |
+| Pendant le code | rien | experts auto-dispatchés d'après leur `description` (architecte, sécurité, données, linter) ; hook pack bloque les patterns P0 sur Edit/Write |
+| Avant commit | `/pre-pr` puis `/commit` | hook pre-commit analyse le diff staged et suggère `reviewer` / `code-reviewer` ; `--no-verify` refusé par permission |
+| Avant push / PR | `/secu` puis `/pr` | `scan-secu.sh` (delta en pre-commit, full avant push, cron hebdo en CI) |
+| Audit ponctuel | `/multi-agent`, `/refactor`, `/prod-readiness`, `/ai-config`, `/ux-review` (pack) | — |
+
+Règles : un expert dit **REJECT** → on corrige, on ne contourne pas. Pas de `--no-verify`. Un hook bloque légitimement → `// canonical-skip:<rule>:<reason>` dans le diff.
+
+Liste et comptes : `bash scripts/inventory.sh`. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md).
 
 ---
 
@@ -49,7 +67,8 @@ docs/                                lessons, anti-patterns, templates, claude-c
 commitlint.config.js  lefthook.yml  .markdownlint.json   outillage du cookbook
 ```
 
-Le layout **installé** dans un projet cible reste `.claude/{agents,skills,commands,hooks}`, `scripts/` et `scan-secu.sh`.
+Le layout **installé** dans un projet cible : `.claude/agents/roles/` (agents core), `.claude/agents/stacks/<stack>/` (agents du pack), `.claude/{skills,hooks}`, `scripts/`, `scan-secu.sh`.
+Dans les docs, « agent core » et « agent pack » désignent ces deux dossiers.
 
 Ajouter une stack = créer `plugins/<stack>/` (mêmes sous-dossiers que `adonisjs`) + une entrée dans `marketplace.json`. Aucune modification du core.
 
@@ -83,9 +102,9 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . [--stack=none|<pack>] [--update] [--dry
 
 | Mode | Install |
 |---|---|
-| `--stack=none` (défaut CI non-TTY) | tous les `roles/*` génériques |
-| `--stack=adonisjs` | `roles/` non remplacés + `stacks/adonisjs/` durcis |
-| `--stack=expo` | `roles/` non remplacés + `stacks/expo/` durcis (app mobile) |
+| `--stack=none` (défaut CI non-TTY) | tous les agents core |
+| `--stack=adonisjs` | agents core non remplacés + agents du pack (`pack.conf` → `REPLACES`) |
+| `--stack=expo` | agents core non remplacés + agents du pack (app mobile) |
 
 Les stacks disponibles sont les dossiers `plugins/*/` qui contiennent un `pack.conf`. Sans `--stack` en TTY : menu généré depuis ces packs ; hors TTY : `none`. Le mapping override roles ↔ stacks est documenté dans le README de chaque pack : [`plugins/adonisjs/README.md`](plugins/adonisjs/README.md), [`plugins/expo/README.md`](plugins/expo/README.md).
 
@@ -112,11 +131,11 @@ bash $COOKBOOK_DIR/bootstrap-claude.sh . --update
 Règles :
 1. **Un rôle = un fichier** (miroir [wasabeef/claude-code-cookbook](https://github.com/wasabeef/claude-code-cookbook/tree/main/plugins/fr/agents/roles))
 2. **Générique OU stack, jamais les deux** pour un même use case (bootstrap install exclusif)
-3. **Stack durcit rôle** : quand un fichier `stacks/adonisjs/X` remplace un `roles/Y`, il hérite conceptuellement de son scope (règle d'or, format sortie) puis durcit avec les conventions stack
+3. **Stack durcit rôle** : quand un agent du pack remplace un agent core, il hérite conceptuellement de son scope (règle d'or, format sortie) puis durcit avec les conventions stack
 
 ### Catalogue d'agents
 
-Un rôle = un fichier. Un rôle générique (`roles/`) et son override stack (`stacks/<stack>/`) ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : README de chaque pack ([`adonisjs`](plugins/adonisjs/README.md), [`expo`](plugins/expo/README.md)).
+Un rôle = un fichier. Un agent core et son override pack ne sont **jamais installés ensemble**. Catalogue par couche : [`docs/claude-config/experts.md`](docs/claude-config/experts.md). Mapping override : README de chaque pack ([`adonisjs`](plugins/adonisjs/README.md), [`expo`](plugins/expo/README.md)).
 
 ### Ajouter une stack
 
@@ -173,6 +192,7 @@ Le cookbook est **générique**. Chaque projet doit fournir :
 - `PRODUCT.md` (vision produit) et/ou `docs/vision.md`, `docs/roadmap.md`
 - `docs/competitive-benchmark/*.md` (si `product-strategist` utilisé)
 - Docs domain : `docs/architecture.md`, `docs/design-system.md`, `docs/database-neon.md`, `docs/storage-s3.md`, `docs/security-multitenant.md`, etc.
+- `docs/dev-changelog.md` si le projet veut un journal des features livrées (closure de `/feature`) ; sinon la closure note dans `docs/lessons.md`
 - Agents domain projet-specific (compta, marketplace, workflow custom, subscription, public routes, front-architect si UI-heavy, etc.)
 - Extension hook `.claude/hooks/dispatch-expert.local.sh` (sourcé si présent — pour hints domain-specific)
 

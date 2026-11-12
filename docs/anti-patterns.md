@@ -20,23 +20,21 @@ Chaque entrée : **Anti-Pattern → Solution → Sévérité**, avec `file:line`
 
 ### Anti-pattern P1 — Double-discipline gratuite
 
-**Symptôme** : Claude invoque à la fois un skill projet ET son équivalent superpowers générique pour la même tâche.
+**Symptôme** : Claude invoque à la fois un skill ou agent cookbook ET son équivalent générique (plugin tiers, skill built-in) pour la même tâche.
 
 **Exemples concrets** :
-- `/feature` + `brainstorming` (le skill projet `/feature` invoque déjà `brainstorming` en interne)
-- `code-reviewer` subagent + `requesting-code-review` skill (le subagent projet REMPLACE le skill superpowers)
-- `/pre-pr` + `verification-before-completion` (sauf cas `gh pr create` qui combine `/pre-pr` + `finishing-a-development-branch`)
+- `/feature` + un brainstorming générique (le cadrage est déjà dans `/feature`)
+- `code-reviewer` / `reviewer` subagent + un skill de review générique (le subagent projet le remplace)
+- `/pre-pr` + une vérification « avant completion » générique
 
 **Pourquoi c'est mauvais** :
 - Coût tokens × 2 sur la même réflexion
 - Friction utilisateur (Claude pose 2 fois les mêmes questions)
 - Risque d'incohérence si les 2 outils proposent des verdicts contradictoires
 
-**Solution** : appliquer la **règle d'or routage** définie dans [`docs/claude-config/setup.md`](claude-config/setup.md) §3 :
+**Solution** : règle de routage de [`docs/claude-config/setup.md`](claude-config/setup.md) §3 : le skill ou agent cookbook, projet-aware, prime. L'outil générique ne s'invoque que si aucun skill projet ne couvre le contexte.
 
-> Si un skill projet existe pour le contexte, il PRIME sur l'équivalent superpowers générique. Les skills superpowers s'invoquent uniquement quand aucun skill projet ne couvre le contexte (gap pur).
-
-**Détection en review** : si un commit ou une session mentionne 2 skills couvrant le même axe, c'est un anti-pattern. Voir `setup.md` §3 pour des exemples de correspondance.
+**Détection en review** : si un commit ou une session mentionne 2 skills couvrant le même axe, c'est un anti-pattern.
 
 ---
 

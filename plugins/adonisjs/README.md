@@ -53,7 +53,7 @@ Conservés tels quels : analyzer, performance, qa
 1. Créer `plugins/<stack>/` avec `.claude-plugin/plugin.json` (`"dependencies": ["cookbook-core"]`, pas de `version` : elle vit dans le core), et les sous-dossiers utiles : `agents/`, `skills/`, `hooks/`, `scripts/scan-secu.d/`, `docs/`.
 2. Ajouter l'entrée dans `.claude-plugin/marketplace.json` (`"source": "./plugins/<stack>"`).
 3. Créer `plugins/<stack>/pack.conf` (`DESCRIPTION=…`, `REPLACES="rôles du core remplacés"`) : le bootstrap découvre la stack tout seul, sans éditer le script. Un `settings.hooks.json` optionnel est fusionné dans `.claude/settings.json`.
-4. Chaque agent du pack documente ce qu'il durcit (« Inherits from roles/<Y> » puis « Stack override <stack> »).
+4. Chaque agent du pack dit en tête quel agent core il durcit et ce que la stack ajoute (règle d'or conservée, conventions stack en plus).
 5. Valider : `claude plugin validate .` et `bash scripts/inventory.sh`.
 
 Le core ne doit jamais nommer un agent d'un pack.

@@ -46,7 +46,7 @@ Un expert qui bloque arrête le merge : on corrige, on ne contourne pas.
 
 Install **exclusif** : un rôle générique et son override stack ne coexistent jamais (`bootstrap-claude.sh --stack=none|<pack>`). Détail du mapping : README de chaque pack (`plugins/<pack>/README.md`).
 
-| Couche | Rôle | Générique (`roles/`) | Stack AdonisJS (`stacks/adonisjs/`) | Stack Expo (`stacks/expo/`) |
+| Couche | Rôle | Agent core (`plugins/core/agents/`) | Pack AdonisJS (`plugins/adonisjs/agents/`) | Pack Expo (`plugins/expo/agents/`) |
 |---|---|---|---|---|
 | 0 Strategic gate | valide la feature avant code | `product-strategist` | — | — |
 | 1 Architect | structure, conventions, API | `architect` | `back-architect` | `mobile-architect` |
@@ -66,7 +66,7 @@ Notes d'usage :
 ### Ajouter un subagent
 
 1. Vérifier qu'aucun agent existant ne couvre le besoin.
-2. Créer `roles/<name>.md` (générique) ou `stacks/<stack>/<name>.md` (stack). Frontmatter `name / description / tools / model`.
+2. Créer `plugins/core/agents/<name>.md` (générique) ou `plugins/<stack>/agents/<name>.md` (stack). Le bootstrap les installe sous `.claude/agents/roles/` et `.claude/agents/stacks/<stack>/`. Frontmatter `name / description / tools / model`.
 3. `description` **active** : « Use PROACTIVELY when… », « Triggers when user says… » (pas « Specialized in… »).
 4. Charger une source de vérité dédiée, sortie P0 / P1 / Quick wins / Déjà correct.
 5. Si générique : l'ajouter ici (ligne du tableau §4). Si projet-spécifique : reste local.
@@ -74,7 +74,7 @@ Notes d'usage :
 ### Ajouter un skill
 
 1. Un skill est une invocation **humaine** ; un subagent est une délégation **auto**. Ne pas recouvrir un agent existant.
-2. `.claude/skills/<name>/SKILL.md` avec frontmatter `name / description`.
+2. `plugins/core/skills/<name>/SKILL.md` (ou `plugins/<stack>/skills/`) avec frontmatter `name / description`. Installé en `.claude/skills/<name>/`.
 3. Documenter la source de vérité qu'il charge.
 
 ### Ajouter un pattern P0 au hook

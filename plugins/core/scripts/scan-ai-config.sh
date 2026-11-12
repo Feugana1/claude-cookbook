@@ -93,7 +93,6 @@ check           "scan-secu.sh"                           "P1" "scan-secu.sh"
 
 # ── P2 (nice) — qualité + governance ───────────────────────────────────────
 check           "docs/feature-plan-template.md"          "P2" "docs/feature-plan-template.md"
-check           "docs/ux-audit-prompt.md"                "P2" "docs/ux-audit-prompt.md"
 check           "commitlint.config.js"                   "P2" "commitlint.config.js"
 check           "lefthook.yml"                           "P2" "lefthook.yml"
 check_dir_nonempty ".github/workflows/ (CI)"            "P2" ".github/workflows"

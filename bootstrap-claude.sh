@@ -330,7 +330,7 @@ fi
 
 # ── 3. Docs ─────────────────────────────────────────────────────────────────
 echo -e "${GREEN}[3/5]${NC} Docs…"
-for f in feature-plan-template.md ux-audit-prompt.md; do put_managed "$COOKBOOK_ROOT/docs/$f" "$TARGET/docs/$f"; done
+put_managed "$COOKBOOK_ROOT/docs/feature-plan-template.md" "$TARGET/docs/feature-plan-template.md"
 for f in experts.md setup.md; do put_managed "$COOKBOOK_ROOT/docs/claude-config/$f" "$TARGET/docs/claude-config/$f"; done
 # Accumulés par le projet : jamais écrasés.
 put_owned "$COOKBOOK_ROOT/docs/lessons.md" "$TARGET/docs/lessons.md"

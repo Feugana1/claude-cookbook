@@ -2,9 +2,9 @@
 
 Référence chargée par `SKILL.md` step 9. Actions de clôture au merge d'une feature.
 
-## 1. Dev changelog (toujours)
+## 1. Journal de livraison (toujours)
 
-Ajouter une entrée datée dans [`docs/dev-changelog.md`](../../../docs/dev-changelog.md) avec :
+Ajouter une entrée datée dans `docs/dev-changelog.md` si le projet en tient un, sinon dans `docs/lessons.md`, avec :
 
 - **Date** : YYYY-MM-DD (date du merge)
 - **Feature** : nom
@@ -53,5 +53,4 @@ Cf `~/.claude/projects/.../memory/MEMORY.md` pour l'index.
 ## 5. Skill ou subagent à ajouter (si scope >3 fois)
 
 Si le scope est récurrent (≥ 3 features similaires), envisager :
-- Ajouter un skill custom (`/<nom>-check`) — cf `superpowers:writing-skills`
-- Ajouter un subagent — cf `docs/claude-config/experts.md` §11 maintenance
+- Ajouter un skill custom (`/<nom>-check`) ou un subagent — cf `docs/claude-config/experts.md` §5 maintenance

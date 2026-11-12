@@ -20,7 +20,7 @@ Instructions pour un agent Claude Code. Vue d'ensemble : [README.md](README.md).
 
 ## « Ajoute un agent »
 
-Suivre [experts.md §5](docs/claude-config/experts.md) : vérifier l'absence de doublon, générique → `roles/`, stack → `stacks/<stack>/`, frontmatter `name/description/tools/model` avec description **active**. Projet-spécifique : reste local. Générique : proposer la copie vers le cookbook.
+Suivre [experts.md §5](docs/claude-config/experts.md) : vérifier l'absence de doublon, générique → `plugins/core/agents/`, stack → `plugins/<stack>/agents/`, frontmatter `name/description/tools/model` avec description **active**. Projet-spécifique : reste local. Générique : proposer la copie vers le cookbook.
 
 ## « Applique une lesson learned »
 
@@ -28,7 +28,7 @@ Lire `docs/lessons.md`, appliquer, ajouter le pattern à `docs/anti-patterns.md`
 
 ## Règles du cookbook
 
-- **Un rôle = un fichier. Générique OU stack, jamais les deux** pour un même use case. Un fichier `stacks/X` durcit son `roles/Y`.
+- **Un rôle = un fichier. Générique OU stack, jamais les deux** pour un même use case. Un agent de pack durcit l'agent core qu'il remplace (`pack.conf` → `REPLACES`).
 - **Un expert dit REJECT → tu corriges, tu ne contournes pas.**
 - Nouvelle feature → `/feature` (ou `product-strategist` si vision documentée). Avant commit non-trivial → `code-reviewer`/`reviewer`. Avant push → `scan-secu.sh`.
 - Pas de cérémonie (CHANGELOG, releases, multi-lang) : kit perso solo.
@@ -36,7 +36,7 @@ Lire `docs/lessons.md`, appliquer, ajouter le pattern à `docs/anti-patterns.md`
 
 ## Si tu modifies le cookbook
 
-- Agents/hooks/skills **100 % génériques** : rien de spécifique à un projet. Le contenu stack va dans `stacks/<stack>/`.
+- Agents/hooks/skills **100 % génériques** : rien de spécifique à un projet. Le contenu stack va dans `plugins/<stack>/`.
 - Respecter les limites §14 (controllers ≤ 300 L, services ≤ 400 L, templates ≤ 800 L), exemples inclus.
 - Aucun nom de projet dans les fichiers versionnés : `bash scripts/leak-check.sh` (motifs dans `LEAK_PATTERN` ou `.leak-patterns` local, jamais dans le dépôt).
 - Valider : `SECU_EXTRA_STEPS_DIRS=plugins/adonisjs/scripts/scan-secu.d:plugins/expo/scripts/scan-secu.d bash plugins/core/scripts/scan-secu.sh --diff` reste cohérent ; `bash scripts/inventory.sh` tourne ; `bash -n` sur les scripts modifiés.

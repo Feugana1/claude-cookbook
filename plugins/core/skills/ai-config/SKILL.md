@@ -43,7 +43,7 @@ Audit + scaffold de la configuration IA du projet (Claude Code standards). Cible
 | Item | Path | Template |
 |---|---|---|
 | docs/feature-plan-template.md | `docs/feature-plan-template.md` | cookbook `docs/` |
-| docs/ux-audit-prompt.md | `docs/ux-audit-prompt.md` | cookbook `docs/` |
+| docs/ux-audit-prompt.md | `docs/ux-audit-prompt.md` | pack adonisjs `docs/` (stack Edge) |
 | commitlint.config.js | `commitlint.config.js` | cookbook root |
 | lefthook.yml | `lefthook.yml` | cookbook root |
 | .github/workflows/ (CI) | `.github/workflows/` | (à créer selon stack) |

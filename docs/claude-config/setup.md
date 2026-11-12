@@ -64,7 +64,8 @@ Liste et comptes : `bash $COOKBOOK_DIR/scripts/inventory.sh`.
 ## 3. Compléments recommandés
 
 - **Built-in Claude Code** à connaître : `/init`, `/simplify`, `/code-review`, `/security-review`, `/fewer-permission-prompts`, `/loop`, `/schedule`.
-- **`superpowers@claude-plugins-official`** (discipline de session : brainstorming, writing-plans, systematic-debugging, TDD…). **Règle de routage : le skill cookbook, projet-aware, prime sur l'équivalent superpowers générique** (ex : `/feature` plutôt que `brainstorming` + `writing-plans`, `code-reviewer` plutôt que `requesting-code-review`). Ne jamais enchaîner les deux « par sécurité ». Ordre canonique : process amont → expert cookbook → process aval.
+- **Plan mode natif** (`EnterPlanMode` / `/plan`) pour le plan d'implémentation : `/feature` s'en sert, aucun plugin externe requis.
+- **Plugins de discipline de session** (ex. `superpowers@claude-plugins-official` : systematic-debugging, TDD…) : optionnels. **Règle de routage : un skill ou agent cookbook, projet-aware, prime sur l'équivalent générique d'un plugin** (ex : `/feature` plutôt qu'un brainstorming générique, `code-reviewer` plutôt qu'un skill de review générique). Ne jamais enchaîner les deux « par sécurité ».
 
 ## 4. Vérification post-install
 

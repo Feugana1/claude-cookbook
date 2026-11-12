@@ -18,9 +18,9 @@ L'ancienne approche "spec longue + plan exhaustif inline" produisait des docs de
 
 ## Où mettre le doc
 
-- Si une **doc mère existe** pour le domaine (ex: `docs/workflows.md`, `docs/accounting.md`) : enrichir cette doc plutôt que créer un satellite. Plan → section dans la doc mère.
+- Si une **doc mère existe** pour le domaine (ex: `docs/<domaine>.md`) : enrichir cette doc plutôt que créer un satellite. Plan → section dans la doc mère.
 - Sinon : créer `docs/features/<nom-kebab>.md`.
-- À la fin (feature livrée) : entrée datée dans `docs/dev-changelog.md`, le satellite reste pour archive.
+- À la fin (feature livrée) : entrée datée dans le journal du projet (`docs/dev-changelog.md` ou `docs/lessons.md`), le satellite reste pour archive.
 
 ---
 
@@ -142,7 +142,7 @@ export interface XBody { … }
 ### Lot 1: <nom>
 - **Files** : `path/a.ts`, `path/b.ts`
 - **Status** : ✅ commit `b89d0493` (date)
-- **Verify** : `node ace build --ignore-ts-errors` → ✅ OK
+- **Verify** : `<commande build du projet>` → ✅ OK
 
 ### Lot 2: <nom>
 - **Files** : `path/c.ts`
@@ -153,22 +153,22 @@ export interface XBody { … }
 - **Files** : …
 - **Status** : 🔲 not started
 
-## 6. Quality completeness (13 dimensions — checklist gate avant merge)
+## 6. Quality completeness (checklist gate avant merge)
 
-Cocher chaque dimension. Si une dimension est non-applicable, écrire `N/A — <raison>`.
+Cocher chaque dimension (le compte est celui de la liste ci-dessous). Si une dimension est non-applicable, écrire `N/A — <raison>`.
 
 - [ ] **Threat model §3b re-vérifié** : les 18 classes T1-T18 = SÉCURISÉ ou N/A, findings résolus (**EN AMONT de scan-secu** — le grep statique ne couvre pas ces classes)
-- [ ] **Tests unit** zone critique (NF525 / paiement / sécu multi-tenant) — `node ace test`
-- [ ] **IDOR multi-tenant** : toutes queries ont `.where('userId', effectiveUserId)`
-- [ ] **Soft-delete** : `.whereNull('deletedAt')` sur tables qui en ont (Documents notamment)
+- [ ] **Tests unit** zone critique (paiement, auth, compta/légal, sécu multi-tenant) — commande de test du projet
+- [ ] **IDOR multi-tenant** : toutes queries scopées au tenant (`.where('userId', effectiveUserId)` ou équivalent)
+- [ ] **Soft-delete** : filtre `deletedAt` sur les tables qui en ont
 - [ ] **Dark mode** : vérifié visuellement sur chaque écran modifié
 - [ ] **Mobile responsive** : breakpoints sm/md/lg testés
-- [ ] **i18n FR + EN** : 0 string hardcoded user-facing
-- [ ] **Sentry instrumenté** : 5xx + exceptions critiques (PaymentException, AuthorizationException, jobs)
-- [ ] **Performance** : ≤ 5 queries paralleles par handler, 0 N+1 (preload partout)
+- [ ] **i18n** : 0 string hardcoded user-facing (toutes les locales du projet)
+- [ ] **Observabilité** : 5xx + exceptions critiques (paiement, autorisation, jobs) remontées au tracker d'erreurs du projet
+- [ ] **Performance** : ≤ 5 queries parallèles par handler, 0 N+1 (preload partout)
 - [ ] **A11y** : focus visible, aria-label sur boutons icon-only, contraste WCAG AA
-- [ ] **Anti-patterns** : grep `auth.user.id` / `@click in @include` / `{{{ JSON }}}` / `border border-stone-200` etc. → zéro
-- [ ] **Build prod OK** : `node ace build --ignore-ts-errors` → success
+- [ ] **Anti-patterns** : grep des patterns P0 du catalogue (`docs/anti-patterns.md` + catalogue stack) → zéro
+- [ ] **Build prod OK** : commande de build du projet → success
 - [ ] **Curl golden path** : status 200 sur le parcours principal après auth
 
 ## 7. Risques actifs
@@ -187,7 +187,7 @@ Cocher chaque dimension. Si une dimension est non-applicable, écrire `N/A — <
 
 **Côté code** :
 1. Tous les lots commitable indépendamment ✅
-2. Quality completeness §6 = 12/12 cochés
+2. Quality completeness §6 = toutes les dimensions cochées ou N/A
 3. `scan-secu.sh` → 0 FAIL (étapes touchées)
 4. Pas de régression sur features adjacentes (smoke test manuel)
 
@@ -204,8 +204,8 @@ Cocher chaque dimension. Si une dimension est non-applicable, écrire `N/A — <
 
 1. **Avant code** : remplir §1-4 (why, decisions, architecture, non-goals) + §6 completeness liste + §8 success criteria. Ces 5 sections sont la "spec".
 2. **Pendant code** : MAJ §5 lots (status + commit-id) à chaque commit majeur. C'est le "plan vivant".
-3. **Avant merge** : cocher §6 (12 dimensions). Si une dimension fail → fix avant merge, pas après.
-4. **Après merge** : entrée dans `docs/dev-changelog.md`. Le doc feature reste pour archive (utile pour onboarding + audit).
+3. **Avant merge** : cocher §6. Si une dimension fail → fix avant merge, pas après.
+4. **Après merge** : entrée dans le journal du projet (`docs/dev-changelog.md` ou `docs/lessons.md`). Le doc feature reste pour archive (utile pour onboarding + audit).
 
 ## Anti-patterns à éviter
 
@@ -218,25 +218,10 @@ Cocher chaque dimension. Si une dimension est non-applicable, écrire `N/A — <
 
 ---
 
-## Fichiers de plans actifs
+## Fichiers de plans actifs (à tenir par le projet)
 
-> **Règle** : une fois livrée, la feature reste pour archive + entrée dans [`docs/dev-changelog.md`](dev-changelog.md). Si doc mère existe, on l'enrichit au lieu de créer un satellite.
+> Chaque projet tient ici son propre index : une ligne par feature en cours ou livrée, lien vers `features/<nom>.md`, statut. Une fois livrée, la feature reste pour archive + entrée dans le journal du projet.
 
-| Feature/Fix                                    | Fichier                                                                            | Status                |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------- |
-| Gallery preset unification (Phase 1)           | [features/gallery-preset-unification.md](features/gallery-preset-unification.md)   | 🟡 in_progress (Lots 1-3 livrés) |
-| Feature Management Admin (flags + surfaces)    | [features/feature-management-admin.md](features/feature-management-admin.md)       | 🔲 planning |
-| Google Drive import (defaults + batch durable) | [features/google-drive-import.md](features/google-drive-import.md)                 | 🔲 planning |
-| Contextual messaging per service/gallery       | [features/portal.md](features/portal.md)                                           | 🔲 planning |
-| Subscription cancellation review flow          | [features/subscriptions.md](features/subscriptions.md)                             | 🔲 planning |
-| Storage Add-Ons (packs stockage extensibles)   | [features/storage-addons.md](features/storage-addons.md)                           | 🔲 planning |
-| Cloudflare credits strategy 12 mois            | [features/cloudflare-credits-strategy.md](features/cloudflare-credits-strategy.md) | 🟡 in_progress |
-| Facture électronique France (SuperPDP)         | [features/facture-electronique-france.md](features/facture-electronique-france.md) | 🟡 in_progress (Phase 0 livrée 2026-05-23) |
-
-> S7-04 (uploads résilients) et S7-02 (upload mobile) ont été livrés 2026-05-23. Voir [`docs/roadmap.md`](roadmap.md) pour le backlog actuel.
-
-> Specs Shop Revenue Engine (Phases 0-6) et Booking Conversion Engine (B0-B5) **livrées** (2026-04-21). Source de vérité consolidée : [`docs/boutique-booking-guide.md`](boutique-booking-guide.md).
-
----
-
-_Dernière mise à jour : 2026-05-31 — refonte template format unifié (spec + plan + completeness en 1 doc, ~200L max au lieu de 2561L spec+plan séparés)_
+| Feature/Fix | Fichier | Status |
+|---|---|---|
+| _exemple_ | `features/<nom>.md` | 🔲 planning · 🟡 in_progress · ✅ done |
