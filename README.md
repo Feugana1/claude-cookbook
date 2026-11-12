@@ -191,7 +191,8 @@ Le cookbook est **générique**. Chaque projet doit fournir :
 
 - `PRODUCT.md` (vision produit) et/ou `docs/vision.md`, `docs/roadmap.md`
 - `docs/competitive-benchmark/*.md` (si `product-strategist` utilisé)
-- Docs domain : `docs/architecture.md`, `docs/design-system.md`, `docs/database-neon.md`, `docs/storage-s3.md`, `docs/security-multitenant.md`, etc.
+- `docs/design-system.md` (contrat UI lu par `frontend`, template `docs/templates/design-system.md`)
+- Docs domain : `docs/architecture.md`, `docs/database-neon.md`, `docs/storage-s3.md`, `docs/security-multitenant.md`, etc.
 - `docs/dev-changelog.md` si le projet veut un journal des features livrées (closure de `/feature`) ; sinon la closure note dans `docs/lessons.md`
 - Agents domain projet-specific (compta, marketplace, workflow custom, subscription, public routes, front-architect si UI-heavy, etc.)
 - Extension hook `.claude/hooks/dispatch-expert.local.sh` (sourcé si présent — pour hints domain-specific)

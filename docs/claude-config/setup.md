@@ -65,6 +65,7 @@ Liste et comptes : `bash $COOKBOOK_DIR/scripts/inventory.sh`.
 
 - **Built-in Claude Code** à connaître : `/init`, `/simplify`, `/code-review`, `/security-review`, `/fewer-permission-prompts`, `/loop`, `/schedule`.
 - **Plan mode natif** (`EnterPlanMode` / `/plan`) pour le plan d'implémentation : `/feature` s'en sert, aucun plugin externe requis.
+- **Génération d'UI** (plugins externes type `impeccable`, `ui-ux-pro-max`) : optionnels, pour produire un écran. L'audit et la gate restent `frontend` + le `docs/design-system.md` du projet (template `docs/templates/design-system.md`) : ce contrat prime sur les règles génériques du plugin.
 - **Plugins de discipline de session** (ex. `superpowers@claude-plugins-official` : systematic-debugging, TDD…) : optionnels. **Règle de routage : un skill ou agent cookbook, projet-aware, prime sur l'équivalent générique d'un plugin** (ex : `/feature` plutôt qu'un brainstorming générique, `code-reviewer` plutôt qu'un skill de review générique). Ne jamais enchaîner les deux « par sécurité ».
 
 ## 4. Vérification post-install
@@ -86,4 +87,5 @@ Liste et comptes : `bash $COOKBOOK_DIR/scripts/inventory.sh`.
 | Hook bloque légitimement | action OK ponctuellement | convention `// canonical-skip:<rule>:<reason>` dans le diff, jamais `--no-verify` |
 | `settings.local.json` grossit | accumulation one-shot | skill `fewer-permission-prompts` |
 | `product-strategist` rend `BLOCKED-SETUP` | pas de `PRODUCT.md` / `docs/vision.md` | créer une vision minimale (`docs/templates/PRODUCT.md`) |
+| `frontend` rend `BLOCKED-SETUP` | pas de `docs/design-system.md` | créer le contrat design (`docs/templates/design-system.md`) |
 | Un expert cite un doc absent (`docs/security-multitenant.md`…) | doc domain non fournie | créer le doc projet ou retirer la référence |
