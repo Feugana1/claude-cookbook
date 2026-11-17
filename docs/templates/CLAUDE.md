@@ -142,8 +142,13 @@ the docs/anti-patterns.md detail row when appropriate).
 
 - Subagent for mechanical, scoped-research or parallelizable work; the
   parent keeps reasoning and synthesis. Cheapest sufficient model:
-  Haiku mechanical, Sonnet exploration, Opus tradeoffs. Each agent
-  declares `model` + `effort` in its frontmatter.
+  Haiku mechanical, Sonnet exploration and implementation lots with a
+  spec, Opus only for architecture/compliance tradeoffs (pass
+  `model: "opus"` explicitly). Each agent declares `model` + `effort` in
+  its frontmatter; `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` (settings `env`)
+  is the default for calls without one, so nothing inherits Opus. Put
+  `env` in the user-level settings too: per-project settings do not
+  reach git worktrees opened as separate projects.
 - Code graph / index tool before grep + Read when the repo has one.
 - PDFs: `pdftotext`, never Read (unless analysing images).
 - Known file: read it directly, no search.

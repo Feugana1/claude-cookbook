@@ -1,7 +1,7 @@
 ---
 name: analyzer
 description: "Use PROACTIVELY for root cause analysis of bugs, incidents, regressions - 5 Whys, ranked hypotheses, reproduction first. Triggers on \"je comprends pas pourquoi\", \"bizarre\", \"ça marchait avant\", \"root cause\"."
-model: opus
+model: sonnet
 effort: high
 tools: Read, Grep, Glob, Bash, WebSearch
 ---

@@ -2,7 +2,7 @@
 name: code-reviewer
 description: "Use PROACTIVELY BEFORE git commit when staged diff is non-trivial (2+ files, 50+ lines, app/, views, migrations, routes). PR-style review using scan-secu output, verdict SHIP / NEEDS CHANGES / REJECT. Triggers on \"review my changes\", \"relis avant push\". Replaces generic reviewer."
 model: sonnet
-effort: high
+effort: medium
 tools: Read, Grep, Glob, Bash
 ---
 

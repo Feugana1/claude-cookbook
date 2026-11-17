@@ -2,7 +2,7 @@
 name: reviewer
 description: "Final review gate before git commit when no stack reviewer is installed - readability, maintainability, consistency, refactor extraction. Triggers on \"review this code\", \"before commit\", \"relis avant push\"."
 model: sonnet
-effort: high
+effort: medium
 tools: Read, Grep, Glob, Bash
 ---
 
