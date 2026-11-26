@@ -20,7 +20,7 @@ if skip_if_diff; then :; elif command -v trivy &>/dev/null; then
   elif [ -z "$TRIVY_OUT" ]; then
     pass "No HIGH/CRITICAL vulnerabilities (Trivy)"
   else
-    TRIVY_COUNT=$(echo "$TRIVY_OUT" | grep -c "HIGH\|CRITICAL" || echo "0")
+    TRIVY_COUNT=$(echo "$TRIVY_OUT" | grep -c "HIGH\|CRITICAL" || true)
     warn "$TRIVY_COUNT Trivy findings — run 'trivy fs --severity HIGH,CRITICAL .' for details"
   fi
 else

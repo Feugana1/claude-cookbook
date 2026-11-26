@@ -14,8 +14,9 @@ else
   for f in $WEBHOOK_FILES; do
     # Détecte fichiers webhook qui font des INSERT/UPDATE/SAVE/PAYMENT sans
     # vérification signature préalable (constructEvent / verifyWebhook / HMAC verify)
-    HAS_BUSINESS_LOGIC=$(grep -cE "\.save\(\)|\.create\(|\.update\(|PaymentService|InvoiceService|markAsPaid|fulfillOrder" "$f" 2>/dev/null || echo "0")
-    HAS_SIG_CHECK=$(grep -cE "constructEvent|verifyWebhook|verifyHmac|crypto\.timingSafeEqual|signature\s*===|webhookSecret" "$f" 2>/dev/null || echo "0")
+    HAS_BUSINESS_LOGIC=$(grep -cE "\.save\(\)|\.create\(|\.update\(|PaymentService|InvoiceService|markAsPaid|fulfillOrder" "$f" 2>/dev/null || true)
+    HAS_SIG_CHECK=$(grep -cE "constructEvent|verifyWebhook|verifyHmac|crypto\.timingSafeEqual|signature\s*===|webhookSecret" "$f" 2>/dev/null || true)
+    HAS_BUSINESS_LOGIC=${HAS_BUSINESS_LOGIC:-0}; HAS_SIG_CHECK=${HAS_SIG_CHECK:-0}
     if [ "$HAS_BUSINESS_LOGIC" -gt 0 ] && [ "$HAS_SIG_CHECK" -eq 0 ]; then
       WEBHOOK_GAPS="${WEBHOOK_GAPS}    - $f : business logic without signature check"$'\n'
     fi
