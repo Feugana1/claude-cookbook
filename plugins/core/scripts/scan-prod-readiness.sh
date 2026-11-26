@@ -26,7 +26,7 @@ has_dep() {
   local pkg="$TARGET/package.json"
   [ -f "$pkg" ] || return 1
   # Escape regex, convert * to .*
-  local re=$(printf '%s' "$pattern" | sed 's|/|\\/|g; s|\*|[^"]*|g')
+  local re; re=$(printf '%s' "$pattern" | sed 's|/|\\/|g; s|\*|[^"]*|g')
   grep -qE "\"$re\":" "$pkg"
 }
 
@@ -52,7 +52,7 @@ declare -a SIGNALS_JSON
 add_signal() {
   local domain="$1" name="$2" evidence="$3"
   # JSON-safe escape
-  local ev_esc=$(printf '%s' "$evidence" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  local ev_esc; ev_esc=$(printf '%s' "$evidence" | sed 's/\\/\\\\/g; s/"/\\"/g')
   SIGNALS_JSON+=("{\"domain\":\"$domain\",\"signal\":\"$name\",\"evidence\":\"$ev_esc\"}")
 }
 

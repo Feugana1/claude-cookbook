@@ -28,7 +28,7 @@ Version **durcie AdonisJS** du rôle générique `reviewer` : même exigence de 
 
 # Méthode
 
-### 1. Scope du diff
+## 1. Scope du diff
 
 ```bash
 git diff --cached --stat && git diff --cached --name-only

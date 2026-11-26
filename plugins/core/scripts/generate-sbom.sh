@@ -37,7 +37,7 @@ npx --yes @cyclonedx/cdxgen@latest \
 
 # --- 2. CDN patch: Alpine + Turbo (not in package-lock.json) ---------------
 TMP="$(mktemp -d)"
-trap "rm -rf $TMP" EXIT
+trap 'rm -rf "$TMP"' EXIT
 
 cat > "$TMP/patch.json" <<'PATCH_EOF'
 [

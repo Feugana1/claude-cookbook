@@ -198,6 +198,7 @@ STEP_ARR=()
 while IFS= read -r _f; do [ -n "$_f" ] && STEP_ARR+=("$_f"); done <<< "$STEP_FILES"
 for step_file in "${STEP_ARR[@]}"; do
   [ -f "$step_file" ] || continue
+  # shellcheck source=/dev/null
   source "$step_file"
 done
 

@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@v4
 
       # shellcheck est préinstallé sur ubuntu-latest et signale aussi les erreurs de syntaxe.
-      - name: shellcheck (errors only)
-        run: find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 shellcheck --severity=error --external-sources
+      - name: shellcheck (warnings+)
+        run: find . -name '*.sh' -not -path './.git/*' -print0 | xargs -0 shellcheck --severity=warning --external-sources
 
       - name: JSON validity
         run: find . -name '*.json' -not -path './.git/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 jq empty
@@ -29,6 +29,10 @@ jobs:
 
       - name: scan-secu steps detect bad fixtures and pass clean ones
         run: bash scripts/test-scan-secu-steps.sh
+      - name: Test precommit hook
+        run: bash scripts/test-precommit-hook.sh
+      - name: markdownlint
+        run: npx --yes markdownlint-cli@0.42.0 '**/*.md' --ignore node_modules --ignore 'plugins/**/skills/**/references'
 
       - name: no project-specific names (patterns in repository variable LEAK_PATTERN)
         env:

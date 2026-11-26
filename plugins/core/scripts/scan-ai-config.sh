@@ -49,7 +49,7 @@ check_dir_nonempty() {
   local status="MISSING" evidence="dir absent or empty : $path"
 
   if [ -d "$full" ] && [ -n "$(ls -A "$full" 2>/dev/null || true)" ]; then
-    local count=$(find "$full" -type f 2>/dev/null | wc -l | tr -d ' ')
+    local count; count=$(find "$full" -type f 2>/dev/null | wc -l | tr -d ' ')
     status="PRESENT"; evidence="$count file(s) in $path"
   elif [ -d "$full" ]; then
     status="PARTIAL"; evidence="dir exists but empty : $path"

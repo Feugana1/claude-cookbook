@@ -27,7 +27,7 @@ Version **durcie Expo** du rôle générique `reviewer` : même exigence de lisi
 
 # Méthode
 
-### 1. Scope du diff
+## 1. Scope du diff
 
 `git diff --cached --stat && git diff --cached --name-only` — Trivial (< 2 fichiers, < 50 L, docs) / Standard (2-10 fichiers) / Substantial (> 10 fichiers, > 300 L : recommander un split).
 

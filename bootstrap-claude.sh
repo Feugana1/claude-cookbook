@@ -397,7 +397,7 @@ fi
 
 # ── Récap ───────────────────────────────────────────────────────────────────
 echo ""
-echo -e "${BOLD}══ Terminé$([ "$DRY" = true ] && echo ' (dry-run : rien n’a été écrit)') ══${NC}"
+echo -e "${BOLD}══ Terminé$([ "$DRY" = true ] && echo ' (dry-run : aucune écriture)') ══${NC}"
 echo "  ajoutés : $N_ADDED · mis à jour : $N_UPDATED · identiques : $N_SAME · retirés : $N_RETIRED · conservés (projet) : $N_KEPT · adaptés conservés : $N_CUSTOM · exclus (.cookbook-ignore) : $N_IGNORED"
 if [ -n "$BACKUP_DIR" ]; then
   echo -e "  sauvegardes : ${BLUE}$(rel_of "$BACKUP_DIR")${NC} (à ajouter au .gitignore)"

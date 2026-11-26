@@ -136,6 +136,7 @@ La règle interdit les **lignes lourdes**, pas toutes les bordures. Différencie
 **Quand changer un `border-b stone-200` existant** : passer à tonal shift `bg-stone-50/40` OU à `border-b stone-100` (selon contexte). Le tonal convient si parent est card-in-card hiérarchie. La light border convient si simple séparation header/body dans une card unique.
 
 ### Z-index scale obligatoire
+
 | Usage | Valeur |
 |-------|--------|
 | sticky header/bar | `z-10` |
