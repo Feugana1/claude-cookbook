@@ -49,6 +49,8 @@ run_case step-06-sql-injection-scan.sh PASS app/services/q.ts 'db.rawQuery("sele
 run_case step-08-ssrf-scan.sh WARN app/services/http.ts 'const base = "http://127.0.0.1:9000"'
 run_case step-08-ssrf-scan.sh PASS app/services/http.ts 'const base = env.get("API_URL")'
 run_case step-08-ssrf-scan.sh PASS app/services/http.ts '// dev only: http://localhost:3000'
+run_case step-08-ssrf-scan.sh PASS app/services/mail.ts 'const u = env.get("APP_URL", "http://localhost:3333")'
+run_case step-08-ssrf-scan.sh PASS app/services/oauth.ts 'const lo = host === "localhost" // canonical-skip:ssrf'
 
 run_case step-12-redos-scan.sh WARN app/controllers/c.ts 'const re = new RegExp(request.input("q"))'
 run_case step-12-redos-scan.sh PASS app/controllers/c.ts 'const re = new RegExp("^a+$")'

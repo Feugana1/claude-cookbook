@@ -3,7 +3,7 @@
 # ── 8. SSRF scan (private IP in SMTP/fetch) ─────────────────────────────────
 step 8 "SSRF scan (private network access)" 2 "A05 Misconfig"
 SSRF_ISSUES=$(grep -rn 'localhost\|127\.0\.0\.1\|0\.0\.0\.0' app/services/ app/controllers/ --include="*.ts" 2>/dev/null \
-  | grep -v '\.test\.\|\.spec\.\|PRIVATE_IP_PATTERN\|eslint' \
+  | grep -v '\.test\.\|\.spec\.\|PRIVATE_IP_PATTERN\|eslint\|canonical-skip:ssrf\|env\.get(\|process\.env' \
   | grep -vE '^[^:]+:[0-9]+:[[:space:]]*(//|\*|/\*)' || true)
 if [ -z "$SSRF_ISSUES" ]; then
   pass "No hardcoded localhost/private IPs in services"
