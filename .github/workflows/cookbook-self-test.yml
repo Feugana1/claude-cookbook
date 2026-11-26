@@ -27,6 +27,9 @@ jobs:
       - name: agents and skills frontmatter (strict YAML)
         run: ruby scripts/check-frontmatter.rb
 
+      - name: scan-secu steps detect bad fixtures and pass clean ones
+        run: bash scripts/test-scan-secu-steps.sh
+
       - name: no project-specific names (patterns in repository variable LEAK_PATTERN)
         env:
           LEAK_PATTERN: ${{ vars.LEAK_PATTERN }}
